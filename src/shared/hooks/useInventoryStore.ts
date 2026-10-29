@@ -1,0 +1,265 @@
+import { create } from 'zustand';
+import {
+  collection,
+  doc,
+  getDocs,
+  addDoc,
+  updateDoc,
+  deleteDoc,
+  query,
+  orderBy,
+  Timestamp,
+} from 'firebase/firestore';
+import { db } from '../services/firebase';
+import {
+  InventoryItem,
+  InventoryPurchase,
+  InventoryConsumption,
+  PRELOADED_INVENTORY_MASTER,
+} from '../types/inventory';
+import { useAuthStore } from './useAuthStore';
+import { useLedgerStore } from './useLedgerStore';
+import { logger } from '../services/logger';
+
+interface InventoryStore {
+  items: InventoryItem[];
+  purchases: InventoryPurchase[];
+  consumptions: InventoryConsumption[];
+  isLoading: boolean;
+
+  fetchItems: () => Promise<void>;
+  createItem: (item: Partial<InventoryItem>) => Promise<void>;
+  updateItem: (id: string, updates: Partial<InventoryItem>) => Promise<void>;
+  deleteItem: (id: string) => Promise<void>;
+  purchaseStock: (purchase: Partial<InventoryPurchase>) => Promise<void>;
+  issueStockToCrop: (consumption: Partial<InventoryConsumption>) => Promise<void>;
+  fetchPurchases: () => Promise<void>;
+  fetchConsumptions: () => Promise<void>;
+  seedDefaultItems: () => Promise<void>;
+}
+
+function getUserMobile(): string {
+  const user = useAuthStore.getState().user;
+  if (!user?.mobileNumber) throw new Error('User not authenticated');
+  let cleanMobile = user.mobileNumber.replace(/\D/g, '');
+  if (cleanMobile.length === 12 && cleanMobile.startsWith('91')) {
+    cleanMobile = cleanMobile.substring(2);
+  }
+  return cleanMobile;
+}
+
+function getItemsRef() {
+  return collection(db, 'users', getUserMobile(), 'inventory_items');
+}
+
+function getPurchasesRef() {
+  return collection(db, 'users', getUserMobile(), 'inventory_purchases');
+}
+
+function getConsumptionsRef() {
+  return collection(db, 'users', getUserMobile(), 'inventory_consumptions');
+}
+
+export const useInventoryStore = create<InventoryStore>((set, get) => ({
+  items: [],
+  purchases: [],
+  consumptions: [],
+  isLoading: false,
+
+  fetchItems: async () => {
+    set({ isLoading: true });
+    try {
+      const snap = await getDocs(getItemsRef());
+      const items = snap.docs.map((d) => ({ id: d.id, ...d.data() } as InventoryItem));
+      set({ items, isLoading: false });
+      if (items.length === 0) {
+        await get().seedDefaultItems();
+      }
+    } catch (err) {
+      logger.error('fetchItems error:', err);
+      set({ isLoading: false });
+    }
+  },
+
+  createItem: async (item: Partial<InventoryItem>) => {
+    const now = Timestamp.now();
+    const data = { ...item, currentStock: item.currentStock || 0, createdAt: now, updatedAt: now };
+    const docRef = await addDoc(getItemsRef(), data);
+    set((s) => ({ items: [...s.items, { id: docRef.id, ...data } as InventoryItem] }));
+  },
+
+  updateItem: async (id: string, updates: Partial<InventoryItem>) => {
+    const updateData = { ...updates, updatedAt: Timestamp.now() };
+    await updateDoc(doc(getItemsRef(), id), updateData);
+    set((s) => ({
+      items: s.items.map((i) => (i.id === id ? { ...i, ...updateData } as InventoryItem : i)),
+    }));
+  },
+
+  deleteItem: async (id: string) => {
+    await deleteDoc(doc(getItemsRef(), id));
+    set((s) => ({ items: s.items.filter((i) => i.id !== id) }));
+  },
+
+  purchaseStock: async (purchase: Partial<InventoryPurchase>) => {
+    const now = Timestamp.now();
+    const data = {
+      ...purchase,
+      timestamp: new Date().toISOString(),
+      createdAt: now,
+      updatedAt: now,
+    };
+    const docRef = await addDoc(getPurchasesRef(), data);
+
+    // Increase stock quantity (Purchase ≠ Expense — Business Rule #1)
+    const item = get().items.find((i) => i.id === purchase.itemId);
+    if (item) {
+      const newStock = (item.currentStock || 0) + (purchase.quantity || 0);
+      const newTotalPurchased = (item.totalPurchased || 0) + (purchase.quantity || 0);
+      const newRate = purchase.rate || item.purchaseRate;
+      const newTotalVal = newStock * newRate;
+      await get().updateItem(item.id, {
+        currentStock: newStock,
+        totalPurchased: newTotalPurchased,
+        purchaseRate: newRate,
+        totalValue: newTotalVal,
+      });
+    }
+
+    // Auto-posting to ledger: if credit -> party ledger payable; if cash -> cash outflow
+    if (purchase.paymentMode === 'credit') {
+      await useLedgerStore.getState().createTransaction({
+        type: 'expense',
+        ledgerType: 'party',
+        category: 'कृषी इनपुट खरेदी (Stock In)',
+        partyName: purchase.supplierName || 'कृषी सेवा केंद्र',
+        amount: purchase.totalAmount || 0,
+        date: purchase.date || new Date().toISOString().split('T')[0],
+        paymentMode: 'credit',
+        pendingAmount: purchase.totalAmount || 0,
+        billNumber: purchase.billNumber,
+        notes: `[साठा खरेदी / Stock Inward] ${purchase.itemName} (${purchase.quantity} ${purchase.unit || ''} @ ₹${purchase.rate})`.trim(),
+        isAutoGenerated: true,
+      });
+    } else {
+      await useLedgerStore.getState().createTransaction({
+        type: 'expense',
+        ledgerType: 'personal',
+        category: 'other_expense',
+        amount: purchase.totalAmount || 0,
+        date: purchase.date || new Date().toISOString().split('T')[0],
+        paymentMode: purchase.paymentMode || 'cash',
+        partyName: purchase.supplierName || 'कृषी सेवा केंद्र',
+        notes: `[साठा खरेदी रोख / Stock Purchase] ${purchase.itemName} (${purchase.quantity} ${purchase.unit || ''} @ ₹${purchase.rate})`.trim(),
+        isAutoGenerated: true,
+      });
+    }
+
+    set((s) => ({
+      purchases: [{ id: docRef.id, ...data } as InventoryPurchase, ...s.purchases],
+    }));
+  },
+
+  issueStockToCrop: async (consumption: Partial<InventoryConsumption>) => {
+    const item = get().items.find((i) => i.id === consumption.itemId);
+    if (!item) throw new Error('Item not found');
+
+    // Business Rule #12: Stock sufficiency check
+    if ((consumption.quantity || 0) > item.currentStock) {
+      throw new Error(`पुरेसा साठा उपलब्ध नाही! शिल्लक साठा: ${item.currentStock} ${item.unit}`);
+    }
+
+    const rate = consumption.rate || item.purchaseRate;
+    const totalAmount = (consumption.quantity || 0) * rate;
+    const now = Timestamp.now();
+    const data = {
+      ...consumption,
+      unit: item.unit,
+      rate,
+      totalAmount,
+      totalExpense: totalAmount,
+      timestamp: new Date().toISOString(),
+      createdAt: now,
+      updatedAt: now,
+    };
+    const docRef = await addDoc(getConsumptionsRef(), data);
+
+    // Deduct from stock
+    const newStock = item.currentStock - (consumption.quantity || 0);
+    const newTotalConsumed = (item.totalConsumed || 0) + (consumption.quantity || 0);
+    const newTotalVal = newStock * item.purchaseRate;
+    await get().updateItem(item.id, {
+      currentStock: newStock,
+      totalConsumed: newTotalConsumed,
+      totalValue: newTotalVal,
+    });
+
+    // Business Rule #2: Issue to Crop = Real Expense — auto-post expense entry
+    let expenseCategory = 'otherAgri';
+    if (item.type === 'fertilizer') expenseCategory = 'fertilizers';
+    else if (item.type === 'seed') expenseCategory = 'seeds';
+    else if (item.type === 'pesticide') expenseCategory = 'pesticides';
+
+    await useLedgerStore.getState().createTransaction({
+      type: 'expense',
+      ledgerType: 'agriculture',
+      category: expenseCategory,
+      amount: totalAmount,
+      date: consumption.date || new Date().toISOString().split('T')[0],
+      paymentMode: 'cash',
+      plotId: consumption.plotId,
+      plotName: consumption.plotName,
+      cropId: consumption.cropId,
+      cropName: consumption.cropName,
+      cropSeason: consumption.cropSeason,
+      notes: `[साठ्यातून वापर / Material Issue] ${item.name} (${consumption.quantity} ${item.unit} @ ₹${rate}). ${consumption.notes || ''}`.trim(),
+      isAutoGenerated: true,
+      autoEntryType: 'inventory_issue',
+      isLocked: true,
+    });
+
+    set((s) => ({
+      consumptions: [{ id: docRef.id, ...data } as InventoryConsumption, ...s.consumptions],
+    }));
+  },
+
+  fetchPurchases: async () => {
+    try {
+      let snap;
+      try {
+        const q = query(getPurchasesRef(), orderBy('createdAt', 'desc'));
+        snap = await getDocs(q);
+      } catch {
+        snap = await getDocs(getPurchasesRef());
+      }
+      const purchases = snap.docs.map((d) => ({ id: d.id, ...d.data() } as InventoryPurchase));
+      purchases.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+      set({ purchases });
+    } catch (err) {
+      logger.error('fetchPurchases error:', err);
+    }
+  },
+
+  fetchConsumptions: async () => {
+    try {
+      let snap;
+      try {
+        const q = query(getConsumptionsRef(), orderBy('createdAt', 'desc'));
+        snap = await getDocs(q);
+      } catch {
+        snap = await getDocs(getConsumptionsRef());
+      }
+      const consumptions = snap.docs.map((d) => ({ id: d.id, ...d.data() } as InventoryConsumption));
+      consumptions.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+      set({ consumptions });
+    } catch (err) {
+      logger.error('fetchConsumptions error:', err);
+    }
+  },
+
+  seedDefaultItems: async () => {
+    for (const item of PRELOADED_INVENTORY_MASTER) {
+      await get().createItem(item);
+    }
+  },
+}));

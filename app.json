@@ -1,0 +1,59 @@
+{
+  "expo": {
+    "name": "FarmerLedgerRN",
+    "slug": "FarmerLedgerRN",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "scheme": "farmerledger",
+    "ios": {
+      "supportsTablet": true
+    },
+    "newArchEnabled": false,
+    "android": {
+      "package": "com.farmerledger.app",
+      "adaptiveIcon": {
+        "backgroundColor": "#E6F4FE",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false,
+      "softwareKeyboardLayoutMode": "pan"
+    },
+    "androidStatusBar": {
+      "barStyle": "dark-content",
+      "backgroundColor": "transparent",
+      "translucent": true
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-font",
+      "expo-sharing",
+      "expo-status-bar",
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Allow FarmerLedger to use your location for GPS tagging plots."
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow FarmerLedger to access your photos for bill scanning.",
+          "cameraPermission": "Allow FarmerLedger to use the camera for bill scanning."
+        }
+      ],
+      "expo-localization"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "b63fe2ba-6788-4576-bdd0-fafe995c266f"
+      }
+    },
+    "owner": "kj.patil"
+  }
+}
