@@ -8,7 +8,6 @@ const TAB_COLORS: Record<string, { active: string; bg: string }> = {
   DashboardTab: { active: '#16A34A', bg: '#DCFCE7' },
   PlotsTab:     { active: '#2563EB', bg: '#DBEAFE' },
   LedgerTab:    { active: '#D97706', bg: '#FEF3C7' },
-  InventoryTab: { active: '#7C3AED', bg: '#EDE9FE' },
   SettingsTab:  { active: '#64748B', bg: '#F1F5F9' },
 };
 

@@ -1,9 +1,8 @@
 import { initializeApp, FirebaseApp } from 'firebase/app';
-import { Auth } from 'firebase/auth';
-// @ts-expect-error RN-specific exports resolved by Metro at runtime
-import { initializeAuth, getReactNativePersistence } from '@firebase/auth';
+import { initializeAuth, getAuth, getReactNativePersistence, Auth } from 'firebase/auth';
 import { getFirestore, Firestore } from 'firebase/firestore';
 import { getStorage, FirebaseStorage } from 'firebase/storage';
+import { Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const firebaseConfig = {
@@ -23,9 +22,11 @@ let storage: FirebaseStorage;
 
 try {
   app = initializeApp(firebaseConfig);
-  auth = initializeAuth(app, {
-    persistence: getReactNativePersistence(AsyncStorage),
-  });
+  auth = Platform.OS === 'web'
+    ? getAuth(app)
+    : initializeAuth(app, {
+        persistence: getReactNativePersistence(AsyncStorage),
+      });
   db = getFirestore(app);
   storage = getStorage(app);
 } catch (e) {

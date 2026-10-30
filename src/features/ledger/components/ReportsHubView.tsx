@@ -15,7 +15,6 @@ import * as Sharing from 'expo-sharing';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../../app/providers/ThemeProvider';
 import { useLedgerStore } from '../../../shared/hooks/useLedgerStore';
-import { useInventoryStore } from '../../../shared/hooks/useInventoryStore';
 import { Card } from '../../../components/ui/Card';
 import { Button } from '../../../components/ui/Button';
 import { Badge } from '../../../components/ui/Badge';
@@ -36,7 +35,6 @@ import {
   TrendingUp,
   TrendingDown,
   Users,
-  Package,
   Calendar,
 } from 'lucide-react-native';
 
@@ -50,8 +48,7 @@ type ReportKey =
   | 'dairy_report'
   | 'income_report'
   | 'expense_report'
-  | 'party_loan_report'
-  | 'input_stock';
+  | 'party_loan_report';
 
 interface ReportDef {
   key: ReportKey;
@@ -70,14 +67,12 @@ const REPORT_TABS: ReportDef[] = [
   { key: 'income_report', labelKey: 'report_income_report', descKey: 'report_income_report_desc' },
   { key: 'expense_report', labelKey: 'report_expense_report', descKey: 'report_expense_report_desc' },
   { key: 'party_loan_report', labelKey: 'report_party_loan_report', descKey: 'report_party_loan_report_desc' },
-  { key: 'input_stock', labelKey: 'report_input_stock', descKey: 'report_input_stock_desc' },
 ];
 
 export function ReportsHubView() {
   const { t } = useTranslation();
   const { colors } = useTheme();
   const { transactions } = useLedgerStore();
-  const { items: inventoryItems, consumptions: inventoryConsumptions } = useInventoryStore();
   const { fmtCurrency, toNative, fmtDMY } = useLocalizedFormat();
 
   const [selectedReport, setSelectedReport] = useState<ReportKey>('ledger');
@@ -120,7 +115,6 @@ export function ReportsHubView() {
           return tx.type === 'expense';
         case 'party_loan_report':
           return tx.ledgerType === 'party' || !!tx.partyName || tx.incomeCategory === 'loan';
-        case 'input_stock':
         case 'ledger':
         default:
           return true;
@@ -148,24 +142,6 @@ export function ReportsHubView() {
 
   // CSV Generator
   const generateCSV = (): string => {
-    if (selectedReport === 'input_stock') {
-      const header = 'Item Name,Category,Current Stock,Unit,Purchase Rate (₹),Total Valuation (₹),Status';
-      const rows = inventoryItems.map((item) =>
-        [
-          item.name,
-          tCategory(item.category || item.type, t),
-          item.currentStock,
-          item.unit,
-          item.purchaseRate,
-          item.currentStock * item.purchaseRate,
-          item.currentStock <= (item.minStockThreshold || 5) ? t('lowStock') : t('available'),
-        ]
-          .map((v) => `"${String(v).replace(/"/g, '""')}"`)
-          .join(',')
-      );
-      return CSV_BOM + header + '\n' + rows.join('\n');
-    }
-
     const header = 'Date,Type,Category,Amount (₹),Payment Mode,Party Name,Plot,Crop,Bill Number,Notes';
     const rows = filteredData.map((tx) =>
       [

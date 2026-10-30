@@ -4,10 +4,9 @@ import { useTranslation } from 'react-i18next';
 import { DashboardScreen } from '../../features/dashboard/screens/DashboardScreen';
 import { PlotsStack } from './PlotsStack';
 import { LedgerScreen } from '../../features/ledger/screens/LedgerScreen';
-import { InventoryScreen } from '../../features/inventory/screens/InventoryScreen';
 import { SettingsScreen } from '../../features/settings/screens/SettingsScreen';
 import { CustomTabBar } from '../../components/navigation/CustomTabBar';
-import { LayoutDashboard, Map, BookOpen, Package, Settings } from 'lucide-react-native';
+import { LayoutDashboard, Map, BookOpen, Settings } from 'lucide-react-native';
 
 const Tab = createBottomTabNavigator();
 
@@ -41,14 +40,6 @@ export function MainTabNavigator() {
         options={{
           tabBarLabel: t('ledger'),
           tabBarIcon: ({ color, size, focused }) => <BookOpen color={color} size={size} fill={focused ? color : 'none'} strokeWidth={focused ? 1.5 : 2} />,
-        }}
-      />
-      <Tab.Screen
-        name="InventoryTab"
-        component={InventoryScreen}
-        options={{
-          tabBarLabel: t('inventory'),
-          tabBarIcon: ({ color, size, focused }) => <Package color={color} size={size} fill={focused ? color : 'none'} strokeWidth={focused ? 1.5 : 2} />,
         }}
       />
       <Tab.Screen
