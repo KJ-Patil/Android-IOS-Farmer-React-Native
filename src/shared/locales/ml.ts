@@ -191,6 +191,7 @@ export default {
   overallExpense: 'ആകെ ചെലവ്',
   dairyFarming: 'ക്ഷീര കൃഷി',
   addFarm: 'ഫാം ചേർക്കുക',
+  editFarm: 'ഫാം എഡിറ്റ് ചെയ്യുക',
   farmName: 'ഫാമിന്റെ പേര്',
   farmType: 'ഫാം തരം',
   farmNamePlaceholder: 'ഉദാ: പശു ഫാം',

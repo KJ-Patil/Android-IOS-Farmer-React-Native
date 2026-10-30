@@ -6,6 +6,8 @@ import { useLedgerStore } from '../../../shared/hooks/useLedgerStore';
 import { usePlotStore } from '../../../shared/hooks/usePlotStore';
 import { useNotebookFarmStore, FarmType } from '../../../shared/hooks/useNotebookFarmStore';
 import { AddFarmModal } from './AddFarmModal';
+import { EditFarmModal } from './EditFarmModal';
+import type { NotebookFarm } from '../../../shared/hooks/useNotebookFarmStore';
 import { Card } from '../../../components/ui/Card';
 import { Badge } from '../../../components/ui/Badge';
 import { useLocalizedFormat } from '../../../shared/hooks/useLocalizedFormat';
@@ -49,6 +51,7 @@ export function NotebookLedgerView({ onMoneyIn, onMoneyOut, onScanBill, onCustom
 
   const [selectedFilter, setSelectedFilter] = useState<string | null>(null);
   const [addFarmVisible, setAddFarmVisible] = useState(false);
+  const [editingFarm, setEditingFarm] = useState<NotebookFarm | null>(null);
 
   useEffect(() => { fetchPlots(); fetchFarms(); }, []);
 
@@ -204,11 +207,12 @@ export function NotebookLedgerView({ onMoneyIn, onMoneyOut, onScanBill, onCustom
           <View style={styles.kpiGrid}>
             {summaries.farmStats.map((fs) => {
               const isActive = selectedFilter === `farm_${fs.id}`;
+              const farmObj = farms.find((f) => f.id === fs.id);
               return (
                 <TouchableOpacity
                   key={fs.id}
-                  onPress={() => toggleFilter(`farm_${fs.id}`)}
-                  onLongPress={() => handleDeleteFarm(fs.id)}
+                  onPress={() => { if (farmObj) setEditingFarm(farmObj); }}
+                  onLongPress={() => toggleFilter(`farm_${fs.id}`)}
                   activeOpacity={0.7}
                   style={[
                     styles.kpiCard,
@@ -343,6 +347,9 @@ export function NotebookLedgerView({ onMoneyIn, onMoneyOut, onScanBill, onCustom
       )}
     />
     <AddFarmModal visible={addFarmVisible} onClose={() => { setAddFarmVisible(false); fetchFarms(); }} />
+    {editingFarm && (
+      <EditFarmModal farm={editingFarm} onClose={() => { setEditingFarm(null); fetchFarms(); }} />
+    )}
     </>
   );
 }

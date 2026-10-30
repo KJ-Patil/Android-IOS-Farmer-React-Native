@@ -191,6 +191,7 @@ export default {
   overallExpense: 'ਕੁੱਲ ਖਰਚ',
   dairyFarming: 'ਡੇਅਰੀ ਫਾਰਮਿੰਗ',
   addFarm: 'ਫਾਰਮ ਜੋੜੋ',
+  editFarm: 'ਫਾਰਮ ਸੰਪਾਦਿਤ ਕਰੋ',
   farmName: 'ਫਾਰਮ ਦਾ ਨਾਮ',
   farmType: 'ਫਾਰਮ ਦੀ ਕਿਸਮ',
   farmNamePlaceholder: 'ਜਿਵੇਂ: ਗਾਂ ਫਾਰਮ',

@@ -30,8 +30,6 @@ import { useLocalizedFormat } from '../../../shared/hooks/useLocalizedFormat';
 import { tCategory, tPaymentMode } from '../../../shared/utils/helpers';
 import { LinearGradient } from 'expo-linear-gradient';
 import {
-  TrendingUp,
-  TrendingDown,
   Plus,
   X,
   Sun,
@@ -394,10 +392,7 @@ export function DashboardScreen({ navigation }: any) {
         {/* 2 KPI Cards: Revenue & Expenses */}
         <View style={styles.kpiGrid}>
           <View style={[styles.kpiCard, { backgroundColor: colors.card }]}>
-            <View style={styles.kpiHeader}>
-              <Text style={[styles.kpiLabel, { color: colors.mutedFg }]}>{t('totalRevenue')}</Text>
-              <TrendingUp color="#16A34A" size={18} />
-            </View>
+            <Text style={[styles.kpiLabel, { color: colors.mutedFg }]}>{t('totalRevenue')}</Text>
             <Text style={[styles.kpiValue, { color: '#16A34A' }]}>
               {formatC(totalRevenue)}
             </Text>
@@ -407,10 +402,7 @@ export function DashboardScreen({ navigation }: any) {
           </View>
 
           <View style={[styles.kpiCard, { backgroundColor: colors.card }]}>
-            <View style={styles.kpiHeader}>
-              <Text style={[styles.kpiLabel, { color: colors.mutedFg }]}>{t('totalExpenses')}</Text>
-              <TrendingDown color="#DC2626" size={18} />
-            </View>
+            <Text style={[styles.kpiLabel, { color: colors.mutedFg }]}>{t('totalExpenses')}</Text>
             <Text style={[styles.kpiValue, { color: '#DC2626' }]}>
               {formatC(totalExpenses)}
             </Text>
@@ -826,7 +818,6 @@ const styles = StyleSheet.create({
   contentPadding: { paddingHorizontal: 16, marginTop: 16 },
   kpiGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', marginBottom: 16 },
   kpiCard: { width: '48.5%' as any, marginBottom: 10, minHeight: 96, borderRadius: 24, padding: 14, shadowColor: '#000', shadowOffset: { width: 0, height: 3 }, shadowOpacity: 0.12, shadowRadius: 8, elevation: 4 },
-  kpiHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   kpiLabel: { fontSize: 12, fontWeight: '600', letterSpacing: 0.3, textTransform: 'uppercase' },
   kpiValue: { fontSize: 22, fontWeight: '800', marginVertical: 4, letterSpacing: -0.5 },
   kpiSub: { fontSize: 13, fontWeight: '600' },

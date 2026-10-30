@@ -189,6 +189,7 @@ export default {
   overallExpense: 'कुल खर्च',
   dairyFarming: 'डेयरी फार्मिंग',
   addFarm: 'फार्म जोड़ें',
+  editFarm: 'फार्म संपादित करें',
   farmName: 'फार्म का नाम',
   farmType: 'फार्म का प्रकार',
   farmNamePlaceholder: 'जैसे: गाय का फार्म',

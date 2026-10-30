@@ -191,6 +191,7 @@ export default {
   overallExpense: 'ಒಟ್ಟು ವೆಚ್ಚ',
   dairyFarming: 'ಡೈರಿ ಫಾರ್ಮಿಂಗ್',
   addFarm: 'ಫಾರ್ಮ್ ಸೇರಿಸಿ',
+  editFarm: 'ಫಾರ್ಮ್ ಸಂಪಾದಿಸಿ',
   farmName: 'ಫಾರ್ಮ್ ಹೆಸರು',
   farmType: 'ಫಾರ್ಮ್ ವಿಧ',
   farmNamePlaceholder: 'ಉದಾ: ಹಸು ಫಾರ್ಮ್',

@@ -191,6 +191,7 @@ export default {
   overallExpense: 'Overall Expense',
   dairyFarming: 'Dairy Farming',
   addFarm: 'Add Farm',
+  editFarm: 'Edit Farm',
   myFarms: 'My Farms',
   howMany: 'How many',
   cows: 'Cows',

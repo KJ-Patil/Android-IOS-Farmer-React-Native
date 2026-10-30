@@ -191,6 +191,7 @@ export default {
   overallExpense: 'మొత్తం ఖర్చు',
   dairyFarming: 'డెయిరీ ఫార్మింగ్',
   addFarm: 'ఫార్మ్ జోడించు',
+  editFarm: 'ఫార్మ్ సవరించు',
   farmName: 'ఫార్మ్ పేరు',
   farmType: 'ఫార్మ్ రకం',
   farmNamePlaceholder: 'ఉదా: ఆవు ఫార్మ్',

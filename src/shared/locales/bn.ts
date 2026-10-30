@@ -189,6 +189,7 @@ export default {
   overallExpense: 'মোট ব্যয়',
   dairyFarming: 'দুগ্ধ খামার',
   addFarm: 'খামার যোগ করুন',
+  editFarm: 'খামার সম্পাদনা করুন',
   farmName: 'খামারের নাম',
   farmType: 'খামারের ধরন',
   farmNamePlaceholder: 'যেমন: গাভী খামার',

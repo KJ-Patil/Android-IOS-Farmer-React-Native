@@ -191,6 +191,7 @@ export default {
   overallExpense: 'ମୋଟ ଖର୍ଚ୍ଚ',
   dairyFarming: 'ଡେରି ଫାର୍ମିଂ',
   addFarm: 'ଫାର୍ମ ଯୋଡନ୍ତୁ',
+  editFarm: 'ଫାର୍ମ ସମ୍ପାଦନା କରନ୍ତୁ',
   farmName: 'ଫାର୍ମ ନାମ',
   farmType: 'ଫାର୍ମ ପ୍ରକାର',
   farmNamePlaceholder: 'ଯେପରି: ଗାଈ ଫାର୍ମ',

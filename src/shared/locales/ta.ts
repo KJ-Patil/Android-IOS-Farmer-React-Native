@@ -191,6 +191,7 @@ export default {
   overallExpense: 'மொத்த செலவு',
   dairyFarming: 'பால் பண்ணை',
   addFarm: 'பண்ணை சேர்க்கவும்',
+  editFarm: 'பண்ணை திருத்தவும்',
   farmName: 'பண்ணை பெயர்',
   farmType: 'பண்ணை வகை',
   farmNamePlaceholder: 'எ.கா: மாடு பண்ணை',
