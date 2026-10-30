@@ -502,9 +502,6 @@ export function PartyLedgerView() {
                 {t('partyLedgersTitle')}
               </Text>
             </View>
-            <Text style={{ color: colors.mutedFg, fontSize: 13, marginTop: 2 }}>
-              {t('partyLedgersSubtitle')}
-            </Text>
 
             {/* Overview KPIs */}
             <View style={styles.kpiRow}>

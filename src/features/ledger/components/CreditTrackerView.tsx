@@ -113,15 +113,10 @@ export function CreditTrackerView({ onOpenAddModal }: CreditTrackerViewProps) {
           <View style={{ paddingTop: 8 }}>
             {/* Header */}
             <View style={styles.headerRow}>
-              <View style={{ flex: 1 }}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                  <Clock color={colors.warning} size={18} />
-                  <Text style={[styles.mainTitle, { color: colors.foreground }]}>
-                    {t('creditManagement')}
-                  </Text>
-                </View>
-                <Text style={{ color: colors.mutedFg, fontSize: 13, marginTop: 2 }}>
-                  {t('creditManagementSubtitle')}
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, flex: 1 }}>
+                <Clock color={colors.warning} size={18} />
+                <Text style={[styles.mainTitle, { color: colors.foreground }]}>
+                  {t('creditManagement')}
                 </Text>
               </View>
 

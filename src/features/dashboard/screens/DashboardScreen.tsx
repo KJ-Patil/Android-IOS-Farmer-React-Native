@@ -17,7 +17,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../../app/providers/ThemeProvider';
 import { useLedgerStore } from '../../../shared/hooks/useLedgerStore';
-import { useAppStore } from '../../../shared/hooks/useAppStore';
 import { useAuthStore } from '../../../shared/hooks/useAuthStore';
 import { db } from '../../../shared/services/firebase';
 import { collection, addDoc } from 'firebase/firestore';
@@ -32,8 +31,7 @@ import { tCategory, tPaymentMode } from '../../../shared/utils/helpers';
 import { LinearGradient } from 'expo-linear-gradient';
 import {
   TrendingUp,
-  Users,
-  RefreshCw,
+  TrendingDown,
   Plus,
   X,
   Sun,
@@ -65,7 +63,6 @@ export function DashboardScreen({ navigation }: any) {
 
   const user = useAuthStore((s) => s.user);
   const { transactions, fetchTransactions } = useLedgerStore();
-  const { isOnline, syncQueueCount } = useAppStore();
   const { fmtCurrency, fmtNum, fmtDMY, toNative } = useLocalizedFormat();
 
   // Weather & location state
@@ -245,16 +242,21 @@ export function DashboardScreen({ navigation }: any) {
     fetchTemperature();
   }, []);
 
-  // Compute metrics identical to FarmerLedger
+  // Compute financial metrics consistent with Ledger
   const totalRevenue = useMemo(() => {
-    return transactions.reduce((acc, tx) => acc + (tx.amount || 0), 0);
+    return transactions.reduce((acc, tx) => acc + (tx.type === 'income' || !tx.type ? tx.amount || 0 : 0), 0);
   }, [transactions]);
 
-  const uniqueFarmers = useMemo(() => {
-    const names = transactions
-      .map((tx) => tx.partyName)
-      .filter((n): n is string => Boolean(n && n.trim()));
-    return new Set(names).size || (transactions.length > 0 ? 1 : 0);
+  const totalExpenses = useMemo(() => {
+    return transactions.reduce((acc, tx) => acc + (tx.type === 'expense' ? tx.amount || 0 : 0), 0);
+  }, [transactions]);
+
+  const incomeCount = useMemo(() => {
+    return transactions.filter((tx) => tx.type === 'income' || !tx.type).length;
+  }, [transactions]);
+
+  const expenseCount = useMemo(() => {
+    return transactions.filter((tx) => tx.type === 'expense').length;
   }, [transactions]);
 
   // Aggregate monthly trend data from transactions for the AreaChart
@@ -385,59 +387,35 @@ export function DashboardScreen({ navigation }: any) {
             )}
           </View>
           <Text style={styles.waveDate}>{todayFormatted}</Text>
-
-          <View style={styles.waveStatRow}>
-            <View style={styles.waveStatItem}>
-              <Text style={styles.waveStatValue}>{formatC(totalRevenue)}</Text>
-              <Text style={styles.waveStatLabel}>{t('revenue')}</Text>
-            </View>
-            <View style={styles.waveStatDivider} />
-            <View style={styles.waveStatItem}>
-              <Text style={styles.waveStatValue}>{toNative(uniqueFarmers)}</Text>
-              <Text style={styles.waveStatLabel}>{t('farmers')}</Text>
-            </View>
-            <View style={styles.waveStatDivider} />
-            <View style={styles.waveStatItem}>
-              <Text style={styles.waveStatValue}>{toNative(transactions.length)}</Text>
-              <Text style={styles.waveStatLabel}>{t('entries')}</Text>
-            </View>
-          </View>
         </LinearGradient>
 
         <View style={styles.contentPadding}>
 
-        {/* 4 KPI Cards Grid */}
+        {/* 2 KPI Cards: Revenue & Expenses */}
         <View style={styles.kpiGrid}>
           <View style={[styles.kpiCard, { backgroundColor: colors.card }]}>
             <View style={styles.kpiHeader}>
               <Text style={[styles.kpiLabel, { color: colors.mutedFg }]}>{t('totalRevenue')}</Text>
               <TrendingUp color="#16A34A" size={18} />
             </View>
-            <Text style={[styles.kpiValue, { color: colors.foreground }]}>
+            <Text style={[styles.kpiValue, { color: '#16A34A' }]}>
               {formatC(totalRevenue)}
             </Text>
-            <Text style={[styles.kpiSub, { color: '#16A34A' }]}>
-              {toNative(transactions.length)} {t('recentLedger')}
+            <Text style={[styles.kpiSub, { color: colors.mutedFg }]}>
+              {toNative(incomeCount)} {t('entries')}
             </Text>
           </View>
 
           <View style={[styles.kpiCard, { backgroundColor: colors.card }]}>
             <View style={styles.kpiHeader}>
-              <Text style={[styles.kpiLabel, { color: colors.mutedFg }]}>{t('activeFarmers')}</Text>
-              <Users color="#2563EB" size={18} />
+              <Text style={[styles.kpiLabel, { color: colors.mutedFg }]}>{t('totalExpenses')}</Text>
+              <TrendingDown color="#DC2626" size={18} />
             </View>
-            <Text style={[styles.kpiValue, { color: colors.foreground }]}>{toNative(uniqueFarmers)}</Text>
-            <Text style={[styles.kpiSub, { color: '#2563EB' }]}>{t('uniqueFarmerRecords')}</Text>
-          </View>
-
-          <View style={[styles.kpiCard, { width: '100%', backgroundColor: colors.card }]}>
-            <View style={styles.kpiHeader}>
-              <Text style={[styles.kpiLabel, { color: colors.mutedFg }]}>{t('offlineQueue')}</Text>
-              <RefreshCw color={syncQueueCount > 0 ? '#D97706' : '#16A34A'} size={18} />
-            </View>
-            <Text style={[styles.kpiValue, { color: colors.foreground }]}>{toNative(syncQueueCount)}</Text>
-            <Text style={[styles.kpiSub, { color: syncQueueCount > 0 ? '#D97706' : '#16A34A' }]}>
-              {syncQueueCount > 0 ? t('awaitingInternet') : t('allDataSynced')}
+            <Text style={[styles.kpiValue, { color: '#DC2626' }]}>
+              {formatC(totalExpenses)}
+            </Text>
+            <Text style={[styles.kpiSub, { color: colors.mutedFg }]}>
+              {toNative(expenseCount)} {t('entries')}
             </Text>
           </View>
         </View>
@@ -822,7 +800,7 @@ export function DashboardScreen({ navigation }: any) {
 
 const styles = StyleSheet.create({
   scroll: { paddingBottom: 100 },
-  headerContainer: { width: '100%', paddingHorizontal: 20, paddingBottom: 20, borderBottomLeftRadius: 28, borderBottomRightRadius: 28, overflow: 'hidden' },
+  headerContainer: { width: '100%', paddingHorizontal: 20, paddingBottom: 22, borderBottomLeftRadius: 28, borderBottomRightRadius: 28, overflow: 'hidden' },
   greetingRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 },
   greetingLeft: { flexDirection: 'row', alignItems: 'center', gap: 8, flex: 1, flexShrink: 1, minWidth: 0 },
   greetingText: { fontSize: 18, fontWeight: '700', color: '#FFFFFF', letterSpacing: -0.3, flexShrink: 1 },
