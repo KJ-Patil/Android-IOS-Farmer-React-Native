@@ -171,78 +171,70 @@ export function CreditTrackerView({ onOpenAddModal }: CreditTrackerViewProps) {
           const overdue = !isSettled && isOverdue(tx.dueDate, pending);
           const isExpanded = expandedTxId === tx.id;
           const payments = tx.payments || [];
+          const paidAmount = tx.amount - pending;
+          const progressPct = tx.amount > 0 ? (paidAmount / tx.amount) * 100 : 0;
 
           return (
-            <Card
-              style={{
-                marginTop: 8,
-                borderColor: overdue ? colors.destructive + '60' : isSettled ? colors.primary + '40' : colors.border,
-                backgroundColor: overdue ? colors.destructive + '05' : colors.card,
-              }}
-              padding={14}
-            >
-              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                <View style={{ flex: 1 }}>
-                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
-                    <Text style={{ color: colors.foreground, fontWeight: '700', fontSize: 15 }}>
+            <Card style={{ marginTop: 10 }} padding={16}>
+              {/* Top: Name + Status */}
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, flex: 1 }}>
+                  <View style={[styles.partyIcon, { backgroundColor: overdue ? '#FEE2E2' : isSettled ? '#DCFCE7' : '#FEF3C7' }]}>
+                    <Text style={{ fontSize: 16 }}>{overdue ? '⚠️' : isSettled ? '✅' : '🧾'}</Text>
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Text style={{ color: colors.foreground, fontWeight: '700', fontSize: 15 }} numberOfLines={1}>
                       {tx.partyName || tCategory(tx.category, t)}
                     </Text>
-                    {tx.billNumber && <Badge text={`#${tx.billNumber}`} variant="default" />}
+                    <Text style={{ color: colors.mutedFg, fontSize: 12, marginTop: 1 }}>
+                      {tCategory(tx.category, t)} • {fmtDMY(tx.date)}
+                    </Text>
                   </View>
-
-                  <Text style={{ color: colors.mutedFg, fontSize: 13, marginTop: 4 }}>
-                    {tCategory(tx.category, t)} • {fmtDMY(tx.date)}
-                    {tx.plotName ? ` • ${tx.plotName}` : ''}
-                  </Text>
-
-                  {tx.dueDate && (
-                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 6 }}>
-                      <Calendar color={overdue ? colors.destructive : colors.mutedFg} size={14} />
-                      <Text
-                        style={{
-                          color: overdue ? colors.destructive : colors.mutedFg,
-                          fontSize: 13,
-                          fontWeight: overdue ? '700' : '500',
-                        }}
-                      >
-                        {t('due')}: {fmtDMY(tx.dueDate)}{' '}
-                        {overdue ? `(${t('overdue')})` : ''}
-                      </Text>
-                    </View>
-                  )}
                 </View>
+                {isSettled ? (
+                  <Badge text={t('fullyPaid')} variant="success" />
+                ) : overdue ? (
+                  <Badge text={t('overdue')} variant="destructive" />
+                ) : (
+                  <Badge text={t('pending')} variant="warning" />
+                )}
+              </View>
 
-                <View style={{ alignItems: 'flex-end', marginLeft: 10 }}>
-                  <Text style={{ color: colors.mutedFg, fontSize: 12 }}>
-                    {t('pending')}
-                  </Text>
-                  <Text
-                    style={{
-                      color: isSettled ? colors.primary : colors.destructive,
-                      fontWeight: '800',
-                      fontSize: 17,
-                    }}
-                  >
-                    {fmt(pending)}
-                  </Text>
-                  <Text style={{ color: colors.mutedFg, fontSize: 12, marginTop: 2 }}>
-                    {t('total')}: {fmt(tx.amount)}
-                  </Text>
+              {/* Amount row */}
+              <View style={[styles.amountRow, { backgroundColor: colors.background, borderColor: colors.border }]}>
+                <View style={{ alignItems: 'center', flex: 1 }}>
+                  <Text style={{ color: colors.mutedFg, fontSize: 11 }}>{t('total')}</Text>
+                  <Text style={{ color: colors.foreground, fontSize: 15, fontWeight: '800' }}>{fmt(tx.amount)}</Text>
+                </View>
+                <View style={{ width: 1, height: 28, backgroundColor: colors.border }} />
+                <View style={{ alignItems: 'center', flex: 1 }}>
+                  <Text style={{ color: colors.mutedFg, fontSize: 11 }}>{t('paid')}</Text>
+                  <Text style={{ color: '#16A34A', fontSize: 15, fontWeight: '800' }}>{fmt(paidAmount)}</Text>
+                </View>
+                <View style={{ width: 1, height: 28, backgroundColor: colors.border }} />
+                <View style={{ alignItems: 'center', flex: 1 }}>
+                  <Text style={{ color: colors.mutedFg, fontSize: 11 }}>{t('due')}</Text>
+                  <Text style={{ color: '#DC2626', fontSize: 15, fontWeight: '800' }}>{fmt(pending)}</Text>
                 </View>
               </View>
 
-              {/* Action buttons & history toggle */}
-              <View
-                style={{
-                  flexDirection: 'row',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  marginTop: 10,
-                  paddingTop: 8,
-                  borderTopWidth: StyleSheet.hairlineWidth,
-                  borderTopColor: colors.border,
-                }}
-              >
+              {/* Progress bar */}
+              <View style={[styles.progressTrack, { backgroundColor: colors.muted }]}>
+                <View style={[styles.progressFill, { width: `${Math.min(progressPct, 100)}%`, backgroundColor: isSettled ? '#16A34A' : '#D97706' }]} />
+              </View>
+
+              {/* Due date */}
+              {tx.dueDate && !isSettled && (
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 8 }}>
+                  <Calendar color={overdue ? colors.destructive : colors.mutedFg} size={13} />
+                  <Text style={{ color: overdue ? colors.destructive : colors.mutedFg, fontSize: 12, fontWeight: overdue ? '700' : '500' }}>
+                    {t('due')}: {fmtDMY(tx.dueDate)}
+                  </Text>
+                </View>
+              )}
+
+              {/* Actions */}
+              <View style={styles.cardActions}>
                 <TouchableOpacity
                   onPress={() => setExpandedTxId(isExpanded ? null : tx.id)}
                   style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}
@@ -250,70 +242,36 @@ export function CreditTrackerView({ onOpenAddModal }: CreditTrackerViewProps) {
                   <Text style={{ color: colors.primary, fontSize: 13, fontWeight: '600' }}>
                     {toNative(payments.length)} {t('installments')}
                   </Text>
-                  {isExpanded ? (
-                    <ChevronUp color={colors.primary} size={14} />
-                  ) : (
-                    <ChevronDown color={colors.primary} size={14} />
-                  )}
+                  {isExpanded ? <ChevronUp color={colors.primary} size={14} /> : <ChevronDown color={colors.primary} size={14} />}
                 </TouchableOpacity>
 
-                {!isSettled ? (
-                  <Button
-                    title={t('payInstallment')}
-                    onPress={() => {
-                      setSelectedTx(tx);
-                      setPayAmount(String(pending));
-                    }}
-                    size="sm"
-                    variant={overdue ? 'destructive' : 'secondary'}
-                  />
-                ) : (
-                  <Badge text={t('fullyPaid')} variant="success" />
+                {!isSettled && (
+                  <TouchableOpacity
+                    onPress={() => { setSelectedTx(tx); setPayAmount(String(pending)); }}
+                    activeOpacity={0.7}
+                    style={[styles.payBtn, { backgroundColor: overdue ? '#DC2626' : colors.primary }]}
+                  >
+                    <Wallet size={14} color="#FFFFFF" />
+                    <Text style={{ color: '#FFFFFF', fontWeight: '700', fontSize: 13 }}>{t('payInstallment')}</Text>
+                  </TouchableOpacity>
                 )}
               </View>
 
-              {/* Expanded Payment History */}
+              {/* Payment history */}
               {isExpanded && (
-                <View
-                  style={{
-                    marginTop: 10,
-                    paddingTop: 8,
-                    borderTopWidth: StyleSheet.hairlineWidth,
-                    borderTopColor: colors.border,
-                  }}
-                >
+                <View style={{ marginTop: 10, paddingTop: 8, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.border }}>
                   <Text style={{ color: colors.foreground, fontSize: 13, fontWeight: '700', marginBottom: 6 }}>
                     {t('paymentHistory')}:
                   </Text>
                   {payments.length === 0 ? (
-                    <Text style={{ color: colors.mutedFg, fontSize: 13, fontStyle: 'italic' }}>
-                      {t('noPartialPayments')}
-                    </Text>
+                    <Text style={{ color: colors.mutedFg, fontSize: 13 }}>{t('noPartialPayments')}</Text>
                   ) : (
                     payments.map((p, idx) => (
-                      <View
-                        key={p.id || idx}
-                        style={{
-                          flexDirection: 'row',
-                          justifyContent: 'space-between',
-                          paddingVertical: 4,
-                          borderBottomWidth: idx < payments.length - 1 ? StyleSheet.hairlineWidth : 0,
-                          borderBottomColor: colors.border,
-                        }}
-                      >
-                        <View>
-                          <Text style={{ color: colors.foreground, fontSize: 13, fontWeight: '600' }}>
-                            {fmtDMY(p.date)} • {tPaymentMode(p.paymentMode, t)}
-                          </Text>
-                          {p.notes && (
-                            <Text style={{ color: colors.mutedFg, fontSize: 13, fontStyle: 'italic' }}>
-                              {p.notes}
-                            </Text>
-                          )}
-                        </View>
-                        <Text style={{ color: colors.primary, fontSize: 12, fontWeight: '700' }}>
-                          +{fmt(p.amount)}
+                      <View key={p.id || idx} style={{ flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 5, borderBottomWidth: idx < payments.length - 1 ? StyleSheet.hairlineWidth : 0, borderBottomColor: colors.border }}>
+                        <Text style={{ color: colors.foreground, fontSize: 13 }}>
+                          {fmtDMY(p.date)} • {tPaymentMode(p.paymentMode, t)}
                         </Text>
+                        <Text style={{ color: '#16A34A', fontSize: 13, fontWeight: '700' }}>+{fmt(p.amount)}</Text>
                       </View>
                     ))
                   )}
@@ -326,7 +284,7 @@ export function CreditTrackerView({ onOpenAddModal }: CreditTrackerViewProps) {
 
       {/* Settle / Pay Installment Modal */}
       {selectedTx && (
-        <Modal visible={true} transparent animationType="fade" onRequestClose={() => setSelectedTx(null)}>
+        <Modal visible={true} animationType="fade" onRequestClose={() => setSelectedTx(null)}>
           <View style={styles.modalOverlay}>
             <View style={[styles.modalCard, { backgroundColor: colors.background, borderColor: colors.border }]}>
               <View style={styles.modalHeader}>
@@ -431,4 +389,48 @@ const styles = StyleSheet.create({
   inputLabel: { fontSize: 12, fontWeight: '600', marginBottom: 6, marginTop: 4 },
   modeRow: { flexDirection: 'row', gap: 8, marginBottom: 12 },
   modeChip: { flex: 1, paddingVertical: 8, borderRadius: 10, borderWidth: 1, alignItems: 'center' },
+  partyIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: 12,
+    alignItems: 'center' as const,
+    justifyContent: 'center' as const,
+  },
+  amountRow: {
+    flexDirection: 'row' as const,
+    justifyContent: 'space-between' as const,
+    alignItems: 'center' as const,
+    marginTop: 12,
+    paddingVertical: 10,
+    paddingHorizontal: 6,
+    borderRadius: 12,
+    borderWidth: 1,
+  },
+  progressTrack: {
+    height: 5,
+    borderRadius: 3,
+    marginTop: 10,
+    overflow: 'hidden' as const,
+  },
+  progressFill: {
+    height: '100%' as any,
+    borderRadius: 3,
+  },
+  cardActions: {
+    flexDirection: 'row' as const,
+    justifyContent: 'space-between' as const,
+    alignItems: 'center' as const,
+    marginTop: 12,
+    paddingTop: 10,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: '#E5E7EB',
+  },
+  payBtn: {
+    flexDirection: 'row' as const,
+    alignItems: 'center' as const,
+    gap: 6,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 10,
+  },
 });

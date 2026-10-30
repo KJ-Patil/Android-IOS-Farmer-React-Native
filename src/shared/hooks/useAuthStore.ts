@@ -60,6 +60,13 @@ interface AuthStore {
 
 const mobileToEmail = (mobile: string) => `${mobile}@farmerledger.com`;
 
+function generateFarmerId(fullName: string, mobile: string): string {
+  const cleaned = fullName.replace(/[^a-zA-Z]/g, '').toUpperCase();
+  const namePart = cleaned.padEnd(4, 'X').slice(0, 4);
+  const mobilePart = mobile.slice(-4);
+  return `${namePart}${mobilePart}`;
+}
+
 export const useAuthStore = create<AuthStore>((set, get) => ({
   user: null,
   firebaseUser: null,
@@ -276,7 +283,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
         uid: uid || `user_${mobile}`,
         fullName: profile.fullName || '',
         mobileNumber: mobile,
-        emailId: email,
+        emailId: (profile.emailId && profile.emailId.trim() && !profile.emailId.includes('@farmerledger.com')) ? profile.emailId.trim() : email,
         village: profile.village || '',
         taluka: profile.taluka || '',
         district: profile.district || '',
@@ -289,7 +296,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
         alternateMobile: profile.alternateMobile,
         dateOfBirth: profile.dateOfBirth,
         aadhaarNumber: profile.aadhaarNumber,
-        farmerId: profile.farmerId,
+        farmerId: generateFarmerId(profile.fullName || '', mobile),
         createdAt: now,
         updatedAt: now,
         status: 'active',

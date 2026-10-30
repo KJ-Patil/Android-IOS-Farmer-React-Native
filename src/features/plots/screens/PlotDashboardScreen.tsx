@@ -8,7 +8,8 @@ import { Card } from '../../../components/ui/Card';
 import { Button } from '../../../components/ui/Button';
 import { Badge } from '../../../components/ui/Badge';
 import { AddCropModal } from '../../crops/components/AddCropModal';
-import { ArrowLeft, Sprout } from 'lucide-react-native';
+import { ArrowLeft, Sprout, Trash2 } from 'lucide-react-native';
+import { Alert, Platform } from 'react-native';
 import { useLocalizedFormat } from '../../../shared/hooks/useLocalizedFormat';
 
 export function PlotDashboardScreen({ route, navigation }: any) {
@@ -16,7 +17,7 @@ export function PlotDashboardScreen({ route, navigation }: any) {
   const [addCropVisible, setAddCropVisible] = useState(false);
   const { t, i18n } = useTranslation();
   const { colors } = useTheme();
-  const { plots, crops, fetchCrops, getPlotRemainingArea } = usePlotStore();
+  const { plots, crops, fetchCrops, getPlotRemainingArea, deletePlot } = usePlotStore();
   const { fmtDMY, toNative } = useLocalizedFormat();
 
   const plot = plots.find((p) => p.id === plotId);
@@ -29,6 +30,31 @@ export function PlotDashboardScreen({ route, navigation }: any) {
   }, [plotId]);
 
   if (!plot) return null;
+
+  const handleDeletePlot = async () => {
+    if (Platform.OS === 'web') {
+      if (window.confirm(t('deletePlotConfirm'))) {
+        await deletePlot(plotId);
+        navigation.goBack();
+      }
+    } else {
+      Alert.alert(
+        t('deletePlot'),
+        t('deletePlotConfirm'),
+        [
+          { text: t('cancel'), style: 'cancel' },
+          {
+            text: t('delete'),
+            style: 'destructive',
+            onPress: async () => {
+              await deletePlot(plotId);
+              navigation.goBack();
+            },
+          },
+        ],
+      );
+    }
+  };
 
   const occupancyPercent = plot.area > 0 ? (usedArea / plot.area) * 100 : 0;
 
@@ -176,6 +202,15 @@ export function PlotDashboardScreen({ route, navigation }: any) {
             </TouchableOpacity>
           ))
         )}
+
+        <Button
+          title={t('deletePlot')}
+          onPress={handleDeletePlot}
+          variant="destructive"
+          fullWidth
+          icon={<Trash2 size={16} color="#FFFFFF" />}
+          style={{ marginTop: 24 }}
+        />
       </ScrollView>
 
       <AddCropModal

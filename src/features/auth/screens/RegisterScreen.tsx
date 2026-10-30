@@ -32,12 +32,14 @@ export function RegisterScreen({ navigation, route }: any) {
     pincode: '',
     aadhaarNumber: '',
     dateOfBirth: '',
-    farmerId: '',
+    alternateMobile: '',
+    emailId: '',
     geoLocation: undefined as { lat: number; lng: number } | undefined,
     language: i18n.language as 'en' | 'hi' | 'mr' | 'te' | 'ta' | 'kn' | 'bn' | 'gu' | 'ml' | 'pa' | 'od',
     membershipType: 'free' as 'free' | 'gold',
   });
 
+  const [formError, setFormError] = useState('');
   const updateForm = (key: string, value: any) => setForm((f) => ({ ...f, [key]: value }));
 
   const handleCaptureGps = async () => {
@@ -56,6 +58,7 @@ export function RegisterScreen({ navigation, route }: any) {
 
   const handleNext = async () => {
     clearError();
+    setFormError('');
     if (step === 1) {
       if (form.mobileNumber.length === 10) {
         await requestOtp(form.mobileNumber);
@@ -65,7 +68,12 @@ export function RegisterScreen({ navigation, route }: any) {
       const success = await verifyOtp(form.otp);
       if (success) setStep(3);
     } else if (step === 3) {
-      if (form.fullName.trim()) setStep(4);
+      if (!form.fullName.trim()) return;
+      if (!form.village.trim() && !form.district.trim()) {
+        setFormError(t('locationRequired'));
+        return;
+      }
+      setStep(4);
     } else if (step === 4) {
       await register({
         ...form,
@@ -148,7 +156,8 @@ export function RegisterScreen({ navigation, route }: any) {
               <Input label={t('pincode')} value={form.pincode} onChangeText={(v) => updateForm('pincode', v.replace(/[^0-9]/g, '').slice(0, 6))} keyboardType="number-pad" maxLength={6} />
               <Input label={t('aadhaarNumber')} value={form.aadhaarNumber} onChangeText={(v) => updateForm('aadhaarNumber', v.replace(/[^0-9]/g, '').slice(0, 12))} keyboardType="number-pad" maxLength={12} placeholder={t('optional')} />
               <DatePickerInput label={t('dateOfBirth')} value={form.dateOfBirth} onChange={(v) => updateForm('dateOfBirth', v)} />
-              <Input label={t('farmerId')} value={form.farmerId} onChangeText={(v) => updateForm('farmerId', v)} placeholder={t('optional')} />
+              <Input label={t('alternateMobile')} placeholder={t('optional')} value={form.alternateMobile} onChangeText={(v) => updateForm('alternateMobile', v.replace(/[^0-9]/g, '').slice(0, 10))} keyboardType="phone-pad" maxLength={10} />
+              <Input label={t('emailAddress')} placeholder={t('optional')} value={form.emailId} onChangeText={(v) => updateForm('emailId', v)} keyboardType="email-address" autoCapitalize="none" />
               <Button
                 title={form.geoLocation ? t('gpsLocationCaptured') : t('captureGps')}
                 onPress={handleCaptureGps}
@@ -212,8 +221,8 @@ export function RegisterScreen({ navigation, route }: any) {
             </>
           )}
 
-          {error && (
-            <Text style={{ color: colors.destructive, marginTop: 12, fontSize: 13 }}>{error}</Text>
+          {(error || formError) && (
+            <Text style={{ color: colors.destructive, marginTop: 12, fontSize: 13 }}>{error || formError}</Text>
           )}
         </Card>
 

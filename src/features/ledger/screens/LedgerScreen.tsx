@@ -1,11 +1,9 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, ScrollView } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../../app/providers/ThemeProvider';
 import { useLedgerStore } from '../../../shared/hooks/useLedgerStore';
 import { ScreenLayout } from '../../../components/layout/ScreenLayout';
-import { Card } from '../../../components/ui/Card';
-import { Badge } from '../../../components/ui/Badge';
 import { MoneyInModal } from '../components/MoneyInModal';
 import { MoneyOutModal } from '../components/MoneyOutModal';
 import { OCRScannerModal } from '../components/OCRScannerModal';
@@ -15,24 +13,22 @@ import { ProfitLossView } from '../components/ProfitLossView';
 import { ReportsHubView } from '../components/ReportsHubView';
 import { PartyLedgerView } from '../components/PartyLedgerView';
 import { CreditTrackerView } from '../components/CreditTrackerView';
-import { TransactionFilterBar, TransactionFilters } from '../components/TransactionFilterBar';
+import { NotebookLedgerView } from '../components/NotebookLedgerView';
 import { useLocalizedFormat } from '../../../shared/hooks/useLocalizedFormat';
-import { tCategory, tPaymentMode } from '../../../shared/utils/helpers';
-import { BookOpen, ScanLine, ArrowDownLeft, ArrowUpRight, List, Wallet, TrendingUp, FileText, Users, CreditCard } from 'lucide-react-native';
+import { BookOpen, Wallet, TrendingUp, FileText, Users, CreditCard } from 'lucide-react-native';
 import { WaveHeader } from '../../../components/ui/WaveHeader';
 
-type TabKey = 'all' | 'income' | 'pnl' | 'reports' | 'party' | 'credit';
+type TabKey = 'notebook' | 'income' | 'pnl' | 'reports' | 'party' | 'credit';
 
 export function LedgerScreen({ navigation }: any) {
   const { t } = useTranslation();
   const { colors } = useTheme();
   const { transactions, fetchTransactions } = useLedgerStore();
-  const [activeTab, setActiveTab] = useState<TabKey>('all');
+  const [activeTab, setActiveTab] = useState<TabKey>('notebook');
   const [moneyInVisible, setMoneyInVisible] = useState(false);
   const [moneyOutVisible, setMoneyOutVisible] = useState(false);
   const [ocrVisible, setOcrVisible] = useState(false);
   const [customLedgersVisible, setCustomLedgersVisible] = useState(false);
-  const [filters, setFilters] = useState<TransactionFilters>({});
   const [ocrInitialData, setOcrInitialData] = useState<any>(null);
   const { fmtCurrency, toNative, fmtDMY } = useLocalizedFormat();
 
@@ -54,17 +50,8 @@ export function LedgerScreen({ navigation }: any) {
     fetchTransactions();
   }, []);
 
-  const filteredTransactions = useMemo(() => {
-    let result = transactions;
-    if (filters.type) result = result.filter((tx) => tx.type === filters.type);
-    if (filters.paymentMode) result = result.filter((tx) => tx.paymentMode === filters.paymentMode);
-    if (filters.dateFrom) result = result.filter((tx) => tx.date >= filters.dateFrom!);
-    if (filters.dateTo) result = result.filter((tx) => tx.date <= filters.dateTo!);
-    return result;
-  }, [transactions, filters]);
-
-  const tabDefs: { key: TabKey; label: string; Icon: typeof List }[] = [
-    { key: 'all', label: t('allTransactions'), Icon: List },
+  const tabDefs: { key: TabKey; label: string; Icon: typeof BookOpen }[] = [
+    { key: 'notebook', label: t('notebook'), Icon: BookOpen },
     { key: 'income', label: t('incomeRegister'), Icon: Wallet },
     { key: 'pnl', label: t('profitLoss'), Icon: TrendingUp },
     { key: 'reports', label: t('reportsExport'), Icon: FileText },
@@ -120,57 +107,12 @@ export function LedgerScreen({ navigation }: any) {
       </View>
 
       <View style={styles.content}>
-        {activeTab === 'all' && (
-          <FlatList
-            data={filteredTransactions}
-            keyExtractor={(item) => item.id}
-            contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 40 }}
-            ListHeaderComponent={
-              <View>
-                <View style={styles.actionGrid}>
-                  <TouchableOpacity onPress={() => setMoneyInVisible(true)} style={[styles.actionBtn, { backgroundColor: colors.card }]} activeOpacity={0.7}>
-                    <View style={[styles.actionIcon, { backgroundColor: '#DCFCE7' }]}><ArrowDownLeft color="#16A34A" size={20} /></View>
-                    <Text style={[styles.actionLabel, { color: colors.foreground }]} numberOfLines={2}>{t('moneyIn')}</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity onPress={() => setMoneyOutVisible(true)} style={[styles.actionBtn, { backgroundColor: colors.card }]} activeOpacity={0.7}>
-                    <View style={[styles.actionIcon, { backgroundColor: '#FEE2E2' }]}><ArrowUpRight color="#DC2626" size={20} /></View>
-                    <Text style={[styles.actionLabel, { color: colors.foreground }]} numberOfLines={2}>{t('moneyOut')}</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity onPress={() => setOcrVisible(true)} style={[styles.actionBtn, { backgroundColor: colors.card }]} activeOpacity={0.7}>
-                    <View style={[styles.actionIcon, { backgroundColor: '#DBEAFE' }]}><ScanLine color="#2563EB" size={20} /></View>
-                    <Text style={[styles.actionLabel, { color: colors.foreground }]} numberOfLines={2}>{t('scanBill')}</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity onPress={() => setCustomLedgersVisible(true)} style={[styles.actionBtn, { backgroundColor: colors.card }]} activeOpacity={0.7}>
-                    <View style={[styles.actionIcon, { backgroundColor: '#FEF3C7' }]}><BookOpen color="#D97706" size={20} /></View>
-                    <Text style={[styles.actionLabel, { color: colors.foreground }]} numberOfLines={2}>{t('customLedgers')}</Text>
-                  </TouchableOpacity>
-                </View>
-                <TransactionFilterBar filters={filters} onApply={setFilters} />
-              </View>
-            }
-            ListEmptyComponent={<Text style={{ color: colors.mutedFg, textAlign: 'center', marginTop: 40 }}>{t('noData')}</Text>}
-            renderItem={({ item: txn }) => (
-              <Card style={{ marginTop: 8 }} padding={12}>
-                <View style={styles.txnRow}>
-                  <View style={{ flex: 1 }}>
-                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                      <Text style={{ color: colors.foreground, fontWeight: '600', fontSize: 14 }}>{tCategory(txn.category, t)}</Text>
-                      {txn.isAutoGenerated && <Badge text={t('autoGenerated')} variant="warning" />}
-                      {txn.isLocked && <Badge text="🔒" />}
-                    </View>
-                    <Text style={{ color: colors.mutedFg, fontSize: 12, marginTop: 2 }}>
-                      {fmtDMY(txn.date)} {txn.partyName ? `• ${txn.partyName}` : ''}
-                    </Text>
-                  </View>
-                  <View style={{ alignItems: 'flex-end' }}>
-                    <Text style={{ color: txn.type === 'income' ? colors.primary : colors.destructive, fontWeight: '700', fontSize: 15 }}>
-                      {txn.type === 'income' ? '+' : '-'}{fmtCurrency(txn.amount)}
-                    </Text>
-                    <Badge text={tPaymentMode(txn.paymentMode, t)} />
-                  </View>
-                </View>
-              </Card>
-            )}
+        {activeTab === 'notebook' && (
+          <NotebookLedgerView
+            onMoneyIn={() => setMoneyInVisible(true)}
+            onMoneyOut={() => setMoneyOutVisible(true)}
+            onScanBill={() => setOcrVisible(true)}
+            onCustomLedgers={() => setCustomLedgersVisible(true)}
           />
         )}
         {activeTab === 'income' && (
@@ -205,9 +147,4 @@ const styles = StyleSheet.create({
   tabContent: { paddingHorizontal: 14, gap: 8 },
   tabPill: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 14, paddingVertical: 9, borderRadius: 20, borderWidth: 1 },
   content: { flex: 1 },
-  txnRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  actionGrid: { flexDirection: 'row', gap: 8, marginBottom: 12, marginTop: 8 },
-  actionBtn: { flex: 1, alignItems: 'center', paddingVertical: 12, borderRadius: 12, elevation: 1, shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 4, shadowOffset: { width: 0, height: 2 } },
-  actionIcon: { width: 40, height: 40, borderRadius: 11, alignItems: 'center', justifyContent: 'center', marginBottom: 5 },
-  actionLabel: { fontSize: 12, fontWeight: '600', textAlign: 'center', marginTop: 4, lineHeight: 15 },
 });

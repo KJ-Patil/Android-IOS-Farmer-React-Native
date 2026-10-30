@@ -78,6 +78,8 @@ export interface Transaction {
   partyName?: string;
   plotId?: string;
   plotName?: string;
+  farmId?: string;
+  farmName?: string;
   cropId?: string;
   cropName?: string;
   cropSeason?: string;
