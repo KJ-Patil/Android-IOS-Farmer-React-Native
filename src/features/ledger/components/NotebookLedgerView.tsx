@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert, Platform } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../../app/providers/ThemeProvider';
 import { useLedgerStore } from '../../../shared/hooks/useLedgerStore';
@@ -12,7 +12,7 @@ import { Card } from '../../../components/ui/Card';
 import { Badge } from '../../../components/ui/Badge';
 import { useLocalizedFormat } from '../../../shared/hooks/useLocalizedFormat';
 import { tCategory, tPaymentMode } from '../../../shared/utils/helpers';
-import { ArrowDownLeft, ArrowUpRight, ScanLine, BookOpen, Plus } from 'lucide-react-native';
+import { ArrowDownLeft, ArrowUpRight, ScanLine, BookOpen } from 'lucide-react-native';
 import type { Transaction } from '../../../shared/types/ledger';
 
 const FARM_EMOJI: Record<FarmType, string> = {
@@ -24,6 +24,17 @@ const FARM_EMOJI: Record<FarmType, string> = {
   sericulture: '🪱',
   apiary: '🐝',
   other: '🌾',
+};
+
+const ANIMAL_LABEL: Record<FarmType, string> = {
+  dairy: 'cows',
+  goat: 'goats',
+  poultry: 'birds',
+  fishery: 'fish',
+  piggery: 'pigs',
+  sericulture: 'trays',
+  apiary: 'hives',
+  other: 'animals',
 };
 
 function isDairyTransaction(tx: Transaction): boolean {
@@ -46,7 +57,7 @@ export function NotebookLedgerView({ onMoneyIn, onMoneyOut, onScanBill, onCustom
   const { colors } = useTheme();
   const { transactions } = useLedgerStore();
   const { plots, fetchPlots } = usePlotStore();
-  const { farms, fetchFarms, deleteFarm } = useNotebookFarmStore();
+  const { farms, fetchFarms } = useNotebookFarmStore();
   const { fmtCurrency, toNative, fmtDMY } = useLocalizedFormat();
 
   const [selectedFilter, setSelectedFilter] = useState<string | null>(null);
@@ -54,19 +65,6 @@ export function NotebookLedgerView({ onMoneyIn, onMoneyOut, onScanBill, onCustom
   const [editingFarm, setEditingFarm] = useState<NotebookFarm | null>(null);
 
   useEffect(() => { fetchPlots(); fetchFarms(); }, []);
-
-  const handleDeleteFarm = (farmId: string) => {
-    if (Platform.OS === 'web') {
-      if (window.confirm(t('deleteFarmConfirm'))) {
-        deleteFarm(farmId);
-      }
-    } else {
-      Alert.alert(t('deleteFarm'), t('deleteFarmConfirm'), [
-        { text: t('cancel'), style: 'cancel' },
-        { text: t('delete'), style: 'destructive', onPress: () => deleteFarm(farmId) },
-      ]);
-    }
-  };
 
   const summaries = useMemo(() => {
     let allIncome = 0;
@@ -155,7 +153,7 @@ export function NotebookLedgerView({ onMoneyIn, onMoneyOut, onScanBill, onCustom
                 activeOpacity={0.7}
                 style={[styles.addBtn, { backgroundColor: colors.primary }]}
               >
-                <Plus size={18} color="#FFFFFF" />
+                <Text style={{ color: '#FFFFFF', fontWeight: '700', fontSize: 13 }}>+ {t('add')}</Text>
               </TouchableOpacity>
             </View>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
@@ -220,17 +218,16 @@ export function NotebookLedgerView({ onMoneyIn, onMoneyOut, onScanBill, onCustom
                     isActive && { backgroundColor: '#F5F3FF', borderColor: '#7C3AED' },
                   ]}
                 >
-                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <Text style={styles.kpiEmoji}>{FARM_EMOJI[fs.type] || '🌾'}</Text>
-                    {fs.animalCount ? (
-                      <View style={[styles.countBadge, { backgroundColor: '#7C3AED' + '18' }]}>
-                        <Text style={{ color: '#7C3AED', fontSize: 12, fontWeight: '800' }}>{fs.animalCount}</Text>
-                      </View>
-                    ) : null}
-                  </View>
+                  <Text style={styles.kpiEmoji}>{FARM_EMOJI[fs.type] || '🌾'}</Text>
                   <Text style={[styles.kpiName, { color: colors.foreground }]} numberOfLines={1}>
                     {fs.name}
                   </Text>
+                  {fs.animalCount ? (
+                    <View style={[styles.animalRow, { backgroundColor: '#7C3AED' + '12' }]}>
+                      <Text style={styles.animalCount}>{fs.animalCount}</Text>
+                      <Text style={styles.animalLabel}>{t(ANIMAL_LABEL[fs.type])}</Text>
+                    </View>
+                  ) : null}
                   <View style={styles.kpiAmounts}>
                     <Text style={styles.kpiIncome}>+{fmt(fs.income)}</Text>
                     <Text style={styles.kpiExpense}>-{fmt(fs.expense)}</Text>
@@ -356,9 +353,9 @@ export function NotebookLedgerView({ onMoneyIn, onMoneyOut, onScanBill, onCustom
 
 const styles = StyleSheet.create({
   addBtn: {
-    width: 36,
+    paddingHorizontal: 14,
     height: 36,
-    borderRadius: 18,
+    borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -420,10 +417,25 @@ const styles = StyleSheet.create({
   kpiEmoji: {
     fontSize: 26,
   },
-  countBadge: {
+  animalRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
     paddingHorizontal: 8,
-    paddingVertical: 2,
+    paddingVertical: 4,
     borderRadius: 8,
+    marginTop: 6,
+    alignSelf: 'flex-start',
+  },
+  animalCount: {
+    color: '#7C3AED',
+    fontSize: 16,
+    fontWeight: '900',
+  },
+  animalLabel: {
+    color: '#7C3AED',
+    fontSize: 12,
+    fontWeight: '600',
   },
   kpiName: {
     fontSize: 14,

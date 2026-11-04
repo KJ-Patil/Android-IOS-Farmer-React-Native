@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../../app/providers/ThemeProvider';
 import { usePlotStore } from '../../../shared/hooks/usePlotStore';
 import { Input } from '../../../components/ui/Input';
-import { Button } from '../../../components/ui/Button';
 import { DatePickerInput } from '../../../components/ui/DatePickerInput';
 import { Plus } from 'lucide-react-native';
 import { useLocalizedFormat } from '../../../shared/hooks/useLocalizedFormat';
@@ -73,14 +72,14 @@ export function AddCropModal({ visible, onClose, plotId }: AddCropModalProps) {
   };
 
   return (
-    <Modal visible={visible} animationType="slide" presentationStyle="pageSheet" onRequestClose={onClose}>
+    <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
       <View style={[styles.container, { backgroundColor: colors.background }]}>
-        <View style={styles.header}>
-          <TouchableOpacity onPress={onClose}>
-            <Text style={{ color: colors.primary, fontSize: 16, fontWeight: '600' }}>{t('cancel')}</Text>
-          </TouchableOpacity>
-          <Text style={[styles.title, { color: colors.foreground }]}>{t('addCrop')}</Text>
-          <View style={{ width: 50 }} />
+        <View style={[styles.header, { backgroundColor: colors.card, borderBottomColor: colors.border }]}>
+          <View style={{ width: 40 }} />
+          <View style={{ alignItems: 'center', flex: 1 }}>
+            <Text style={[styles.title, { color: colors.foreground }]}>🌱 {t('addCrop')}</Text>
+          </View>
+          <View style={{ width: 40 }} />
         </View>
 
         <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
@@ -171,8 +170,13 @@ export function AddCropModal({ visible, onClose, plotId }: AddCropModalProps) {
 
         </ScrollView>
 
-        <View style={[styles.footer, { borderTopColor: colors.border }]}>
-          <Button title={t('save')} onPress={handleSave} loading={loading} fullWidth />
+        <View style={[styles.footer, { backgroundColor: colors.card, borderTopColor: colors.border }]}>
+          <TouchableOpacity onPress={onClose} activeOpacity={0.7} style={[styles.cancelBtn, { borderColor: colors.destructive }]}>
+            <Text style={{ color: colors.destructive, fontWeight: '700', fontSize: 15 }}>✕ {t('cancel')}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={handleSave} activeOpacity={0.7} disabled={loading} style={[styles.saveBtn, { backgroundColor: colors.primary, shadowColor: colors.primary, opacity: loading ? 0.6 : 1 }]}>
+            <Text style={{ color: '#FFFFFF', fontWeight: '800', fontSize: 16 }}>{loading ? '...' : `✓ ${t('save')}`}</Text>
+          </TouchableOpacity>
         </View>
       </View>
     </Modal>
@@ -181,8 +185,8 @@ export function AddCropModal({ visible, onClose, plotId }: AddCropModalProps) {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 16, paddingTop: 16, paddingBottom: 12 },
-  title: { fontSize: 17, fontWeight: '700' },
+  header: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, paddingTop: 14, paddingBottom: 10, borderBottomWidth: 1 },
+  title: { fontSize: 18, fontWeight: '800' },
   scroll: { padding: 16, paddingBottom: 40 },
   label: { fontSize: 14, fontWeight: '500', marginBottom: 8 },
   chipGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 16 },
@@ -193,5 +197,7 @@ const styles = StyleSheet.create({
   dropdownItem: { paddingHorizontal: 14, paddingVertical: 11, borderBottomWidth: StyleSheet.hairlineWidth },
   areaRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 16 },
   unitBtn: { borderWidth: 1, borderRadius: 8, paddingHorizontal: 12, paddingVertical: 10 },
-  footer: { padding: 16, borderTopWidth: 1 },
+  footer: { flexDirection: 'row', padding: 16, gap: 12, borderTopWidth: 1 },
+  cancelBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 14, borderRadius: 14, borderWidth: 1.5 },
+  saveBtn: { flex: 1.5, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 14, borderRadius: 14, shadowOpacity: 0.35, shadowRadius: 8, shadowOffset: { width: 0, height: 4 }, elevation: 6 },
 });

@@ -279,21 +279,17 @@ export function CreditTrackerView({ onOpenAddModal }: CreditTrackerViewProps) {
 
       {/* Settle / Pay Installment Modal */}
       {selectedTx && (
-        <Modal visible={true} animationType="fade" onRequestClose={() => setSelectedTx(null)}>
-          <View style={styles.modalOverlay}>
-            <View style={[styles.modalCard, { backgroundColor: colors.background, borderColor: colors.border }]}>
-              <View style={styles.modalHeader}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                  <CreditCard color={colors.warning} size={18} />
-                  <Text style={[styles.modalTitle, { color: colors.foreground }]}>
-                    {t('payCreditDue')}
-                  </Text>
-                </View>
-                <TouchableOpacity onPress={() => setSelectedTx(null)}>
-                  <X color={colors.foreground} size={20} />
-                </TouchableOpacity>
+        <Modal visible={true} animationType="slide" onRequestClose={() => setSelectedTx(null)}>
+          <View style={{ flex: 1, backgroundColor: colors.background }}>
+            <View style={[styles.unifiedHeader, { backgroundColor: colors.card, borderBottomColor: colors.border }]}>
+              <View style={{ width: 40 }} />
+              <View style={{ alignItems: 'center', flex: 1 }}>
+                <Text style={[styles.unifiedTitle, { color: colors.foreground }]}>💳 {t('payCreditDue')}</Text>
               </View>
+              <View style={{ width: 40 }} />
+            </View>
 
+            <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 40 }} keyboardShouldPersistTaps="handled">
               <Text style={{ color: colors.mutedFg, fontSize: 12, marginBottom: 12 }}>
                 {selectedTx.partyName || tCategory(selectedTx.category, t)} • {t('pending')}:{' '}
                 <Text style={{ fontWeight: '700', color: colors.destructive }}>
@@ -350,21 +346,15 @@ export function CreditTrackerView({ onOpenAddModal }: CreditTrackerViewProps) {
                 onChangeText={setPayNotes}
                 placeholder={t('repaymentNotesPlaceholder')}
               />
+            </ScrollView>
 
-              <View style={{ flexDirection: 'row', gap: 10, marginTop: 14 }}>
-                <Button
-                  title={t('cancel')}
-                  variant="outline"
-                  onPress={() => setSelectedTx(null)}
-                  style={{ flex: 1 }}
-                />
-                <Button
-                  title={t('recordPayment')}
-                  loading={loading}
-                  onPress={handleSettleSubmit}
-                  style={{ flex: 1 }}
-                />
-              </View>
+            <View style={[styles.unifiedFooter, { backgroundColor: colors.card, borderTopColor: colors.border }]}>
+              <TouchableOpacity onPress={() => setSelectedTx(null)} activeOpacity={0.7} style={[styles.unifiedCancelBtn, { borderColor: colors.destructive }]}>
+                <Text style={{ color: colors.destructive, fontWeight: '700', fontSize: 15 }}>✕ {t('cancel')}</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={handleSettleSubmit} activeOpacity={0.7} disabled={loading} style={[styles.unifiedSaveBtn, { backgroundColor: colors.primary, shadowColor: colors.primary, opacity: loading ? 0.6 : 1 }]}>
+                <Text style={{ color: '#FFFFFF', fontWeight: '800', fontSize: 16 }}>{loading ? '...' : `✓ ${t('recordPayment')}`}</Text>
+              </TouchableOpacity>
             </View>
           </View>
         </Modal>
@@ -377,7 +367,7 @@ const styles = StyleSheet.create({
   headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   mainTitle: { fontSize: 16, fontWeight: '700' },
   kpiRow: { flexDirection: 'row', gap: 8, marginVertical: 12 },
-  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'center', padding: 20 },
+  modalOverlay: { flexGrow: 1, justifyContent: 'center', padding: 20 },
   modalCard: { borderRadius: 16, borderWidth: 1, padding: 18 },
   modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 },
   modalTitle: { fontSize: 16, fontWeight: '700' },
@@ -428,4 +418,9 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     borderRadius: 10,
   },
+  unifiedHeader: { flexDirection: 'row' as const, alignItems: 'center' as const, paddingHorizontal: 12, paddingTop: 14, paddingBottom: 10, borderBottomWidth: 1 },
+  unifiedTitle: { fontSize: 18, fontWeight: '800' as const },
+  unifiedFooter: { flexDirection: 'row' as const, padding: 16, gap: 12, borderTopWidth: 1 },
+  unifiedCancelBtn: { flex: 1, flexDirection: 'row' as const, alignItems: 'center' as const, justifyContent: 'center' as const, paddingVertical: 14, borderRadius: 14, borderWidth: 1.5 },
+  unifiedSaveBtn: { flex: 1.5, flexDirection: 'row' as const, alignItems: 'center' as const, justifyContent: 'center' as const, paddingVertical: 14, borderRadius: 14, shadowOpacity: 0.35, shadowRadius: 8, shadowOffset: { width: 0, height: 4 }, elevation: 6 },
 });

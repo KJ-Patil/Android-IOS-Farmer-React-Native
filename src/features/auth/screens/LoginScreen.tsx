@@ -190,7 +190,7 @@ export function LoginScreen({ navigation }: any) {
         </View>
       </ScrollView>
 
-      <Modal visible={langPickerOpen} transparent animationType="fade">
+      <Modal visible={langPickerOpen} animationType="slide">
         <TouchableOpacity
           style={styles.langModalOverlay}
           activeOpacity={1}

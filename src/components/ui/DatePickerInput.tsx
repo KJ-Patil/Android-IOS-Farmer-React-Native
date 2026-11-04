@@ -90,7 +90,7 @@ export function DatePickerInput({ label, value, onChange }: DatePickerInputProps
         </TouchableOpacity>
       </View>
 
-      <Modal visible={visible} transparent animationType="fade" onRequestClose={() => setVisible(false)}>
+      <Modal visible={visible} animationType="slide" onRequestClose={() => setVisible(false)}>
         <View style={styles.overlay}>
           <View style={[styles.sheet, { backgroundColor: colors.card }]}>
             <View style={styles.monthNav}>

@@ -74,17 +74,17 @@ export function OCRScannerModal({ visible, onClose, onApply }: OCRScannerModalPr
   };
 
   return (
-    <Modal visible={visible} animationType="slide" presentationStyle="pageSheet" onRequestClose={onClose}>
+    <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
       <View style={[styles.container, { backgroundColor: colors.background }]}>
-        <View style={styles.header}>
-          <TouchableOpacity onPress={onClose}>
-            <Text style={{ color: colors.primary, fontSize: 16, fontWeight: '600' }}>{t('cancel')}</Text>
-          </TouchableOpacity>
-          <Text style={[styles.title, { color: colors.foreground }]}>{t('scanBill')}</Text>
-          <View style={{ width: 50 }} />
+        <View style={[styles.header, { backgroundColor: colors.card, borderBottomColor: colors.border }]}>
+          <View style={{ width: 40 }} />
+          <View style={{ alignItems: 'center', flex: 1 }}>
+            <Text style={[styles.title, { color: colors.foreground }]}>📷 {t('scanBill')}</Text>
+          </View>
+          <View style={{ width: 40 }} />
         </View>
 
-        <ScrollView contentContainerStyle={styles.scroll}>
+        <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
           {scanning && (
             <View style={styles.scanningBox}>
               <ActivityIndicator size="large" color={colors.primary} />
@@ -136,11 +136,21 @@ export function OCRScannerModal({ visible, onClose, onApply }: OCRScannerModalPr
 
               <View style={{ flexDirection: 'row', gap: 10, marginTop: 12 }}>
                 <Button title={t('scanAgain')} onPress={() => { setResult(null); setEditedResult(null); }} variant="outline" style={{ flex: 1 }} />
-                <Button title={t('applyToEntry')} onPress={handleApply} style={{ flex: 1 }} />
               </View>
             </>
           )}
         </ScrollView>
+
+        <View style={[styles.footer, { backgroundColor: colors.card, borderTopColor: colors.border }]}>
+          <TouchableOpacity onPress={onClose} activeOpacity={0.7} style={[styles.cancelBtn, { borderColor: colors.destructive }]}>
+            <Text style={{ color: colors.destructive, fontWeight: '700', fontSize: 15 }}>✕ {t('cancel')}</Text>
+          </TouchableOpacity>
+          {result && editedResult && (
+            <TouchableOpacity onPress={handleApply} activeOpacity={0.7} style={[styles.saveBtn, { backgroundColor: colors.primary, shadowColor: colors.primary }]}>
+              <Text style={{ color: '#FFFFFF', fontWeight: '800', fontSize: 16 }}>✓ {t('applyToEntry')}</Text>
+            </TouchableOpacity>
+          )}
+        </View>
       </View>
     </Modal>
   );
@@ -148,11 +158,14 @@ export function OCRScannerModal({ visible, onClose, onApply }: OCRScannerModalPr
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 16, paddingTop: 16, paddingBottom: 12 },
-  title: { fontSize: 17, fontWeight: '700' },
+  header: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, paddingTop: 14, paddingBottom: 10, borderBottomWidth: 1 },
+  title: { fontSize: 18, fontWeight: '800' },
   scroll: { padding: 16, paddingBottom: 40 },
   scanningBox: { alignItems: 'center', justifyContent: 'center', paddingVertical: 60 },
   actionRow: { flexDirection: 'row', gap: 12 },
   actionCard: { flex: 1, paddingVertical: 28, alignItems: 'center' },
   sectionTitle: { fontSize: 16, fontWeight: '600', marginBottom: 12 },
+  footer: { flexDirection: 'row', padding: 16, gap: 12, borderTopWidth: 1 },
+  cancelBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 14, borderRadius: 14, borderWidth: 1.5 },
+  saveBtn: { flex: 1.5, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 14, borderRadius: 14, shadowOpacity: 0.35, shadowRadius: 8, shadowOffset: { width: 0, height: 4 }, elevation: 6 },
 });

@@ -9,6 +9,7 @@ import {
   ScrollView,
   Modal,
   Alert,
+  Platform,
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../../app/providers/ThemeProvider';
@@ -29,7 +30,6 @@ import {
   Briefcase,
   Calendar,
   Clock,
-  Plus,
   Search,
   Trash2,
   X,
@@ -176,6 +176,12 @@ export function IncomeRegisterView({ onOpenMoneyInModal }: IncomeRegisterViewPro
   };
 
   const handleDelete = (txId: string) => {
+    if (Platform.OS === 'web') {
+      if (window.confirm(t('confirmDeleteTransaction'))) {
+        deleteTransaction(txId).catch((err: any) => alert(err.message));
+      }
+      return;
+    }
     Alert.alert(
       t('deleteTransaction'),
       t('confirmDeleteTransaction'),
@@ -239,7 +245,7 @@ export function IncomeRegisterView({ onOpenMoneyInModal }: IncomeRegisterViewPro
                     style={styles.addButton}
                     activeOpacity={0.8}
                   >
-                    <Plus color="#FFFFFF" size={28} strokeWidth={2.5} />
+                    <Text style={{ color: '#FFFFFF', fontWeight: '800', fontSize: 15 }}>+ {t('add')}</Text>
                   </TouchableOpacity>
                 )}
               </View>
@@ -467,21 +473,17 @@ export function IncomeRegisterView({ onOpenMoneyInModal }: IncomeRegisterViewPro
 
       {/* Pay EMI Modal */}
       {selectedLoanTx && (
-        <Modal visible={true} transparent animationType="fade" onRequestClose={() => setSelectedLoanTx(null)}>
-          <View style={styles.modalOverlay}>
-            <View style={[styles.modalCard, { backgroundColor: colors.background, borderColor: colors.border }]}>
-              <View style={styles.modalHeader}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                  <CreditCard color={colors.warning} size={18} />
-                  <Text style={[styles.modalTitle, { color: colors.foreground }]}>
-                    {t('payLoanEmi')}
-                  </Text>
-                </View>
-                <TouchableOpacity onPress={() => setSelectedLoanTx(null)}>
-                  <X color={colors.foreground} size={20} />
-                </TouchableOpacity>
+        <Modal visible={true} animationType="slide" onRequestClose={() => setSelectedLoanTx(null)}>
+          <View style={{ flex: 1, backgroundColor: colors.background }}>
+            <View style={[styles.unifiedHeader, { backgroundColor: colors.card, borderBottomColor: colors.border }]}>
+              <View style={{ width: 40 }} />
+              <View style={{ alignItems: 'center', flex: 1 }}>
+                <Text style={[styles.unifiedTitle, { color: colors.foreground }]}>💳 {t('payLoanEmi')}</Text>
               </View>
+              <View style={{ width: 40 }} />
+            </View>
 
+            <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 40 }} keyboardShouldPersistTaps="handled">
               <Text style={{ color: colors.mutedFg, fontSize: 12, marginBottom: 12 }}>
                 {selectedLoanTx.partyName || tCategory(selectedLoanTx.category, t)} •{' '}
                 {t('outstanding')}:{' '}
@@ -539,21 +541,15 @@ export function IncomeRegisterView({ onOpenMoneyInModal }: IncomeRegisterViewPro
                 onChangeText={setEmiNotes}
                 placeholder={t('loanPaymentNotesPlaceholder')}
               />
+            </ScrollView>
 
-              <View style={{ flexDirection: 'row', gap: 10, marginTop: 16 }}>
-                <Button
-                  title={t('cancel')}
-                  variant="outline"
-                  onPress={() => setSelectedLoanTx(null)}
-                  style={{ flex: 1 }}
-                />
-                <Button
-                  title={t('submitPayment')}
-                  loading={emiLoading}
-                  onPress={handleEmiSubmit}
-                  style={{ flex: 1 }}
-                />
-              </View>
+            <View style={[styles.unifiedFooter, { backgroundColor: colors.card, borderTopColor: colors.border }]}>
+              <TouchableOpacity onPress={() => setSelectedLoanTx(null)} activeOpacity={0.7} style={[styles.unifiedCancelBtn, { borderColor: colors.destructive }]}>
+                <Text style={{ color: colors.destructive, fontWeight: '700', fontSize: 15 }}>✕ {t('cancel')}</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={handleEmiSubmit} activeOpacity={0.7} disabled={emiLoading} style={[styles.unifiedSaveBtn, { backgroundColor: colors.primary, shadowColor: colors.primary, opacity: emiLoading ? 0.6 : 1 }]}>
+                <Text style={{ color: '#FFFFFF', fontWeight: '800', fontSize: 16 }}>{emiLoading ? '...' : `✓ ${t('submitPayment')}`}</Text>
+              </TouchableOpacity>
             </View>
           </View>
         </Modal>
@@ -566,7 +562,7 @@ const styles = StyleSheet.create({
   mainTitle: { fontSize: 15, fontWeight: '700' },
   summaryIcon: { width: 36, height: 36, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
   totalAmount: { fontSize: 28, fontWeight: '800', marginTop: 8, letterSpacing: -0.5 },
-  addButton: { width: 56, height: 56, borderRadius: 16, backgroundColor: '#16A34A', alignItems: 'center', justifyContent: 'center', elevation: 4, shadowColor: '#16A34A', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8 },
+  addButton: { paddingHorizontal: 18, height: 44, borderRadius: 14, backgroundColor: '#16A34A', alignItems: 'center', justifyContent: 'center', elevation: 4, shadowColor: '#16A34A', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8 },
   loanItemCard: { padding: 10, borderRadius: 12, borderWidth: 1, marginTop: 8 },
   searchBox: { flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderRadius: 12, paddingHorizontal: 10, height: 40 },
   searchInput: { flex: 1, marginLeft: 8, fontSize: 13, height: '100%' },
@@ -582,4 +578,9 @@ const styles = StyleSheet.create({
   inputLabel: { fontSize: 12, fontWeight: '600', marginBottom: 6, marginTop: 4 },
   modeRow: { flexDirection: 'row', gap: 8, marginBottom: 12 },
   modeChip: { flex: 1, paddingVertical: 8, borderRadius: 10, borderWidth: 1, alignItems: 'center' },
+  unifiedHeader: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, paddingTop: 14, paddingBottom: 10, borderBottomWidth: 1 },
+  unifiedTitle: { fontSize: 18, fontWeight: '800' },
+  unifiedFooter: { flexDirection: 'row', padding: 16, gap: 12, borderTopWidth: 1 },
+  unifiedCancelBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 14, borderRadius: 14, borderWidth: 1.5 },
+  unifiedSaveBtn: { flex: 1.5, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 14, borderRadius: 14, shadowOpacity: 0.35, shadowRadius: 8, shadowOffset: { width: 0, height: 4 }, elevation: 6 },
 });

@@ -5,7 +5,6 @@ import { useTheme } from '../../../app/providers/ThemeProvider';
 import { useLedgerStore } from '../../../shared/hooks/useLedgerStore';
 import { usePlotStore } from '../../../shared/hooks/usePlotStore';
 import { Input } from '../../../components/ui/Input';
-import { Button } from '../../../components/ui/Button';
 import { Card } from '../../../components/ui/Card';
 import { DatePickerInput } from '../../../components/ui/DatePickerInput';
 import { useLocalizedFormat } from '../../../shared/hooks/useLocalizedFormat';
@@ -16,6 +15,8 @@ interface MoneyInModalProps {
   onClose: () => void;
   plotId?: string;
   cropId?: string;
+  farmId?: string;
+  farmName?: string;
 }
 
 const PAYMENT_MODES: PaymentMode[] = ['cash', 'upi', 'bank', 'credit', 'cheque'];
@@ -24,7 +25,7 @@ const LOAN_TYPES = ['cropLoan', 'termLoan', 'tractorLoan', 'goldLoan', 'personal
 const OTHER_SUBTYPES = ['subsidy', 'insuranceClaim', 'tractorRent', 'implementsRent', 'waterSale', 'saplingsSale', 'seedsSale', 'organicManureSale', 'wages', 'interest', 'commission', 'custom'] as const;
 const QUANTITY_UNITS = ['Bags', 'Quintal', 'Kg', 'Ton', 'Crates'];
 
-export function MoneyInModal({ visible, onClose, plotId, cropId }: MoneyInModalProps) {
+export function MoneyInModal({ visible, onClose, plotId, cropId, farmId, farmName }: MoneyInModalProps) {
   const { t } = useTranslation();
   const { colors } = useTheme();
   const { postIncomeTransaction } = useLedgerStore();
@@ -118,6 +119,8 @@ export function MoneyInModal({ visible, onClose, plotId, cropId }: MoneyInModalP
           billNumber, notes,
           grossAmount,
           totalDeductions,
+          ...(farmId ? { farmId } : {}),
+          ...(farmName ? { farmName } : {}),
           cropSaleDetails: {
             plotId: selectedPlotId,
             plotName: selectedPlot?.name || '',
@@ -145,6 +148,8 @@ export function MoneyInModal({ visible, onClose, plotId, cropId }: MoneyInModalP
           category: 'dairyIncome',
           amount: dairyTotal,
           date, paymentMode, partyName, billNumber, notes,
+          ...(farmId ? { farmId } : {}),
+          ...(farmName ? { farmName } : {}),
           dairyDetails: {
             productType: dairyProduct as any,
             quantity: parseFloat(dairyQty),
@@ -162,6 +167,8 @@ export function MoneyInModal({ visible, onClose, plotId, cropId }: MoneyInModalP
           category: 'loanReceived',
           amount: loanNet,
           date, paymentMode: 'bank', partyName, billNumber, notes,
+          ...(farmId ? { farmId } : {}),
+          ...(farmName ? { farmName } : {}),
           loanDetails: {
             loanType: loanType as any,
             sanctionAmount: parseFloat(sanctionAmount),
@@ -185,6 +192,8 @@ export function MoneyInModal({ visible, onClose, plotId, cropId }: MoneyInModalP
           category: otherSubtype,
           amount: amt,
           date, paymentMode, partyName, billNumber, notes,
+          ...(farmId ? { farmId } : {}),
+          ...(farmName ? { farmName } : {}),
           otherIncomeDetails: { subtype: otherSubtype as any },
         });
       }
@@ -218,14 +227,14 @@ export function MoneyInModal({ visible, onClose, plotId, cropId }: MoneyInModalP
   ];
 
   return (
-    <Modal visible={visible} animationType="slide" presentationStyle="pageSheet" onRequestClose={onClose}>
+    <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
       <View style={[styles.container, { backgroundColor: colors.background }]}>
-        <View style={styles.header}>
-          <TouchableOpacity onPress={onClose}>
-            <Text style={{ color: colors.primary, fontSize: 16, fontWeight: '600' }}>{t('cancel')}</Text>
-          </TouchableOpacity>
-          <Text style={[styles.title, { color: colors.primary }]}>{t('moneyIn')}</Text>
-          <View style={{ width: 50 }} />
+        <View style={[styles.header, { backgroundColor: colors.card, borderBottomColor: colors.border }]}>
+          <View style={{ width: 40 }} />
+          <View style={{ alignItems: 'center', flex: 1 }}>
+            <Text style={[styles.title, { color: colors.foreground }]}>💰 {t('moneyIn')}</Text>
+          </View>
+          <View style={{ width: 40 }} />
         </View>
 
         <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
@@ -338,11 +347,16 @@ export function MoneyInModal({ visible, onClose, plotId, cropId }: MoneyInModalP
           )}
         </ScrollView>
 
-        {category && (
-          <View style={[styles.footer, { borderTopColor: colors.border }]}>
-            <Button title={t('save')} onPress={handleSave} loading={loading} fullWidth />
-          </View>
-        )}
+        <View style={[styles.footer, { backgroundColor: colors.card, borderTopColor: colors.border }]}>
+          <TouchableOpacity onPress={onClose} activeOpacity={0.7} style={[styles.cancelBtn, { borderColor: colors.destructive }]}>
+            <Text style={{ color: colors.destructive, fontWeight: '700', fontSize: 15 }}>✕ {t('cancel')}</Text>
+          </TouchableOpacity>
+          {category && (
+            <TouchableOpacity onPress={handleSave} activeOpacity={0.7} disabled={loading} style={[styles.saveBtn, { backgroundColor: colors.primary, shadowColor: colors.primary, opacity: loading ? 0.6 : 1 }]}>
+              <Text style={{ color: '#FFFFFF', fontWeight: '800', fontSize: 16 }}>{loading ? '...' : `✓ ${t('save')}`}</Text>
+            </TouchableOpacity>
+          )}
+        </View>
       </View>
     </Modal>
   );
@@ -350,13 +364,15 @@ export function MoneyInModal({ visible, onClose, plotId, cropId }: MoneyInModalP
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 16, paddingTop: 48, paddingBottom: 12 },
-  title: { fontSize: 17, fontWeight: '700' },
+  header: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, paddingTop: 14, paddingBottom: 10, borderBottomWidth: 1 },
+  title: { fontSize: 18, fontWeight: '800' },
   scroll: { padding: 16, paddingBottom: 60 },
   sectionTitle: { fontSize: 16, fontWeight: '600', marginBottom: 12 },
   label: { fontSize: 14, fontWeight: '500', marginBottom: 8 },
   chipGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 16 },
   chip: { borderWidth: 1.5, paddingVertical: 8, paddingHorizontal: 12 },
   divider: { height: 1, marginVertical: 20 },
-  footer: { padding: 16, borderTopWidth: 1 },
+  footer: { flexDirection: 'row', padding: 16, gap: 12, borderTopWidth: 1 },
+  cancelBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 14, borderRadius: 14, borderWidth: 1.5 },
+  saveBtn: { flex: 1.5, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 14, borderRadius: 14, shadowOpacity: 0.35, shadowRadius: 8, shadowOffset: { width: 0, height: 4 }, elevation: 6 },
 });

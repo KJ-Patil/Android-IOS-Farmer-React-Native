@@ -1,13 +1,10 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Modal, TouchableOpacity, Alert, FlatList } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, ScrollView, Modal, TouchableOpacity, Alert } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../../app/providers/ThemeProvider';
 import { useLedgerStore } from '../../../shared/hooks/useLedgerStore';
 import { Input } from '../../../components/ui/Input';
-import { Button } from '../../../components/ui/Button';
-import { Card } from '../../../components/ui/Card';
-import { Badge } from '../../../components/ui/Badge';
-import type { CustomLedger } from '../../../shared/types/ledger';
+import { X, Check } from 'lucide-react-native';
 
 interface CustomLedgersModalProps {
   visible: boolean;
@@ -16,31 +13,25 @@ interface CustomLedgersModalProps {
 
 type LedgerFormType = 'income' | 'expense' | 'both';
 
+const TYPE_EMOJI: Record<string, string> = { income: '💰', expense: '💸', both: '🔄' };
+
 export function CustomLedgersModal({ visible, onClose }: CustomLedgersModalProps) {
   const { t } = useTranslation();
   const { colors } = useTheme();
-  const { customLedgers, fetchCustomLedgers, createCustomLedger, deleteCustomLedger } = useLedgerStore();
-  const [showForm, setShowForm] = useState(false);
+  const { createCustomLedger } = useLedgerStore();
   const [name, setName] = useState('');
   const [nameMr, setNameMr] = useState('');
   const [type, setType] = useState<LedgerFormType>('both');
   const [description, setDescription] = useState('');
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    if (visible) fetchCustomLedgers();
-  }, [visible]);
-
   const handleCreate = async () => {
     if (!name.trim()) { Alert.alert(t('error'), t('enterName')); return; }
     setLoading(true);
     try {
       await createCustomLedger({ name: name.trim(), nameMr: nameMr.trim() || undefined, type, description: description.trim() || undefined });
-      setShowForm(false);
-      setName('');
-      setNameMr('');
-      setType('both');
-      setDescription('');
+      resetForm();
+      onClose();
     } catch (err: any) {
       Alert.alert(t('error'), err.message);
     } finally {
@@ -48,74 +39,137 @@ export function CustomLedgersModal({ visible, onClose }: CustomLedgersModalProps
     }
   };
 
-  const handleDelete = (ledger: CustomLedger) => {
-    Alert.alert(t('delete'), `${t('delete')} "${ledger.name}"?`, [
-      { text: t('cancel'), style: 'cancel' },
-      { text: t('delete'), style: 'destructive', onPress: () => deleteCustomLedger(ledger.id) },
-    ]);
+  const resetForm = () => {
+    setName('');
+    setNameMr('');
+    setType('both');
+    setDescription('');
+  };
+
+  const handleClose = () => {
+    resetForm();
+    onClose();
   };
 
   const types: LedgerFormType[] = ['income', 'expense', 'both'];
 
   return (
-    <Modal visible={visible} animationType="slide" presentationStyle="pageSheet" onRequestClose={onClose}>
+    <Modal visible={visible} animationType="slide" onRequestClose={handleClose}>
       <View style={[styles.container, { backgroundColor: colors.background }]}>
-        <View style={styles.header}>
-          <TouchableOpacity onPress={onClose}>
-            <Text style={{ color: colors.primary, fontSize: 16, fontWeight: '600' }}>{t('cancel')}</Text>
-          </TouchableOpacity>
-          <Text style={[styles.title, { color: colors.foreground }]}>{t('customLedgers')}</Text>
-          <TouchableOpacity onPress={() => setShowForm(!showForm)}>
-            <Text style={{ color: colors.primary, fontSize: 16, fontWeight: '600' }}>{showForm ? '✕' : '+'}</Text>
-          </TouchableOpacity>
+        {/* Header */}
+        <View style={[styles.header, { backgroundColor: colors.card, borderBottomColor: colors.border }]}>
+          <View style={{ width: 40 }} />
+          <View style={{ alignItems: 'center', flex: 1 }}>
+            <Text style={[styles.headerTitle, { color: colors.foreground }]}>{t('customLedgers')}</Text>
+          </View>
+          <View style={{ width: 40 }} />
         </View>
 
-        {showForm && (
-          <View style={[styles.formSection, { borderBottomColor: colors.border }]}>
-            <Input label={t('name')} value={name} onChangeText={setName} placeholder={t('customLedgerPlaceholder')} />
-            <Input label={`${t('name')} (मराठी)`} value={nameMr} onChangeText={setNameMr} placeholder={t('optional')} />
+        <ScrollView
+          contentContainerStyle={styles.scroll}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
+          {/* Hero */}
+          <View style={styles.heroRow}>
+            <Text style={{ fontSize: 28 }}>📒</Text>
+            <View style={{ marginLeft: 10, flex: 1 }}>
+              <Text style={[styles.heroTitle, { color: colors.foreground }]}>{t('add')} {t('customLedgers')}</Text>
+              <Text style={{ color: colors.mutedFg, fontSize: 13 }}>
+                {t('createNewLedgerDesc') || 'Create a new custom ledger entry'}
+              </Text>
+            </View>
+          </View>
 
-            <Text style={[styles.label, { color: colors.foreground }]}>{t('type')}</Text>
-            <View style={styles.chipGrid}>
-              {types.map((tp) => (
-                <TouchableOpacity
-                  key={tp}
-                  onPress={() => setType(tp)}
-                  style={[styles.chip, { borderColor: type === tp ? colors.primary : colors.border, backgroundColor: type === tp ? colors.primary + '15' : colors.card, borderRadius: 8 }]}
-                >
-                  <Text style={{ color: type === tp ? colors.primary : colors.foreground, fontWeight: '600', fontSize: 12 }}>{t(tp)}</Text>
-                </TouchableOpacity>
-              ))}
+          {/* Form Card */}
+          <View style={[styles.formCard, { backgroundColor: colors.card, shadowColor: '#000' }]}>
+            <View style={styles.formInputRow}>
+              <Text style={{ fontSize: 16 }}>🏷️</Text>
+              <Text style={[styles.formInputLabel, { color: colors.foreground }]}>{t('name')}</Text>
+            </View>
+            <Input value={name} onChangeText={setName} placeholder={t('customLedgerPlaceholder')} />
+
+            <View style={styles.formInputRow}>
+              <Text style={{ fontSize: 16 }}>🔤</Text>
+              <Text style={[styles.formInputLabel, { color: colors.foreground }]}>{t('name')} (मराठी)</Text>
+            </View>
+            <Input value={nameMr} onChangeText={setNameMr} placeholder={t('optional')} />
+
+            <Text style={[styles.typeLabel, { color: colors.foreground }]}>{t('type')}</Text>
+            <View style={styles.typeGrid}>
+              {types.map((tp) => {
+                const sel = type === tp;
+                return (
+                  <TouchableOpacity
+                    key={tp}
+                    onPress={() => setType(tp)}
+                    activeOpacity={0.7}
+                    style={[
+                      styles.typeCard,
+                      {
+                        backgroundColor: sel ? colors.primary + '12' : colors.background,
+                        borderColor: sel ? colors.primary : colors.border,
+                        borderWidth: sel ? 2 : 1,
+                        shadowColor: sel ? colors.primary : '#000',
+                        shadowOpacity: sel ? 0.2 : 0.05,
+                        shadowRadius: sel ? 8 : 3,
+                        shadowOffset: { width: 0, height: sel ? 3 : 1 },
+                        elevation: sel ? 4 : 1,
+                      },
+                    ]}
+                  >
+                    <Text style={{ fontSize: 22 }}>{TYPE_EMOJI[tp]}</Text>
+                    <Text
+                      style={{
+                        color: sel ? colors.primary : colors.foreground,
+                        fontWeight: sel ? '800' : '600',
+                        fontSize: 13,
+                        marginTop: 4,
+                      }}
+                    >
+                      {t(tp)}
+                    </Text>
+                    {sel && (
+                      <View style={[styles.checkDot, { backgroundColor: colors.primary }]}>
+                        <Check size={10} color="#FFFFFF" strokeWidth={3} />
+                      </View>
+                    )}
+                  </TouchableOpacity>
+                );
+              })}
             </View>
 
-            <Input label={t('description')} value={description} onChangeText={setDescription} placeholder={t('optional')} />
-            <Button title={t('save')} onPress={handleCreate} loading={loading} fullWidth />
+            <View style={styles.formInputRow}>
+              <Text style={{ fontSize: 16 }}>📋</Text>
+              <Text style={[styles.formInputLabel, { color: colors.foreground }]}>{t('description')}</Text>
+            </View>
+            <Input value={description} onChangeText={setDescription} placeholder={t('optional')} />
           </View>
-        )}
+        </ScrollView>
 
-        <FlatList
-          data={customLedgers}
-          keyExtractor={(item) => item.id}
-          contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 40 }}
-          ListEmptyComponent={<Text style={{ color: colors.mutedFg, textAlign: 'center', marginTop: 40 }}>{t('noCustomLedgersYet')}</Text>}
-          renderItem={({ item }) => (
-            <Card style={{ marginTop: 8 }} padding={14}>
-              <View style={styles.row}>
-                <View style={{ flex: 1 }}>
-                  <Text style={{ color: colors.foreground, fontWeight: '600', fontSize: 15 }}>{item.name}</Text>
-                  {item.nameMr && <Text style={{ color: colors.mutedFg, fontSize: 12 }}>{item.nameMr}</Text>}
-                  {item.description && <Text style={{ color: colors.mutedFg, fontSize: 12, marginTop: 2 }}>{item.description}</Text>}
-                </View>
-                <View style={{ alignItems: 'flex-end', gap: 6 }}>
-                  <Badge text={item.type} variant={item.type === 'income' ? 'success' : item.type === 'expense' ? 'destructive' : 'info'} />
-                  <TouchableOpacity onPress={() => handleDelete(item)}>
-                    <Text style={{ color: colors.destructive, fontSize: 12, fontWeight: '600' }}>{t('delete')}</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-            </Card>
-          )}
-        />
+        {/* Footer */}
+        <View style={[styles.footer, { backgroundColor: colors.card, borderTopColor: colors.border }]}>
+          <TouchableOpacity
+            onPress={handleClose}
+            activeOpacity={0.7}
+            style={[styles.cancelBtn, { borderColor: colors.destructive }]}
+          >
+            <X color={colors.destructive} size={18} />
+            <Text style={{ color: colors.destructive, fontWeight: '700', fontSize: 15 }}>{t('cancel')}</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={handleCreate}
+            activeOpacity={0.7}
+            disabled={loading}
+            style={[styles.saveBtn, { backgroundColor: colors.primary, shadowColor: colors.primary, opacity: loading ? 0.6 : 1 }]}
+          >
+            <Check color="#FFFFFF" size={20} strokeWidth={3} />
+            <Text style={{ color: '#FFFFFF', fontWeight: '800', fontSize: 16 }}>
+              {loading ? '...' : t('save')}
+            </Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </Modal>
   );
@@ -123,11 +177,88 @@ export function CustomLedgersModal({ visible, onClose }: CustomLedgersModalProps
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 16, paddingTop: 16, paddingBottom: 12 },
-  title: { fontSize: 17, fontWeight: '700' },
-  formSection: { paddingHorizontal: 16, paddingBottom: 16, borderBottomWidth: 1 },
-  label: { fontSize: 14, fontWeight: '500', marginBottom: 8 },
-  chipGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 16 },
-  chip: { borderWidth: 1.5, paddingVertical: 8, paddingHorizontal: 12 },
-  row: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingTop: 14,
+    paddingBottom: 10,
+    borderBottomWidth: 1,
+  },
+  headerTitle: { fontSize: 18, fontWeight: '800' },
+  scroll: { padding: 16, paddingBottom: 30 },
+
+  heroRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 18,
+  },
+  heroTitle: { fontSize: 20, fontWeight: '800' },
+
+  formCard: {
+    borderRadius: 16,
+    padding: 18,
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 4,
+  },
+  formInputRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 6,
+  },
+  formInputLabel: { fontSize: 14, fontWeight: '700' },
+
+  typeLabel: { fontSize: 14, fontWeight: '700', marginBottom: 10 },
+  typeGrid: { flexDirection: 'row', gap: 10, marginBottom: 16 },
+  typeCard: {
+    flex: 1,
+    borderRadius: 14,
+    paddingVertical: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'relative',
+  },
+  checkDot: {
+    position: 'absolute',
+    top: 6,
+    right: 6,
+    width: 18,
+    height: 18,
+    borderRadius: 9,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  footer: {
+    flexDirection: 'row',
+    padding: 16,
+    gap: 12,
+    borderTopWidth: 1,
+  },
+  cancelBtn: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    paddingVertical: 14,
+    borderRadius: 14,
+    borderWidth: 1.5,
+  },
+  saveBtn: {
+    flex: 1.5,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    paddingVertical: 14,
+    borderRadius: 14,
+    shadowOpacity: 0.35,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 6,
+  },
 });

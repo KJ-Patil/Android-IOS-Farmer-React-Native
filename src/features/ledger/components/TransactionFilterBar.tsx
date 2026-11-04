@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Modal, ScrollView } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../../app/providers/ThemeProvider';
-import { Button } from '../../../components/ui/Button';
 import { DatePickerInput } from '../../../components/ui/DatePickerInput';
 
 export interface TransactionFilters {
@@ -70,11 +69,17 @@ export function TransactionFilterBar({ filters, onApply }: TransactionFilterBarP
         )}
       </View>
 
-      <Modal visible={visible} transparent animationType="fade" onRequestClose={() => setVisible(false)}>
-        <View style={styles.overlay}>
-          <View style={[styles.sheet, { backgroundColor: colors.card }]}>
-            <Text style={{ color: colors.foreground, fontSize: 17, fontWeight: '700', marginBottom: 16 }}>{t('filters')}</Text>
+      <Modal visible={visible} animationType="slide" onRequestClose={() => setVisible(false)}>
+        <View style={{ flex: 1, backgroundColor: colors.background }}>
+          <View style={[styles.unifiedHeader, { backgroundColor: colors.card, borderBottomColor: colors.border }]}>
+            <View style={{ width: 40 }} />
+            <View style={{ alignItems: 'center', flex: 1 }}>
+              <Text style={[styles.unifiedTitle, { color: colors.foreground }]}>🔍 {t('filters')}</Text>
+            </View>
+            <View style={{ width: 40 }} />
+          </View>
 
+          <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 40 }} keyboardShouldPersistTaps="handled">
             <Text style={[styles.label, { color: colors.foreground }]}>{t('type')}</Text>
             <View style={styles.chipGrid}>
               {(['income', 'expense'] as const).map((tp) => (
@@ -103,11 +108,15 @@ export function TransactionFilterBar({ filters, onApply }: TransactionFilterBarP
 
             <DatePickerInput label={t('from')} value={localFilters.dateFrom || ''} onChange={(v) => setLocalFilters((f) => ({ ...f, dateFrom: v }))} />
             <DatePickerInput label={t('to')} value={localFilters.dateTo || ''} onChange={(v) => setLocalFilters((f) => ({ ...f, dateTo: v }))} />
+          </ScrollView>
 
-            <View style={{ flexDirection: 'row', gap: 10, marginTop: 8 }}>
-              <Button title={t('clearAll')} onPress={handleClear} variant="outline" style={{ flex: 1 }} />
-              <Button title={t('apply')} onPress={handleApply} style={{ flex: 1 }} />
-            </View>
+          <View style={[styles.unifiedFooter, { backgroundColor: colors.card, borderTopColor: colors.border }]}>
+            <TouchableOpacity onPress={handleClear} activeOpacity={0.7} style={[styles.unifiedCancelBtn, { borderColor: colors.destructive }]}>
+              <Text style={{ color: colors.destructive, fontWeight: '700', fontSize: 15 }}>✕ {t('clearAll')}</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={handleApply} activeOpacity={0.7} style={[styles.unifiedSaveBtn, { backgroundColor: colors.primary, shadowColor: colors.primary }]}>
+              <Text style={{ color: '#FFFFFF', fontWeight: '800', fontSize: 16 }}>✓ {t('apply')}</Text>
+            </TouchableOpacity>
           </View>
         </View>
       </Modal>
@@ -124,4 +133,9 @@ const styles = StyleSheet.create({
   label: { fontSize: 14, fontWeight: '500', marginBottom: 8 },
   chipGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 16 },
   optionChip: { borderWidth: 1.5, paddingVertical: 8, paddingHorizontal: 14 },
+  unifiedHeader: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, paddingTop: 14, paddingBottom: 10, borderBottomWidth: 1 },
+  unifiedTitle: { fontSize: 18, fontWeight: '800' },
+  unifiedFooter: { flexDirection: 'row', padding: 16, gap: 12, borderTopWidth: 1 },
+  unifiedCancelBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 14, borderRadius: 14, borderWidth: 1.5 },
+  unifiedSaveBtn: { flex: 1.5, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 14, borderRadius: 14, shadowOpacity: 0.35, shadowRadius: 8, shadowOffset: { width: 0, height: 4 }, elevation: 6 },
 });

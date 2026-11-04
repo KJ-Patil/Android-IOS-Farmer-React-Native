@@ -30,7 +30,6 @@ import { useLocalizedFormat } from '../../../shared/hooks/useLocalizedFormat';
 import { tCategory, tPaymentMode } from '../../../shared/utils/helpers';
 import { LinearGradient } from 'expo-linear-gradient';
 import {
-  Plus,
   X,
   Sun,
   Sunset,
@@ -245,16 +244,8 @@ export function DashboardScreen({ navigation }: any) {
     return transactions.reduce((acc, tx) => acc + (tx.type === 'income' || !tx.type ? tx.amount || 0 : 0), 0);
   }, [transactions]);
 
-  const totalExpenses = useMemo(() => {
-    return transactions.reduce((acc, tx) => acc + (tx.type === 'expense' ? tx.amount || 0 : 0), 0);
-  }, [transactions]);
-
   const incomeCount = useMemo(() => {
     return transactions.filter((tx) => tx.type === 'income' || !tx.type).length;
-  }, [transactions]);
-
-  const expenseCount = useMemo(() => {
-    return transactions.filter((tx) => tx.type === 'expense').length;
   }, [transactions]);
 
   // Aggregate monthly trend data from transactions for the AreaChart
@@ -389,7 +380,7 @@ export function DashboardScreen({ navigation }: any) {
 
         <View style={styles.contentPadding}>
 
-        {/* 2 KPI Cards: Revenue & Expenses */}
+        {/* KPI Card: Revenue */}
         <View style={styles.kpiGrid}>
           <View style={[styles.kpiCard, { backgroundColor: colors.card }]}>
             <Text style={[styles.kpiLabel, { color: colors.mutedFg }]}>{t('totalRevenue')}</Text>
@@ -398,16 +389,6 @@ export function DashboardScreen({ navigation }: any) {
             </Text>
             <Text style={[styles.kpiSub, { color: colors.mutedFg }]}>
               {toNative(incomeCount)} {t('entries')}
-            </Text>
-          </View>
-
-          <View style={[styles.kpiCard, { backgroundColor: colors.card }]}>
-            <Text style={[styles.kpiLabel, { color: colors.mutedFg }]}>{t('totalExpenses')}</Text>
-            <Text style={[styles.kpiValue, { color: '#DC2626' }]}>
-              {formatC(totalExpenses)}
-            </Text>
-            <Text style={[styles.kpiSub, { color: colors.mutedFg }]}>
-              {toNative(expenseCount)} {t('entries')}
             </Text>
           </View>
         </View>
@@ -453,7 +434,7 @@ export function DashboardScreen({ navigation }: any) {
               style={[styles.addButton, { backgroundColor: colors.primary }]}
               activeOpacity={0.8}
             >
-              <Plus color="#FFFFFF" size={18} />
+              <Text style={{ color: '#FFFFFF', fontWeight: '700', fontSize: 13 }}>+ {t('add')}</Text>
             </TouchableOpacity>
           </View>
 
@@ -509,7 +490,7 @@ export function DashboardScreen({ navigation }: any) {
       </ScrollView>
 
       {/* Weather Detail Modal */}
-      <Modal visible={weatherModalOpen} transparent animationType="slide">
+      <Modal visible={weatherModalOpen} animationType="slide">
         <View style={[styles.modalOverlay, { justifyContent: 'flex-end', padding: 0 }]}>
           <View style={[styles.weatherModal, { backgroundColor: colors.card }]}>
             <View style={styles.weatherModalHeader}>
@@ -714,18 +695,17 @@ export function DashboardScreen({ navigation }: any) {
       </Modal>
 
       {/* Quick Add Transaction Modal identical to FarmerLedger */}
-      <Modal visible={modalOpen} transparent animationType="slide">
-        <View style={styles.modalOverlay}>
-          <Card style={styles.modalCard} padding={20}>
-            <View style={styles.modalHeader}>
-              <Text style={[styles.modalTitle, { color: colors.foreground }]}>
-                {t('addTransaction')}
-              </Text>
-              <TouchableOpacity onPress={() => setModalOpen(false)}>
-                <X color={colors.mutedFg} size={20} />
-              </TouchableOpacity>
+      <Modal visible={modalOpen} animationType="slide" onRequestClose={() => setModalOpen(false)}>
+        <View style={{ flex: 1, backgroundColor: colors.background }}>
+          <View style={[styles.unifiedHeader, { backgroundColor: colors.card, borderBottomColor: colors.border }]}>
+            <View style={{ width: 40 }} />
+            <View style={{ alignItems: 'center', flex: 1 }}>
+              <Text style={[styles.unifiedTitle, { color: colors.foreground }]}>📝 {t('addTransaction')}</Text>
             </View>
+            <View style={{ width: 40 }} />
+          </View>
 
+          <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 40 }} keyboardShouldPersistTaps="handled">
             <Input
               label={t('farmer')}
               placeholder={t('farmerNamePlaceholder')}
@@ -767,23 +747,16 @@ export function DashboardScreen({ navigation }: any) {
               onChangeText={setModalAmount}
               keyboardType="number-pad"
             />
+          </ScrollView>
 
-            <View style={styles.modalActions}>
-              <Button
-                title={t('cancel')}
-                variant="outline"
-                onPress={() => setModalOpen(false)}
-                disabled={submitting}
-                style={{ flex: 1 }}
-              />
-              <Button
-                title={t('save')}
-                onPress={handleAddTransaction}
-                loading={submitting}
-                style={{ flex: 1 }}
-              />
-            </View>
-          </Card>
+          <View style={[styles.unifiedFooter, { backgroundColor: colors.card, borderTopColor: colors.border }]}>
+            <TouchableOpacity onPress={() => setModalOpen(false)} activeOpacity={0.7} style={[styles.unifiedCancelBtn, { borderColor: colors.destructive }]}>
+              <Text style={{ color: colors.destructive, fontWeight: '700', fontSize: 15 }}>✕ {t('cancel')}</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={handleAddTransaction} activeOpacity={0.7} disabled={submitting} style={[styles.unifiedSaveBtn, { backgroundColor: colors.primary, shadowColor: colors.primary, opacity: submitting ? 0.6 : 1 }]}>
+              <Text style={{ color: '#FFFFFF', fontWeight: '800', fontSize: 16 }}>{submitting ? '...' : `✓ ${t('save')}`}</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </Modal>
     </ScreenLayout>
@@ -831,7 +804,7 @@ const styles = StyleSheet.create({
   legendDot: { width: 10, height: 3, borderRadius: 2 },
   feedCard: { marginBottom: 20 },
   feedHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
-  addButton: { width: 36, height: 36, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
+  addButton: { paddingHorizontal: 14, height: 36, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
   txnRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 12, borderBottomWidth: 1 },
   txnFarmer: { fontSize: 14, fontWeight: '700' },
   txnMeta: { fontSize: 12, marginTop: 2 },
@@ -844,4 +817,9 @@ const styles = StyleSheet.create({
   cropSelector: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginBottom: 12 },
   cropChip: { paddingHorizontal: 12, paddingVertical: 7, borderRadius: 8, borderWidth: 1 },
   modalActions: { flexDirection: 'row', gap: 10, marginTop: 16 },
+  unifiedHeader: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, paddingTop: 14, paddingBottom: 10, borderBottomWidth: 1 },
+  unifiedTitle: { fontSize: 18, fontWeight: '800' },
+  unifiedFooter: { flexDirection: 'row', padding: 16, gap: 12, borderTopWidth: 1 },
+  unifiedCancelBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 14, borderRadius: 14, borderWidth: 1.5 },
+  unifiedSaveBtn: { flex: 1.5, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 14, borderRadius: 14, shadowOpacity: 0.35, shadowRadius: 8, shadowOffset: { width: 0, height: 4 }, elevation: 6 },
 });

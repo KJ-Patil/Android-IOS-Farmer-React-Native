@@ -5,7 +5,6 @@ import { useTheme } from '../../../app/providers/ThemeProvider';
 import { useLedgerStore } from '../../../shared/hooks/useLedgerStore';
 import { usePlotStore } from '../../../shared/hooks/usePlotStore';
 import { Input } from '../../../components/ui/Input';
-import { Button } from '../../../components/ui/Button';
 import { Card } from '../../../components/ui/Card';
 import { DatePickerInput } from '../../../components/ui/DatePickerInput';
 import type { PaymentMode, LedgerType } from '../../../shared/types/ledger';
@@ -15,6 +14,8 @@ interface MoneyOutModalProps {
   onClose: () => void;
   plotId?: string;
   cropId?: string;
+  farmId?: string;
+  farmName?: string;
   initialData?: {
     amount?: number;
     partyName?: string;
@@ -34,7 +35,7 @@ const PERSONAL_CATEGORIES = ['homeExpenses', 'groceries', 'medical', 'education'
 
 type Section = 'agriculture' | 'dairy' | 'personal';
 
-export function MoneyOutModal({ visible, onClose, initialData, plotId, cropId }: MoneyOutModalProps) {
+export function MoneyOutModal({ visible, onClose, initialData, plotId, cropId, farmId, farmName }: MoneyOutModalProps) {
   const { t } = useTranslation();
   const { colors } = useTheme();
   const { postExpenseTransaction } = useLedgerStore();
@@ -98,6 +99,8 @@ export function MoneyOutModal({ visible, onClose, initialData, plotId, cropId }:
         billNumber: billNumber || undefined,
         notes: notes || undefined,
         pendingAmount: paymentMode === 'credit' ? amt : undefined,
+        ...(farmId ? { farmId } : {}),
+        ...(farmName ? { farmName } : {}),
       });
       onClose();
     } catch (err: any) {
@@ -128,14 +131,14 @@ export function MoneyOutModal({ visible, onClose, initialData, plotId, cropId }:
   ];
 
   return (
-    <Modal visible={visible} animationType="slide" presentationStyle="pageSheet" onRequestClose={onClose}>
+    <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
       <View style={[styles.container, { backgroundColor: colors.background }]}>
-        <View style={styles.header}>
-          <TouchableOpacity onPress={onClose}>
-            <Text style={{ color: colors.destructive, fontSize: 16, fontWeight: '600' }}>{t('cancel')}</Text>
-          </TouchableOpacity>
-          <Text style={[styles.title, { color: colors.destructive }]}>{t('moneyOut')}</Text>
-          <View style={{ width: 50 }} />
+        <View style={[styles.header, { backgroundColor: colors.card, borderBottomColor: colors.border }]}>
+          <View style={{ width: 40 }} />
+          <View style={{ alignItems: 'center', flex: 1 }}>
+            <Text style={[styles.title, { color: colors.foreground }]}>💸 {t('moneyOut')}</Text>
+          </View>
+          <View style={{ width: 40 }} />
         </View>
 
         <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
@@ -204,11 +207,16 @@ export function MoneyOutModal({ visible, onClose, initialData, plotId, cropId }:
           )}
         </ScrollView>
 
-        {section && (
-          <View style={[styles.footer, { borderTopColor: colors.border }]}>
-            <Button title={t('save')} onPress={handleSave} loading={loading} fullWidth variant="destructive" />
-          </View>
-        )}
+        <View style={[styles.footer, { backgroundColor: colors.card, borderTopColor: colors.border }]}>
+          <TouchableOpacity onPress={onClose} activeOpacity={0.7} style={[styles.cancelBtn, { borderColor: colors.destructive }]}>
+            <Text style={{ color: colors.destructive, fontWeight: '700', fontSize: 15 }}>✕ {t('cancel')}</Text>
+          </TouchableOpacity>
+          {section && (
+            <TouchableOpacity onPress={handleSave} activeOpacity={0.7} disabled={loading} style={[styles.saveBtn, { backgroundColor: colors.primary, shadowColor: colors.primary, opacity: loading ? 0.6 : 1 }]}>
+              <Text style={{ color: '#FFFFFF', fontWeight: '800', fontSize: 16 }}>{loading ? '...' : `✓ ${t('save')}`}</Text>
+            </TouchableOpacity>
+          )}
+        </View>
       </View>
     </Modal>
   );
@@ -216,12 +224,14 @@ export function MoneyOutModal({ visible, onClose, initialData, plotId, cropId }:
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 16, paddingTop: 48, paddingBottom: 12 },
-  title: { fontSize: 17, fontWeight: '700' },
+  header: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, paddingTop: 14, paddingBottom: 10, borderBottomWidth: 1 },
+  title: { fontSize: 18, fontWeight: '800' },
   scroll: { padding: 16, paddingBottom: 60 },
   sectionTitle: { fontSize: 16, fontWeight: '600', marginBottom: 12 },
   label: { fontSize: 14, fontWeight: '500', marginBottom: 8 },
   chipGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 16 },
   chip: { borderWidth: 1.5, paddingVertical: 8, paddingHorizontal: 12 },
-  footer: { padding: 16, borderTopWidth: 1 },
+  footer: { flexDirection: 'row', padding: 16, gap: 12, borderTopWidth: 1 },
+  cancelBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 14, borderRadius: 14, borderWidth: 1.5 },
+  saveBtn: { flex: 1.5, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 14, borderRadius: 14, shadowOpacity: 0.35, shadowRadius: 8, shadowOffset: { width: 0, height: 4 }, elevation: 6 },
 });

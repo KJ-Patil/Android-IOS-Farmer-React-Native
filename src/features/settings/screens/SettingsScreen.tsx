@@ -42,10 +42,14 @@ export function SettingsScreen() {
   const [saving, setSaving] = useState(false);
 
   const handleSignOut = () => {
-    Alert.alert(t('signOut'), t('confirmSignOut'), [
-      { text: t('cancel'), style: 'cancel' },
-      { text: t('signOut'), style: 'destructive', onPress: signOut },
-    ]);
+    if (Platform.OS === 'web') {
+      if (window.confirm(t('confirmSignOut'))) signOut();
+    } else {
+      Alert.alert(t('signOut'), t('confirmSignOut'), [
+        { text: t('cancel'), style: 'cancel' },
+        { text: t('signOut'), style: 'destructive', onPress: signOut },
+      ]);
+    }
   };
 
   const handleSaveProfile = async () => {
@@ -401,42 +405,34 @@ export function SettingsScreen() {
       </ScrollView>
 
       {/* Edit Profile Modal */}
-      <Modal visible={editOpen} transparent animationType="slide">
-        <View style={styles.modalOverlay}>
-          <Card style={styles.modalCard} padding={20}>
-            <View style={styles.modalHeader}>
-              <Text style={[styles.modalTitle, { color: colors.foreground }]}>{t('editProfile')}</Text>
-              <TouchableOpacity onPress={() => setEditOpen(false)}>
-                <X color={colors.mutedFg} size={20} />
-              </TouchableOpacity>
+      <Modal visible={editOpen} animationType="slide" onRequestClose={() => setEditOpen(false)}>
+        <View style={{ flex: 1, backgroundColor: colors.background }}>
+          <View style={[styles.unifiedHeader, { backgroundColor: colors.card, borderBottomColor: colors.border }]}>
+            <View style={{ width: 40 }} />
+            <View style={{ alignItems: 'center', flex: 1 }}>
+              <Text style={[styles.unifiedTitle, { color: colors.foreground }]}>👤 {t('editProfile')}</Text>
             </View>
+            <View style={{ width: 40 }} />
+          </View>
 
-            <ScrollView showsVerticalScrollIndicator={false} style={{ maxHeight: 420 }}>
-              <Input label={t('fullName')} value={fullName} onChangeText={setFullName} />
-              <Input label={t('village')} value={village} onChangeText={setVillage} />
-              <Input label={t('taluka')} value={taluka} onChangeText={setTaluka} />
-              <Input label={t('district')} value={district} onChangeText={setDistrict} />
-              <Input label={t('state')} value={state} onChangeText={setState} />
-              <Input label={t('pincode')} value={pincode} onChangeText={setPincode} keyboardType="number-pad" />
-              <Input label={t('alternateMobile')} value={alternateMobile} onChangeText={setAlternateMobile} keyboardType="phone-pad" />
-            </ScrollView>
+          <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 40 }} keyboardShouldPersistTaps="handled">
+            <Input label={t('fullName')} value={fullName} onChangeText={setFullName} />
+            <Input label={t('village')} value={village} onChangeText={setVillage} />
+            <Input label={t('taluka')} value={taluka} onChangeText={setTaluka} />
+            <Input label={t('district')} value={district} onChangeText={setDistrict} />
+            <Input label={t('state')} value={state} onChangeText={setState} />
+            <Input label={t('pincode')} value={pincode} onChangeText={setPincode} keyboardType="number-pad" />
+            <Input label={t('alternateMobile')} value={alternateMobile} onChangeText={setAlternateMobile} keyboardType="phone-pad" />
+          </ScrollView>
 
-            <View style={styles.modalActions}>
-              <Button
-                title={t('cancel')}
-                variant="outline"
-                onPress={() => setEditOpen(false)}
-                disabled={saving}
-                style={{ flex: 1 }}
-              />
-              <Button
-                title={t('save')}
-                onPress={handleSaveProfile}
-                loading={saving}
-                style={{ flex: 1 }}
-              />
-            </View>
-          </Card>
+          <View style={[styles.unifiedFooter, { backgroundColor: colors.card, borderTopColor: colors.border }]}>
+            <TouchableOpacity onPress={() => setEditOpen(false)} activeOpacity={0.7} style={[styles.unifiedCancelBtn, { borderColor: colors.destructive }]}>
+              <Text style={{ color: colors.destructive, fontWeight: '700', fontSize: 15 }}>✕ {t('cancel')}</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={handleSaveProfile} activeOpacity={0.7} disabled={saving} style={[styles.unifiedSaveBtn, { backgroundColor: colors.primary, shadowColor: colors.primary, opacity: saving ? 0.6 : 1 }]}>
+              <Text style={{ color: '#FFFFFF', fontWeight: '800', fontSize: 16 }}>{saving ? '...' : `✓ ${t('save')}`}</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </Modal>
     </ScreenLayout>
@@ -472,4 +468,9 @@ const styles = StyleSheet.create({
   planCard: { flexDirection: 'row', alignItems: 'center', padding: 14, borderRadius: 12, borderWidth: 1.5, marginBottom: 10, gap: 12 },
   planIcon: { width: 40, height: 40, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
   activeBadge: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 8, marginTop: 4 },
+  unifiedHeader: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, paddingTop: 14, paddingBottom: 10, borderBottomWidth: 1 },
+  unifiedTitle: { fontSize: 18, fontWeight: '800' },
+  unifiedFooter: { flexDirection: 'row', padding: 16, gap: 12, borderTopWidth: 1 },
+  unifiedCancelBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 14, borderRadius: 14, borderWidth: 1.5 },
+  unifiedSaveBtn: { flex: 1.5, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 14, borderRadius: 14, shadowOpacity: 0.35, shadowRadius: 8, shadowOffset: { width: 0, height: 4 }, elevation: 6 },
 });

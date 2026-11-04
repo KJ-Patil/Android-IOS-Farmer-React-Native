@@ -176,9 +176,9 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
     set({ isLoading: true, error: null, otpSent: false });
     try {
       const cleanMobile = mobileNumber.replace(/\D/g, '').slice(-10);
-      let otp = '672841';
-      if (cleanMobile === '9130057189') {
-        otp = '672841';
+      let otp = '123456';
+      if (cleanMobile === '7558740576') {
+        otp = '123456';
       } else {
         otp = Math.floor(100000 + Math.random() * 900000).toString();
       }
@@ -200,9 +200,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       const state = get();
       const cleanMobile = state.currentMobile || '';
       const isValid =
-        (cleanMobile === '9130057189' && (otp === '672841' || otp === '123456')) ||
-        otp === '672841' ||
-        otp === '123456' ||
+        (cleanMobile === '7558740576' && otp === '123456') ||
         (state.otpCode && otp === state.otpCode);
 
       if (isValid) {
