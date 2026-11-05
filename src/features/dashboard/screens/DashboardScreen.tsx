@@ -18,8 +18,6 @@ import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../../app/providers/ThemeProvider';
 import { useLedgerStore } from '../../../shared/hooks/useLedgerStore';
 import { useAuthStore } from '../../../shared/hooks/useAuthStore';
-import { db } from '../../../shared/services/firebase';
-import { collection, addDoc } from 'firebase/firestore';
 import { ScreenLayout } from '../../../components/layout/ScreenLayout';
 import { Card } from '../../../components/ui/Card';
 import { Badge } from '../../../components/ui/Badge';
@@ -59,7 +57,7 @@ export function DashboardScreen({ navigation }: any) {
   const { width: screenWidth } = useWindowDimensions();
 
   const user = useAuthStore((s) => s.user);
-  const { transactions, fetchTransactions } = useLedgerStore();
+  const { transactions, fetchTransactions, postIncomeTransaction } = useLedgerStore();
   const { fmtCurrency, fmtNum, fmtDMY, toNative } = useLocalizedFormat();
 
   // Weather & location state
@@ -320,21 +318,18 @@ export function DashboardScreen({ navigation }: any) {
 
     setSubmitting(true);
     try {
-      const userMobile = user?.mobileNumber || '9130057189';
-      const newTxData = {
-        farmer: modalFarmer.trim(),
-        crop: modalCrop,
+      await postIncomeTransaction({
+        ledgerType: 'agriculture',
+        category: modalCrop || 'Crop Sale',
         amount: amt,
-        timestamp: new Date().toISOString(),
-      };
-
-      const txsRef = collection(db, 'users', userMobile, 'transactions');
-      await addDoc(txsRef, newTxData);
+        date: new Date().toISOString().split('T')[0],
+        paymentMode: 'cash',
+        partyName: modalFarmer.trim() || undefined,
+      });
 
       setModalFarmer('');
       setModalAmount('');
       setModalOpen(false);
-      await fetchTransactions();
     } catch (err: any) {
       Alert.alert(t('error'), err.message || t('failedToSaveTransaction'));
     } finally {

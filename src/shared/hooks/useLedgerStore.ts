@@ -70,27 +70,6 @@ export const useLedgerStore = create<LedgerStore>((set, get) => ({
       const snap = await getDocs(getLedgerRef());
       const txns = snap.docs.map((d) => ({ id: d.id, ...d.data() } as Transaction));
 
-      const userMobile = getUserMobile();
-      try {
-        const txSnap = await getDocs(collection(db, 'users', userMobile, 'transactions'));
-        txSnap.docs.forEach((d) => {
-          const data = d.data();
-          if (!txns.some((t) => t.id === d.id)) {
-            txns.push({
-              id: d.id,
-              type: 'income',
-              ledgerType: 'agriculture',
-              category: data.crop || 'Crop Sale',
-              amount: Number(data.amount) || 0,
-              date: data.timestamp ? data.timestamp.split('T')[0] : new Date().toISOString().split('T')[0],
-              partyName: data.farmer || undefined,
-              paymentMode: 'cash',
-              timestamp: data.timestamp || new Date().toISOString(),
-            } as Transaction);
-          }
-        });
-      } catch {}
-
       txns.sort((a: any, b: any) => {
         const tA = new Date(a.date || a.timestamp || a.createdAt?.toDate?.() || 0).getTime();
         const tB = new Date(b.date || b.timestamp || b.createdAt?.toDate?.() || 0).getTime();
