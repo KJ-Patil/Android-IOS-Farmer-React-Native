@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../../app/providers/ThemeProvider';
 import { usePlotStore } from '../../../shared/hooks/usePlotStore';
 import { Input } from '../../../components/ui/Input';
-import { Button } from '../../../components/ui/Button';
 import { X, ChevronRight, Check, MapPin, Layers, Droplets, Sparkles } from 'lucide-react-native';
 
 interface AddPlotModalProps {

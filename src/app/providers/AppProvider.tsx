@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { StatusBar } from 'react-native';
+import { StatusBar } from 'expo-status-bar';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { NavigationContainer } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -51,11 +51,7 @@ function AppContent() {
 
   return (
     <NavigationContainer theme={navigationTheme}>
-      <StatusBar
-        translucent
-        backgroundColor="transparent"
-        barStyle={isDark ? 'light-content' : 'dark-content'}
-      />
+      <StatusBar style={isDark ? 'light' : 'dark'} />
       <RootNavigator />
     </NavigationContainer>
   );

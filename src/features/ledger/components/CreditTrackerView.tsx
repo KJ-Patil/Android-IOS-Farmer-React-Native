@@ -22,14 +22,11 @@ import { useLocalizedFormat } from '../../../shared/hooks/useLocalizedFormat';
 import type { Transaction, PaymentMode } from '../../../shared/types/ledger';
 import {
   Clock,
-  AlertCircle,
   CheckCircle2,
   Calendar,
   Wallet,
   ChevronDown,
   ChevronUp,
-  X,
-  CreditCard,
 } from 'lucide-react-native';
 
 interface CreditTrackerViewProps {
@@ -63,7 +60,6 @@ export function CreditTrackerView({ onOpenAddModal }: CreditTrackerViewProps) {
     0
   );
   const totalPaidBack = Math.max(0, totalCreditTaken - totalPendingDue);
-  const paidPercent = totalCreditTaken > 0 ? (totalPaidBack / totalCreditTaken) * 100 : 0;
 
   const handleSettleSubmit = async () => {
     if (!selectedTx || !payAmount || Number(payAmount) <= 0) {

@@ -9,7 +9,6 @@ import {
   Alert,
   useWindowDimensions,
   StatusBar,
-  Platform,
   TextInput,
 } from 'react-native';
 import * as Location from 'expo-location';
@@ -21,7 +20,6 @@ import { useAuthStore } from '../../../shared/hooks/useAuthStore';
 import { ScreenLayout } from '../../../components/layout/ScreenLayout';
 import { Card } from '../../../components/ui/Card';
 import { Badge } from '../../../components/ui/Badge';
-import { Button } from '../../../components/ui/Button';
 import { Input } from '../../../components/ui/Input';
 import { AreaChart } from '../../../components/ui/AreaChart';
 import { useLocalizedFormat } from '../../../shared/hooks/useLocalizedFormat';
@@ -32,7 +30,6 @@ import {
   Sun,
   Sunset,
   Moon,
-  Thermometer,
   Cloud,
   CloudRain,
   CloudSnow,
@@ -40,8 +37,6 @@ import {
   CloudDrizzle,
   CloudFog,
   Droplets,
-  Wind,
-  ChevronRight,
   MapPin,
   Navigation,
   Search as SearchIcon,
@@ -58,7 +53,7 @@ export function DashboardScreen({ navigation }: any) {
 
   const user = useAuthStore((s) => s.user);
   const { transactions, fetchTransactions, postIncomeTransaction } = useLedgerStore();
-  const { fmtCurrency, fmtNum, fmtDMY, toNative } = useLocalizedFormat();
+  const { fmtCurrency, fmtDMY, toNative } = useLocalizedFormat();
 
   // Weather & location state
   const [tempC, setTempC] = useState<number | null>(null);
@@ -69,7 +64,8 @@ export function DashboardScreen({ navigation }: any) {
   const [savedLocations, setSavedLocations] = useState<{ name: string; lat: number; lon: number }[]>([]);
   const [locationSearch, setLocationSearch] = useState('');
   const [locationResults, setLocationResults] = useState<{ name: string; lat: number; lon: number; country: string; admin1: string }[]>([]);
-  const [searchingLocation, setSearchingLocation] = useState(false);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [_searchingLocation, setSearchingLocation] = useState(false);
   const [showLocationPicker, setShowLocationPicker] = useState(false);
 
   const STORAGE_KEY_LOC = 'farmer_weather_location';
@@ -145,9 +141,6 @@ export function DashboardScreen({ navigation }: any) {
       const { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== 'granted') { Alert.alert('Permission', 'Location permission required'); return; }
       const loc = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Low });
-      const geoRes = await fetch(
-        `https://geocoding-api.open-meteo.com/v1/search?name=&count=1&language=en&format=json`
-      );
       let name = 'Current Location';
       try {
         const [place] = await Location.reverseGeocodeAsync({ latitude: loc.coords.latitude, longitude: loc.coords.longitude });

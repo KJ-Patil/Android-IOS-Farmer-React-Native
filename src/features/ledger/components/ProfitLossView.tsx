@@ -13,15 +13,6 @@ import { usePlotStore } from '../../../shared/hooks/usePlotStore';
 import { Card } from '../../../components/ui/Card';
 import { Badge } from '../../../components/ui/Badge';
 import { useLocalizedFormat } from '../../../shared/hooks/useLocalizedFormat';
-import {
-  TrendingUp,
-  TrendingDown,
-  PieChart,
-  Calendar,
-  Percent,
-  Sprout,
-  Milk,
-} from 'lucide-react-native';
 
 const DIRECT_COST_CATEGORIES = [
   'seeds',

@@ -25,12 +25,8 @@ import {
   Users,
   Search,
   ArrowLeft,
-  Plus,
   Phone,
-  Wallet,
   X,
-  CreditCard,
-  Calendar,
 } from 'lucide-react-native';
 
 interface PartySummary {

@@ -1,9 +1,10 @@
 import React from 'react';
-import { View, StyleSheet, StatusBar, Platform } from 'react-native';
+import { View, StyleSheet, StatusBar as RNStatusBar } from 'react-native';
+import { StatusBar } from 'expo-status-bar';
 import { useTheme } from '../../app/providers/ThemeProvider';
 import { OfflineBanner } from '../ui/OfflineBanner';
 
-const STATUS_BAR_HEIGHT = StatusBar.currentHeight || 0;
+const STATUS_BAR_HEIGHT = RNStatusBar.currentHeight || 0;
 
 interface ScreenLayoutProps {
   children: React.ReactNode;
@@ -15,11 +16,7 @@ export function ScreenLayout({ children, noPadding, noTopInset }: ScreenLayoutPr
   const { colors, isDark } = useTheme();
   return (
     <View style={[styles.root, { backgroundColor: colors.background }]}>
-      <StatusBar
-        translucent
-        backgroundColor="transparent"
-        barStyle={isDark ? 'light-content' : 'dark-content'}
-      />
+      <StatusBar style={isDark ? 'light' : 'dark'} />
       {!noTopInset && <View style={{ height: STATUS_BAR_HEIGHT }} />}
       <OfflineBanner />
       <View style={[styles.content, !noPadding && styles.padding]}>

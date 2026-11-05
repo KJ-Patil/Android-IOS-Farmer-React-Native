@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Platform } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../../app/providers/ThemeProvider';
 import { usePlotStore } from '../../../shared/hooks/usePlotStore';
@@ -9,13 +9,12 @@ import { Button } from '../../../components/ui/Button';
 import { Badge } from '../../../components/ui/Badge';
 import { AddCropModal } from '../../crops/components/AddCropModal';
 import { ArrowLeft, Sprout, Trash2 } from 'lucide-react-native';
-import { Alert, Platform } from 'react-native';
 import { useLocalizedFormat } from '../../../shared/hooks/useLocalizedFormat';
 
 export function PlotDashboardScreen({ route, navigation }: any) {
   const { plotId } = route.params;
   const [addCropVisible, setAddCropVisible] = useState(false);
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const { colors } = useTheme();
   const { plots, crops, fetchCrops, getPlotRemainingArea, deletePlot } = usePlotStore();
   const { fmtDMY, toNative } = useLocalizedFormat();

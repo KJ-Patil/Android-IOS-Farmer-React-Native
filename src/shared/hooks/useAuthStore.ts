@@ -4,14 +4,12 @@ import {
   createUserWithEmailAndPassword,
   signOut as firebaseSignOut,
   onAuthStateChanged,
-  PhoneAuthProvider,
   signInWithCredential,
   linkWithCredential,
   unlink,
   GoogleAuthProvider,
   OAuthProvider,
   User,
-  RecaptchaVerifier,
 } from 'firebase/auth';
 import {
   doc,

@@ -1,9 +1,10 @@
 import { initializeApp, FirebaseApp } from 'firebase/app';
-// @ts-expect-error — Firebase v13 exports getReactNativePersistence only via the RN bundle; Metro resolves it at runtime
-import { initializeAuth, getAuth, getReactNativePersistence, Auth } from 'firebase/auth';
+import { initializeAuth, getAuth, Auth } from 'firebase/auth';
+// @ts-expect-error -- RN entry point exports this; TS resolves browser types
+// eslint-disable-next-line import/no-duplicates
+import { getReactNativePersistence } from 'firebase/auth';
 import { getFirestore, Firestore } from 'firebase/firestore';
 import { getStorage, FirebaseStorage } from 'firebase/storage';
-import { Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const firebaseConfig = {
@@ -16,26 +17,18 @@ const firebaseConfig = {
   measurementId: process.env.EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID!,
 };
 
-let app: FirebaseApp;
-let auth: Auth;
-let db: Firestore;
-let storage: FirebaseStorage;
+const app: FirebaseApp = initializeApp(firebaseConfig);
 
+let auth: Auth;
 try {
-  app = initializeApp(firebaseConfig);
-  auth = Platform.OS === 'web'
-    ? getAuth(app)
-    : initializeAuth(app, {
-        persistence: getReactNativePersistence(AsyncStorage),
-      });
-  db = getFirestore(app);
-  storage = getStorage(app);
-} catch (e) {
-  console.error('Firebase init failed:', e);
-  app = {} as FirebaseApp;
-  auth = {} as Auth;
-  db = {} as Firestore;
-  storage = {} as FirebaseStorage;
+  auth = initializeAuth(app, {
+    persistence: getReactNativePersistence(AsyncStorage),
+  });
+} catch {
+  auth = getAuth(app);
 }
+
+const db: Firestore = getFirestore(app);
+const storage: FirebaseStorage = getStorage(app);
 
 export { app, auth, db, storage };

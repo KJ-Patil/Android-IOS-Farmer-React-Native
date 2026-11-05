@@ -12,14 +12,14 @@ import { Input } from '../../../components/ui/Input';
 import { DatePickerInput } from '../../../components/ui/DatePickerInput';
 import { MoneyInModal } from '../../ledger/components/MoneyInModal';
 import { MoneyOutModal } from '../../ledger/components/MoneyOutModal';
-import { ArrowLeft, Sprout, TrendingUp, TrendingDown, DollarSign } from 'lucide-react-native';
+import { ArrowLeft } from 'lucide-react-native';
 import { useLocalizedFormat } from '../../../shared/hooks/useLocalizedFormat';
 
 const STATUS_ORDER = ['sown', 'vegetative', 'flowering', 'harvested'] as const;
 
 export function CropDashboardScreen({ route, navigation }: any) {
   const { plotId, cropId } = route.params;
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const { colors } = useTheme();
   const { crops, updateCrop } = usePlotStore();
   const { transactions } = useLedgerStore();
@@ -33,7 +33,7 @@ export function CropDashboardScreen({ route, navigation }: any) {
 
   const [harvestDate, setHarvestDate] = useState(new Date().toISOString().split('T')[0]);
   const [actualYield, setActualYield] = useState('');
-  const [yieldUnit, setYieldUnit] = useState<'quintal' | 'kg' | 'ton'>('quintal');
+  const [yieldUnit] = useState<'quintal' | 'kg' | 'ton'>('quintal');
   const [advancing, setAdvancing] = useState(false);
 
   // Crop-specific financial calculations

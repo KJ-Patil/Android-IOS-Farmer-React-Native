@@ -6,14 +6,13 @@ import { usePlotStore } from '../../../shared/hooks/usePlotStore';
 import { ScreenLayout } from '../../../components/layout/ScreenLayout';
 import { Card } from '../../../components/ui/Card';
 import { Button } from '../../../components/ui/Button';
-import { Badge } from '../../../components/ui/Badge';
 import { AddPlotModal } from '../components/AddPlotModal';
-import { Layers, Droplets, Sparkles, Plus } from 'lucide-react-native';
+import { Layers, Droplets, Sparkles } from 'lucide-react-native';
 import { WaveHeader } from '../../../components/ui/WaveHeader';
 import { useLocalizedFormat } from '../../../shared/hooks/useLocalizedFormat';
 
 export function PlotListScreen({ navigation }: any) {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const { colors } = useTheme();
   const { plots, fetchPlots, isLoading } = usePlotStore();
   const { toNative } = useLocalizedFormat();

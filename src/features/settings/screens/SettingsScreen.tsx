@@ -19,7 +19,7 @@ import { ScreenLayout } from '../../../components/layout/ScreenLayout';
 import { Card } from '../../../components/ui/Card';
 import { Button } from '../../../components/ui/Button';
 import { Input } from '../../../components/ui/Input';
-import { Sparkles, Edit3, X, Check, Globe, Moon, Sun, Crown, Star, Zap } from 'lucide-react-native';
+import { Sparkles, Edit3, Check, Crown, Star, Zap } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { SUPPORTED_LANGUAGES } from '../../../shared/locales/i18n';
 import { useLocalizedFormat } from '../../../shared/hooks/useLocalizedFormat';
@@ -29,7 +29,7 @@ export function SettingsScreen() {
   const { colors } = useTheme();
   const { user, signOut, updateProfile, isLoading } = useAuthStore();
   const { theme, setTheme } = useThemeStore();
-  const { fmtCurrency, toNative, fmtDMY } = useLocalizedFormat();
+  const { fmtCurrency, toNative } = useLocalizedFormat();
   // Profile Edit modal state
   const [editOpen, setEditOpen] = useState(false);
   const [fullName, setFullName] = useState(user?.fullName || '');

@@ -30,7 +30,7 @@ export function LedgerScreen({ navigation }: any) {
   const [ocrVisible, setOcrVisible] = useState(false);
   const [customLedgersVisible, setCustomLedgersVisible] = useState(false);
   const [ocrInitialData, setOcrInitialData] = useState<any>(null);
-  const { fmtCurrency, toNative, fmtDMY } = useLocalizedFormat();
+  const { fmtCurrency, toNative } = useLocalizedFormat();
 
   const handleApplyOCR = (data: any) => {
     setOcrVisible(false);

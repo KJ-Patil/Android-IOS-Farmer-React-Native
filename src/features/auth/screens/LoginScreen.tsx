@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, KeyboardAvoidingView, Platform, ScrollView, Alert, Dimensions, Modal } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, KeyboardAvoidingView, Platform, ScrollView, Dimensions, Modal } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../../app/providers/ThemeProvider';
 import { useAuthStore } from '../../../shared/hooks/useAuthStore';
@@ -19,11 +19,9 @@ export function LoginScreen({ navigation }: any) {
     requestOtp,
     verifyOtp,
     loginWithVerifiedMobile,
-    otpSent,
     isLoading,
     error,
     clearError,
-    fetchUserProfile,
   } = useAuthStore();
 
   const [mobile, setMobile] = useState('');

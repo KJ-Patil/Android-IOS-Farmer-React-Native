@@ -10,9 +10,9 @@ const Stack = createNativeStackNavigator();
 
 export function RootNavigator() {
   const { t } = useTranslation();
-  const { user, isLoading, isInitialized } = useAuthStore();
+  const { user, isInitialized } = useAuthStore();
 
-  if (!isInitialized || isLoading) {
+  if (!isInitialized) {
     return <Spinner message={t('profileLoading')} />;
   }
 

@@ -33,7 +33,6 @@ import {
   Search,
   Trash2,
   X,
-  CreditCard,
   IndianRupee,
 } from 'lucide-react-native';
 
@@ -65,7 +64,6 @@ export function IncomeRegisterView({ onOpenMoneyInModal }: IncomeRegisterViewPro
 
   const todayStr = new Date().toISOString().split('T')[0];
   const currentMonthKey = todayStr.substring(0, 7);
-  const currentYearKey = todayStr.substring(0, 4);
 
   // High-level KPIs
   const todayIncome = incomeTransactions
@@ -76,25 +74,9 @@ export function IncomeRegisterView({ onOpenMoneyInModal }: IncomeRegisterViewPro
     .filter((tx) => (tx.date || '').startsWith(currentMonthKey))
     .reduce((s, tx) => s + (tx.amount || 0), 0);
 
-  const yearIncome = incomeTransactions
-    .filter((tx) => (tx.date || '').startsWith(currentYearKey))
-    .reduce((s, tx) => s + (tx.amount || 0), 0);
-
   const totalNetIncome = incomeTransactions.reduce((s, tx) => s + (tx.amount || 0), 0);
-  const totalGrossIncome = incomeTransactions.reduce(
-    (s, tx) => s + (tx.grossAmount || tx.amount || 0),
-    0
-  );
-
-  const totalFarmExpenses = transactions
-    .filter((tx) => tx.type === 'expense')
-    .reduce((s, tx) => s + (tx.amount || 0), 0);
-  const netFarmProfit = totalGrossIncome - totalFarmExpenses;
 
   // Category breakdown
-  const cropSales = incomeTransactions.filter(
-    (tx) => tx.incomeCategory === 'crop_sale' || tx.category === 'crop_sale' || tx.cropName
-  );
   const dairyIncomes = incomeTransactions.filter(
     (tx) =>
       tx.incomeCategory === 'dairy' ||
@@ -111,11 +93,6 @@ export function IncomeRegisterView({ onOpenMoneyInModal }: IncomeRegisterViewPro
       (!tx.incomeCategory && tx.category !== 'crop_sale' && !dairyIncomes.includes(tx) && !loanIncomes.includes(tx))
   );
 
-  const totalCropSaleGross = cropSales.reduce((s, tx) => s + (tx.grossAmount || tx.amount || 0), 0);
-  const totalCropSaleNet = cropSales.reduce((s, tx) => s + (tx.amount || 0), 0);
-  const totalDairyIncome = dairyIncomes.reduce((s, tx) => s + (tx.amount || 0), 0);
-  const totalLoanReceived = loanIncomes.reduce((s, tx) => s + (tx.amount || 0), 0);
-  const totalOtherIncome = otherIncomes.reduce((s, tx) => s + (tx.amount || 0), 0);
 
   // Active Loans & Liabilities Tracker
   const activeLoans = useMemo(() => {
