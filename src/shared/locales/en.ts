@@ -69,6 +69,7 @@ export default {
   selectDistrict: 'Select / Type District',
   selectTaluka: 'Select Taluka',
   selectPincode: 'Select Pincode',
+  selectVillage: 'Select Village',
   typeToSearch: 'Type to search...',
   noResultsFound: 'No results found',
   fetchingData: 'Fetching data...',

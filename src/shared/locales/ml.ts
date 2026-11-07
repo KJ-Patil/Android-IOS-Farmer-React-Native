@@ -69,6 +69,7 @@ export default {
   selectDistrict: 'ജില്ല തിരഞ്ഞെടുക്കുക / ടൈപ്പ് ചെയ്യുക',
   selectTaluka: 'താലൂക്ക് തിരഞ്ഞെടുക്കുക',
   selectPincode: 'പിൻകോഡ് തിരഞ്ഞെടുക്കുക',
+  selectVillage: 'ഗ്രാമം തിരഞ്ഞെടുക്കുക',
   typeToSearch: 'തിരയാൻ ടൈപ്പ് ചെയ്യുക...',
   noResultsFound: 'ഫലങ്ങളൊന്നും കണ്ടെത്തിയില്ല',
   fetchingData: 'ഡാറ്റ ലഭ്യമാക്കുന്നു...',

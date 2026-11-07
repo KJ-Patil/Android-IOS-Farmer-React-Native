@@ -269,13 +269,9 @@ export function MoneyInModal({ visible, onClose, plotId, cropId, farmId, farmNam
                   )}
 
                   <Input label={t('buyer')} value={buyerName} onChangeText={setBuyerName} />
-                  <View style={{ flexDirection: 'row', gap: 10 }}>
-                    <View style={{ flex: 2 }}><Input label={t('quantity')} value={quantity} onChangeText={(v) => setQuantity(v.replace(/[^0-9.]/g, ''))} keyboardType="decimal-pad" /></View>
-                    <View style={{ flex: 1 }}>
-                      <Text style={[styles.label, { color: colors.foreground }]}>{t('unit')}</Text>
-                      {renderChips(QUANTITY_UNITS, quantityUnit, setQuantityUnit)}
-                    </View>
-                  </View>
+                  <Input label={t('quantity')} value={quantity} onChangeText={(v) => setQuantity(v.replace(/[^0-9.]/g, ''))} keyboardType="decimal-pad" />
+                  <Text style={[styles.label, { color: colors.foreground }]}>{t('unit')}</Text>
+                  {renderChips(QUANTITY_UNITS, quantityUnit, setQuantityUnit)}
                   <Input label={t('ratePerUnit')} value={ratePerUnit} onChangeText={(v) => setRatePerUnit(v.replace(/[^0-9.]/g, ''))} keyboardType="decimal-pad" />
 
                   <Card style={{ marginVertical: 10 }} padding={12}>
@@ -298,11 +294,9 @@ export function MoneyInModal({ visible, onClose, plotId, cropId, farmId, farmNam
                 <>
                   <Text style={[styles.sectionTitle, { color: colors.foreground }]}>{t('dairyIncome')}</Text>
                   {renderChips(DAIRY_PRODUCTS, dairyProduct, setDairyProduct)}
-                  <View style={{ flexDirection: 'row', gap: 10 }}>
-                    <View style={{ flex: 1 }}><Input label={t('quantity')} value={dairyQty} onChangeText={(v) => setDairyQty(v.replace(/[^0-9.]/g, ''))} keyboardType="decimal-pad" /></View>
-                    <View style={{ flex: 1 }}><Input label={t('unit')} value={dairyUnit} onChangeText={setDairyUnit} /></View>
-                    <View style={{ flex: 1 }}><Input label={t('rate')} value={dairyRate} onChangeText={(v) => setDairyRate(v.replace(/[^0-9.]/g, ''))} keyboardType="decimal-pad" /></View>
-                  </View>
+                  <Input label={t('quantity')} value={dairyQty} onChangeText={(v) => setDairyQty(v.replace(/[^0-9.]/g, ''))} keyboardType="decimal-pad" />
+                  <Input label={t('unit')} value={dairyUnit} onChangeText={setDairyUnit} />
+                  <Input label={t('rate')} value={dairyRate} onChangeText={(v) => setDairyRate(v.replace(/[^0-9.]/g, ''))} keyboardType="decimal-pad" />
                   <Card style={{ marginVertical: 10 }} padding={12}>
                     <Text style={{ color: colors.primary, fontWeight: '700', fontSize: 18 }}>{t('amount')}: {fmtCurrency(dairyTotal)}</Text>
                   </Card>

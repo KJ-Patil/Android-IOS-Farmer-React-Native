@@ -69,6 +69,7 @@ export default {
   selectDistrict: 'ಜಿಲ್ಲೆ ಆಯ್ಕೆಮಾಡಿ / ಟೈಪ್ ಮಾಡಿ',
   selectTaluka: 'ತಾಲೂಕು ಆಯ್ಕೆಮಾಡಿ',
   selectPincode: 'ಪಿನ್‌ಕೋಡ್ ಆಯ್ಕೆಮಾಡಿ',
+  selectVillage: 'ಹಳ್ಳಿಯನ್ನು ಆಯ್ಕೆಮಾಡಿ',
   typeToSearch: 'ಹುಡುಕಲು ಟೈಪ್ ಮಾಡಿ...',
   noResultsFound: 'ಯಾವುದೇ ಫಲಿತಾಂಶಗಳು ಕಂಡುಬಂದಿಲ್ಲ',
   fetchingData: 'ಡೇಟಾ ಪಡೆಯಲಾಗುತ್ತಿದೆ...',

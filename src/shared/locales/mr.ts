@@ -69,6 +69,7 @@ export default {
   selectDistrict: 'जिल्हा निवडा / लिहा',
   selectTaluka: 'तालुका निवडा',
   selectPincode: 'पिनकोड निवडा',
+  selectVillage: 'गाव निवडा',
   typeToSearch: 'शोधण्यासाठी टाइप करा...',
   noResultsFound: 'कोणतेही निकाल सापडले नाहीत',
   fetchingData: 'डेटा आणत आहे...',

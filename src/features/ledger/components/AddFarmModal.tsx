@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Modal, TouchableOpacity, ScrollView, TextInput } from 'react-native';
+import { View, Text, StyleSheet, Modal, TouchableOpacity, ScrollView } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../../app/providers/ThemeProvider';
 import { useNotebookFarmStore, FarmType } from '../../../shared/hooks/useNotebookFarmStore';
+import { Input } from '../../../components/ui/Input';
 import { Minus, Plus } from 'lucide-react-native';
 
 interface AddFarmModalProps {
@@ -115,20 +116,11 @@ export function AddFarmModal({ visible, onClose }: AddFarmModalProps) {
                 <Text style={[styles.selectedLabel, { color: colors.foreground }]}>{t(selectedType)}</Text>
               </View>
 
-              <Text style={[styles.inputLabel, { color: colors.mutedFg }]}>{t('farmName')}</Text>
-              <TextInput
+              <Input
+                label={t('farmName')}
                 value={name}
                 onChangeText={setName}
                 placeholder={t(selectedType)}
-                placeholderTextColor={colors.mutedFg}
-                style={[
-                  styles.input,
-                  {
-                    backgroundColor: colors.card,
-                    borderColor: colors.border,
-                    color: colors.foreground,
-                  },
-                ]}
               />
 
               <Text style={[styles.inputLabel, { color: colors.mutedFg, marginTop: 16 }]}>

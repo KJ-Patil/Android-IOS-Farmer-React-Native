@@ -69,6 +69,7 @@ export default {
   selectDistrict: 'జిల్లా ఎంచుకోండి / టైప్ చేయండి',
   selectTaluka: 'తాలూకా ఎంచుకోండి',
   selectPincode: 'పిన్‌కోడ్ ఎంచుకోండి',
+  selectVillage: 'గ్రామాన్ని ఎంచుకోండి',
   typeToSearch: 'వెతకడానికి టైప్ చేయండి...',
   noResultsFound: 'ఫలితాలు కనుగొనబడలేదు',
   fetchingData: 'డేటా తీసుకొస్తోంది...',

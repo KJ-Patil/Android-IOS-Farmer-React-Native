@@ -11,6 +11,7 @@ import { SearchableDropdown } from '../../../components/ui/SearchableDropdown';
 import * as Location from 'expo-location';
 import { SUPPORTED_LANGUAGES } from '../../../shared/locales/i18n';
 import { INDIAN_STATES } from '../../../shared/data/indianStates';
+import { INDIAN_DISTRICTS } from '../../../shared/data/indianDistricts';
 import { fetchDistrictData, DistrictData } from '../../../shared/services/indiaPostalService';
 import { MapPin } from 'lucide-react-native';
 import Svg, { Path, Defs, LinearGradient, Stop } from 'react-native-svg';
@@ -44,11 +45,15 @@ export function RegisterScreen({ navigation, route }: any) {
   });
 
   const [formError, setFormError] = useState('');
-  const [districtData, setDistrictData] = useState<DistrictData>({ talukas: [], pincodes: [], pincodesByTaluka: {} });
+  const [districtData, setDistrictData] = useState<DistrictData>({ talukas: [], pincodes: [], pincodesByTaluka: {}, villagesByTaluka: {} });
   const [locationLoading, setLocationLoading] = useState(false);
   const [districtLoading, setDistrictLoading] = useState(false);
 
   const updateForm = (key: string, value: any) => setForm((f) => ({ ...f, [key]: value }));
+
+  const stateDistricts = useMemo(() => {
+    return INDIAN_DISTRICTS[form.state] || [];
+  }, [form.state]);
 
   const filteredPincodes = useMemo(() => {
     if (form.taluka && districtData.pincodesByTaluka[form.taluka]) {
@@ -57,9 +62,21 @@ export function RegisterScreen({ navigation, route }: any) {
     return districtData.pincodes;
   }, [form.taluka, districtData]);
 
+  const filteredVillages = useMemo(() => {
+    if (form.taluka && districtData.villagesByTaluka[form.taluka]) {
+      return districtData.villagesByTaluka[form.taluka];
+    }
+    return [];
+  }, [form.taluka, districtData]);
+
+  const handleStateSelect = (state: string) => {
+    setForm((f) => ({ ...f, state, district: '', taluka: '', pincode: '', village: '' }));
+    setDistrictData({ talukas: [], pincodes: [], pincodesByTaluka: {}, villagesByTaluka: {} });
+  };
+
   const handleDistrictSelect = async (district: string) => {
-    setForm((f) => ({ ...f, district, taluka: '', pincode: '' }));
-    setDistrictData({ talukas: [], pincodes: [], pincodesByTaluka: {} });
+    setForm((f) => ({ ...f, district, taluka: '', pincode: '', village: '' }));
+    setDistrictData({ talukas: [], pincodes: [], pincodesByTaluka: {}, villagesByTaluka: {} });
     if (!district.trim()) return;
     setDistrictLoading(true);
     const data = await fetchDistrictData(district);
@@ -68,7 +85,7 @@ export function RegisterScreen({ navigation, route }: any) {
   };
 
   const handleTalukaSelect = (taluka: string) => {
-    setForm((f) => ({ ...f, taluka, pincode: '' }));
+    setForm((f) => ({ ...f, taluka, pincode: '', village: '' }));
   };
 
   const handleDetectLocation = async () => {
@@ -231,16 +248,17 @@ export function RegisterScreen({ navigation, route }: any) {
                 placeholder={t('selectState')}
                 value={form.state}
                 options={INDIAN_STATES}
-                onSelect={(v) => updateForm('state', v)}
+                onSelect={handleStateSelect}
               />
 
               <SearchableDropdown
                 label={t('district')}
                 placeholder={t('selectDistrict')}
                 value={form.district}
-                options={[]}
+                options={stateDistricts}
                 onSelect={handleDistrictSelect}
                 loading={districtLoading}
+                disabled={!form.state}
                 allowCustom
               />
 
@@ -265,7 +283,15 @@ export function RegisterScreen({ navigation, route }: any) {
                 allowCustom
               />
 
-              <Input label={t('village')} value={form.village} onChangeText={(v) => updateForm('village', v)} />
+              <SearchableDropdown
+                label={t('village')}
+                placeholder={t('selectVillage')}
+                value={form.village}
+                options={filteredVillages}
+                onSelect={(v) => updateForm('village', v)}
+                disabled={!form.taluka}
+                allowCustom
+              />
 
               <Input label={t('aadhaarNumber')} value={form.aadhaarNumber} onChangeText={(v) => updateForm('aadhaarNumber', v.replace(/[^0-9]/g, '').slice(0, 12))} keyboardType="number-pad" maxLength={12} placeholder={t('optional')} />
               <DatePickerInput label={t('dateOfBirth')} value={form.dateOfBirth} onChange={(v) => updateForm('dateOfBirth', v)} />

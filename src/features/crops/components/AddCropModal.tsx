@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Modal, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, TextInput, StyleSheet, ScrollView, Modal, TouchableOpacity, Alert } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../../app/providers/ThemeProvider';
 import { usePlotStore } from '../../../shared/hooks/usePlotStore';
@@ -134,35 +134,57 @@ export function AddCropModal({ visible, onClose, plotId }: AddCropModalProps) {
             <Input label={t('enterCropName')} value={form.customCropType} onChangeText={(v) => updateForm('customCropType', v)} placeholder={t('enterCropName')} />
           )}
 
-          <Input label={t('variety')} value={form.variety} onChangeText={(v) => updateForm('variety', v)} placeholder={t('varietyPlaceholder')} />
-
-          <Text style={[styles.label, { color: colors.foreground }]}>{t('area')}</Text>
-          <View style={styles.areaRow}>
-            <View style={{ flex: 1 }}>
-              <Input value={form.area} onChangeText={(v) => updateForm('area', v.replace(/[^0-9.]/g, ''))} keyboardType="decimal-pad" placeholder="0.00" />
+          <View style={styles.fieldSection}>
+            <Text style={[styles.label, { color: colors.foreground }]}>{t('variety')}</Text>
+            <View style={[styles.fieldBox, { borderColor: colors.border, backgroundColor: colors.card, borderRadius: colors.radius }]}>
+              <TextInput
+                value={form.variety}
+                onChangeText={(v) => updateForm('variety', v)}
+                placeholder={t('varietyPlaceholder')}
+                placeholderTextColor={colors.mutedFg}
+                style={[styles.fieldInput, { color: colors.foreground }]}
+              />
             </View>
-            {AREA_UNITS.map((u) => (
-              <TouchableOpacity
-                key={u}
-                onPress={() => updateForm('areaUnit', u)}
-                style={[styles.unitBtn, { borderColor: form.areaUnit === u ? colors.primary : colors.border, backgroundColor: form.areaUnit === u ? colors.primary + '15' : colors.card }]}
-              >
-                <Text style={{ color: form.areaUnit === u ? colors.primary : colors.foreground, fontSize: 12, fontWeight: '600' }}>{t(u)}</Text>
-              </TouchableOpacity>
-            ))}
           </View>
 
-          <Text style={[styles.label, { color: colors.foreground }]}>{t('season')}</Text>
-          <View style={styles.chipGrid}>
-            {SEASONS.map((s) => (
-              <TouchableOpacity
-                key={s}
-                onPress={() => updateForm('season', s)}
-                style={[styles.chip, { borderColor: form.season === s ? colors.primary : colors.border, backgroundColor: form.season === s ? colors.primary + '15' : colors.card, borderRadius: 8 }]}
-              >
-                <Text style={{ color: form.season === s ? colors.primary : colors.foreground, fontWeight: '600', fontSize: 13 }}>{t(s)}</Text>
-              </TouchableOpacity>
-            ))}
+          <View style={styles.fieldSection}>
+            <Text style={[styles.label, { color: colors.foreground }]}>{t('area')}</Text>
+            <View style={[styles.fieldBox, { borderColor: colors.border, backgroundColor: colors.card, borderRadius: colors.radius }]}>
+              <TextInput
+                value={form.area}
+                onChangeText={(v) => updateForm('area', v.replace(/[^0-9.]/g, ''))}
+                keyboardType="decimal-pad"
+                placeholder="0.00"
+                placeholderTextColor={colors.mutedFg}
+                style={[styles.fieldInput, { color: colors.foreground }]}
+              />
+            </View>
+            <View style={styles.unitRow}>
+              {AREA_UNITS.map((u) => (
+                <TouchableOpacity
+                  key={u}
+                  onPress={() => updateForm('areaUnit', u)}
+                  style={[styles.unitBtn, { borderColor: form.areaUnit === u ? colors.primary : colors.border, backgroundColor: form.areaUnit === u ? colors.primary + '15' : colors.card, borderRadius: colors.radius }]}
+                >
+                  <Text style={{ color: form.areaUnit === u ? colors.primary : colors.foreground, fontSize: 13, fontWeight: '600' }}>{t(u)}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+
+          <View style={styles.fieldSection}>
+            <Text style={[styles.label, { color: colors.foreground }]}>{t('season')}</Text>
+            <View style={styles.unitRow}>
+              {SEASONS.map((s) => (
+                <TouchableOpacity
+                  key={s}
+                  onPress={() => updateForm('season', s)}
+                  style={[styles.unitBtn, { borderColor: form.season === s ? colors.primary : colors.border, backgroundColor: form.season === s ? colors.primary + '15' : colors.card, borderRadius: colors.radius }]}
+                >
+                  <Text style={{ color: form.season === s ? colors.primary : colors.foreground, fontWeight: '600', fontSize: 13 }}>{t(s)}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
           </View>
 
           <DatePickerInput label={t('sowingDate')} value={form.sowingDate} onChange={(v) => updateForm('sowingDate', v)} />
@@ -188,15 +210,16 @@ const styles = StyleSheet.create({
   header: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, paddingTop: 14, paddingBottom: 10, borderBottomWidth: 1 },
   title: { fontSize: 18, fontWeight: '800' },
   scroll: { padding: 16, paddingBottom: 40 },
-  label: { fontSize: 14, fontWeight: '500', marginBottom: 8 },
-  chipGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 16 },
-  chip: { borderWidth: 1.5, paddingVertical: 10, paddingHorizontal: 14 },
+  label: { fontSize: 14, fontWeight: '500', marginBottom: 6 },
+  fieldSection: { marginBottom: 16 },
+  fieldBox: { borderWidth: 1, paddingHorizontal: 14, paddingVertical: 12, minHeight: 48, justifyContent: 'center' },
+  fieldInput: { fontSize: 16, padding: 0 },
+  unitRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 10 },
   dropdown: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', borderWidth: 1, borderRadius: 10, paddingHorizontal: 14, paddingVertical: 12 },
   addCropBtn: { flexDirection: 'row', height: 44, borderRadius: 10, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 10 },
   dropdownList: { borderWidth: 1, borderRadius: 10, marginBottom: 16, maxHeight: 220, overflow: 'hidden' },
   dropdownItem: { paddingHorizontal: 14, paddingVertical: 11, borderBottomWidth: StyleSheet.hairlineWidth },
-  areaRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 16 },
-  unitBtn: { borderWidth: 1, borderRadius: 8, paddingHorizontal: 12, paddingVertical: 10 },
+  unitBtn: { borderWidth: 1.5, paddingHorizontal: 14, paddingVertical: 10 },
   footer: { flexDirection: 'row', padding: 16, gap: 12, borderTopWidth: 1 },
   cancelBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 14, borderRadius: 14, borderWidth: 1.5 },
   saveBtn: { flex: 1.5, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 14, borderRadius: 14, shadowOpacity: 0.35, shadowRadius: 8, shadowOffset: { width: 0, height: 4 }, elevation: 6 },

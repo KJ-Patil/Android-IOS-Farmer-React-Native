@@ -5,7 +5,6 @@ import {
   StyleSheet,
   Modal,
   TouchableOpacity,
-  TextInput,
   FlatList,
   Platform,
   Alert,
@@ -17,6 +16,7 @@ import { useLedgerStore } from '../../../shared/hooks/useLedgerStore';
 import { useLocalizedFormat } from '../../../shared/hooks/useLocalizedFormat';
 import { tCategory, tPaymentMode } from '../../../shared/utils/helpers';
 import { Card } from '../../../components/ui/Card';
+import { Input } from '../../../components/ui/Input';
 import { Badge } from '../../../components/ui/Badge';
 import { MoneyInModal } from './MoneyInModal';
 import { MoneyOutModal } from './MoneyOutModal';
@@ -181,13 +181,11 @@ export function EditFarmModal({ farm, onClose }: EditFarmModalProps) {
                   {editing && (
                     <View style={[styles.editSection, { borderTopColor: colors.border }]}>
                       <Text style={[styles.editSectionTitle, { color: colors.foreground }]}>{t('editFarm')}</Text>
-                      <Text style={{ color: colors.mutedFg, fontSize: 12, marginBottom: 4 }}>{t('farmName')}</Text>
-                      <TextInput
+                      <Input
+                        label={t('farmName')}
                         value={name}
                         onChangeText={setName}
                         placeholder={t(farm.type)}
-                        placeholderTextColor={colors.mutedFg}
-                        style={[styles.editInput, { backgroundColor: colors.background, borderColor: colors.border, color: colors.foreground }]}
                       />
                       <Text style={{ color: colors.mutedFg, fontSize: 12, marginTop: 10, marginBottom: 4 }}>
                         {t('howMany')} {t(ANIMAL_LABEL[farm.type])}?

@@ -11,9 +11,10 @@ export interface DistrictData {
   talukas: string[];
   pincodes: string[];
   pincodesByTaluka: Record<string, string[]>;
+  villagesByTaluka: Record<string, string[]>;
 }
 
-const EMPTY: DistrictData = { talukas: [], pincodes: [], pincodesByTaluka: {} };
+const EMPTY: DistrictData = { talukas: [], pincodes: [], pincodesByTaluka: {}, villagesByTaluka: {} };
 
 const cache = new Map<string, DistrictData>();
 
@@ -39,10 +40,12 @@ export async function fetchDistrictData(districtName: string): Promise<DistrictD
     const talukaSet = new Set<string>();
     const pincodeSet = new Set<string>();
     const pincodesByTaluka: Record<string, string[]> = {};
+    const villagesByTaluka: Record<string, string[]> = {};
 
     for (const po of offices) {
       const taluka = po.Block && po.Block !== 'NA' ? po.Block : '';
       const pincode = po.Pincode || '';
+      const village = po.Name || '';
 
       if (taluka) talukaSet.add(taluka);
       if (pincode) pincodeSet.add(pincode);
@@ -53,14 +56,23 @@ export async function fetchDistrictData(districtName: string): Promise<DistrictD
           pincodesByTaluka[taluka].push(pincode);
         }
       }
+
+      if (taluka && village) {
+        if (!villagesByTaluka[taluka]) villagesByTaluka[taluka] = [];
+        if (!villagesByTaluka[taluka].includes(village)) {
+          villagesByTaluka[taluka].push(village);
+        }
+      }
     }
 
     for (const arr of Object.values(pincodesByTaluka)) arr.sort();
+    for (const arr of Object.values(villagesByTaluka)) arr.sort();
 
     const result: DistrictData = {
       talukas: [...talukaSet].sort(),
       pincodes: [...pincodeSet].sort(),
       pincodesByTaluka,
+      villagesByTaluka,
     };
 
     cache.set(key, result);
