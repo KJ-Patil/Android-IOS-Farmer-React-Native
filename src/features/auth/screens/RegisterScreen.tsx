@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Platform, KeyboardAvoidingView, Dimensions } from 'react-native';
+import React, { useState, useMemo } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Platform, KeyboardAvoidingView, Dimensions, Alert } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../../app/providers/ThemeProvider';
 import { useAuthStore } from '../../../shared/hooks/useAuthStore';
@@ -7,8 +7,12 @@ import { Input } from '../../../components/ui/Input';
 import { Button } from '../../../components/ui/Button';
 import { Card } from '../../../components/ui/Card';
 import { DatePickerInput } from '../../../components/ui/DatePickerInput';
+import { SearchableDropdown } from '../../../components/ui/SearchableDropdown';
 import * as Location from 'expo-location';
 import { SUPPORTED_LANGUAGES } from '../../../shared/locales/i18n';
+import { INDIAN_STATES } from '../../../shared/data/indianStates';
+import { fetchDistrictData, DistrictData } from '../../../shared/services/indiaPostalService';
+import { MapPin } from 'lucide-react-native';
 import Svg, { Path, Defs, LinearGradient, Stop } from 'react-native-svg';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -40,20 +44,74 @@ export function RegisterScreen({ navigation, route }: any) {
   });
 
   const [formError, setFormError] = useState('');
+  const [districtData, setDistrictData] = useState<DistrictData>({ talukas: [], pincodes: [], pincodesByTaluka: {} });
+  const [locationLoading, setLocationLoading] = useState(false);
+  const [districtLoading, setDistrictLoading] = useState(false);
+
   const updateForm = (key: string, value: any) => setForm((f) => ({ ...f, [key]: value }));
 
-  const handleCaptureGps = async () => {
+  const filteredPincodes = useMemo(() => {
+    if (form.taluka && districtData.pincodesByTaluka[form.taluka]) {
+      return districtData.pincodesByTaluka[form.taluka];
+    }
+    return districtData.pincodes;
+  }, [form.taluka, districtData]);
+
+  const handleDistrictSelect = async (district: string) => {
+    setForm((f) => ({ ...f, district, taluka: '', pincode: '' }));
+    setDistrictData({ talukas: [], pincodes: [], pincodesByTaluka: {} });
+    if (!district.trim()) return;
+    setDistrictLoading(true);
+    const data = await fetchDistrictData(district);
+    setDistrictData(data);
+    setDistrictLoading(false);
+  };
+
+  const handleTalukaSelect = (taluka: string) => {
+    setForm((f) => ({ ...f, taluka, pincode: '' }));
+  };
+
+  const handleDetectLocation = async () => {
+    setLocationLoading(true);
     try {
       const { status } = await Location.requestForegroundPermissionsAsync();
-      if (status === 'granted') {
-        const loc = await Location.getCurrentPositionAsync({});
-        updateForm('geoLocation', { lat: loc.coords.latitude, lng: loc.coords.longitude });
-      } else {
-        updateForm('geoLocation', { lat: 20.005, lng: 73.765 });
+      if (status !== 'granted') {
+        Alert.alert(t('locationPermissionDenied'));
+        setLocationLoading(false);
+        return;
+      }
+      const loc = await Location.getCurrentPositionAsync({});
+      const geo = { lat: loc.coords.latitude, lng: loc.coords.longitude };
+      updateForm('geoLocation', geo);
+
+      const places = await Location.reverseGeocodeAsync({ latitude: geo.lat, longitude: geo.lng });
+      if (places.length > 0) {
+        const place = places[0];
+        const detectedDistrict = place.district || place.subregion || '';
+        const detectedState = place.region || '';
+        const detectedPincode = place.postalCode || '';
+        const detectedVillage = place.city || place.name || '';
+
+        setForm((f) => ({
+          ...f,
+          geoLocation: geo,
+          district: detectedDistrict || f.district,
+          state: detectedState || f.state,
+          pincode: detectedPincode || f.pincode,
+          village: detectedVillage || f.village,
+        }));
+
+        if (detectedDistrict) {
+          setDistrictLoading(true);
+          const data = await fetchDistrictData(detectedDistrict);
+          setDistrictData(data);
+          setDistrictLoading(false);
+        }
       }
     } catch {
       updateForm('geoLocation', { lat: 20.005, lng: 73.765 });
     }
+    setLocationLoading(false);
   };
 
   const handleNext = async () => {
@@ -149,27 +207,70 @@ export function RegisterScreen({ navigation, route }: any) {
           {step === 3 && (
             <>
               <Input label={t('fullName')} value={form.fullName} onChangeText={(v) => updateForm('fullName', v)} />
+
+              <TouchableOpacity
+                onPress={handleDetectLocation}
+                disabled={locationLoading}
+                activeOpacity={0.7}
+                style={[styles.detectBtn, { borderColor: colors.primary, backgroundColor: colors.primary + '10', borderRadius: colors.radius }]}
+              >
+                <MapPin size={18} color={colors.primary} />
+                <Text style={{ color: colors.primary, fontWeight: '600', fontSize: 14, marginLeft: 8 }}>
+                  {locationLoading ? t('fetchingData') : t('detectLocation')}
+                </Text>
+              </TouchableOpacity>
+
+              {form.geoLocation && (
+                <Text style={{ color: colors.mutedFg, fontSize: 12, marginBottom: 12 }}>
+                  {t('locationDetected')} — {form.geoLocation.lat.toFixed(4)}, {form.geoLocation.lng.toFixed(4)}
+                </Text>
+              )}
+
+              <SearchableDropdown
+                label={t('state')}
+                placeholder={t('selectState')}
+                value={form.state}
+                options={INDIAN_STATES}
+                onSelect={(v) => updateForm('state', v)}
+              />
+
+              <SearchableDropdown
+                label={t('district')}
+                placeholder={t('selectDistrict')}
+                value={form.district}
+                options={[]}
+                onSelect={handleDistrictSelect}
+                loading={districtLoading}
+                allowCustom
+              />
+
+              <SearchableDropdown
+                label={t('taluka')}
+                placeholder={t('selectTaluka')}
+                value={form.taluka}
+                options={districtData.talukas}
+                onSelect={handleTalukaSelect}
+                disabled={!form.district}
+                loading={districtLoading}
+                allowCustom
+              />
+
+              <SearchableDropdown
+                label={t('pincode')}
+                placeholder={t('selectPincode')}
+                value={form.pincode}
+                options={filteredPincodes}
+                onSelect={(v) => updateForm('pincode', v)}
+                disabled={!form.district}
+                allowCustom
+              />
+
               <Input label={t('village')} value={form.village} onChangeText={(v) => updateForm('village', v)} />
-              <Input label={t('taluka')} value={form.taluka} onChangeText={(v) => updateForm('taluka', v)} />
-              <Input label={t('district')} value={form.district} onChangeText={(v) => updateForm('district', v)} />
-              <Input label={t('state')} value={form.state} onChangeText={(v) => updateForm('state', v)} />
-              <Input label={t('pincode')} value={form.pincode} onChangeText={(v) => updateForm('pincode', v.replace(/[^0-9]/g, '').slice(0, 6))} keyboardType="number-pad" maxLength={6} />
+
               <Input label={t('aadhaarNumber')} value={form.aadhaarNumber} onChangeText={(v) => updateForm('aadhaarNumber', v.replace(/[^0-9]/g, '').slice(0, 12))} keyboardType="number-pad" maxLength={12} placeholder={t('optional')} />
               <DatePickerInput label={t('dateOfBirth')} value={form.dateOfBirth} onChange={(v) => updateForm('dateOfBirth', v)} />
               <Input label={t('alternateMobile')} placeholder={t('optional')} value={form.alternateMobile} onChangeText={(v) => updateForm('alternateMobile', v.replace(/[^0-9]/g, '').slice(0, 10))} keyboardType="phone-pad" maxLength={10} />
               <Input label={t('emailAddress')} placeholder={t('optional')} value={form.emailId} onChangeText={(v) => updateForm('emailId', v)} keyboardType="email-address" autoCapitalize="none" />
-              <Button
-                title={form.geoLocation ? t('gpsLocationCaptured') : t('captureGps')}
-                onPress={handleCaptureGps}
-                variant={form.geoLocation ? 'secondary' : 'outline'}
-                fullWidth
-                style={{ marginBottom: 8 }}
-              />
-              {form.geoLocation && (
-                <Text style={{ color: colors.mutedFg, fontSize: 12, marginBottom: 12 }}>
-                  {form.geoLocation.lat.toFixed(4)}, {form.geoLocation.lng.toFixed(4)}
-                </Text>
-              )}
             </>
           )}
 
@@ -263,6 +364,7 @@ const styles = StyleSheet.create({
   optionBtn: { flex: 1, borderWidth: 1.5, padding: 16, alignItems: 'center' },
   languageGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
   langBtn: { width: '30%', flexGrow: 1, borderWidth: 1.5, paddingVertical: 12, alignItems: 'center' },
+  detectBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', borderWidth: 1.5, paddingVertical: 12, marginBottom: 14 },
   btnRow: { flexDirection: 'row', marginTop: 20 },
   footer: { flexDirection: 'row', justifyContent: 'center', marginTop: 24 },
 });

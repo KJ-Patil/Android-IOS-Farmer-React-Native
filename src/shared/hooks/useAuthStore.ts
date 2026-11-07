@@ -285,13 +285,13 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
         district: profile.district || '',
         state: profile.state || '',
         pincode: profile.pincode || '',
-        geoLocation: profile.geoLocation,
+        ...(profile.geoLocation ? { geoLocation: profile.geoLocation } : {}),
         language: profile.language || 'en',
         membershipType: profile.membershipType || 'free',
-        profilePhoto: profile.profilePhoto,
-        alternateMobile: profile.alternateMobile,
-        dateOfBirth: profile.dateOfBirth,
-        aadhaarNumber: profile.aadhaarNumber,
+        profilePhoto: profile.profilePhoto || '',
+        alternateMobile: profile.alternateMobile || '',
+        dateOfBirth: profile.dateOfBirth || '',
+        aadhaarNumber: profile.aadhaarNumber || '',
         farmerId: generateFarmerId(profile.fullName || '', mobile),
         createdAt: now,
         updatedAt: now,
@@ -442,7 +442,9 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       const user = get().user;
       if (!user) throw new Error('No user logged in');
       const docRef = doc(db, 'users', user.mobileNumber);
-      const updateData = { ...updates, updatedAt: Timestamp.now() };
+      const updateData = Object.fromEntries(
+        Object.entries({ ...updates, updatedAt: Timestamp.now() }).filter(([, v]) => v !== undefined),
+      );
       await updateDoc(docRef, updateData);
       set({ user: { ...user, ...updateData } as UserProfile, isLoading: false });
     } catch (err: any) {

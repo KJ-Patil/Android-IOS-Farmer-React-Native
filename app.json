@@ -14,7 +14,6 @@
         "ITSAppUsesNonExemptEncryption": false
       }
     },
-    "newArchEnabled": false,
     "android": {
       "package": "com.farmerledger.app",
       "adaptiveIcon": {
@@ -33,7 +32,7 @@
     },
     "androidStatusBar": {
       "barStyle": "dark-content",
-      "backgroundColor": "transparent",
+      "backgroundColor": "#00000000",
       "translucent": true
     },
     "web": {
