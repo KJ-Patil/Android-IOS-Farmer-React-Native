@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, StyleSheet, ScrollView, Modal, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Modal, TouchableOpacity, Alert } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../../app/providers/ThemeProvider';
 import { usePlotStore } from '../../../shared/hooks/usePlotStore';
@@ -91,7 +91,7 @@ export function AddCropModal({ visible, onClose, plotId }: AddCropModalProps) {
           <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}>
             <TouchableOpacity
               onPress={() => { setCropDropdownOpen(!cropDropdownOpen); setAddingCustomCrop(false); }}
-              style={[styles.dropdown, { flex: 1, borderColor: colors.border, backgroundColor: colors.card }]}
+              style={[styles.dropdown, { flex: 1, borderColor: colors.border, backgroundColor: colors.card, borderRadius: colors.radius }]}
               activeOpacity={0.7}
             >
               <Text style={{ color: form.cropType ? colors.foreground : colors.mutedFg, fontSize: 14 }}>
@@ -134,31 +134,10 @@ export function AddCropModal({ visible, onClose, plotId }: AddCropModalProps) {
             <Input label={t('enterCropName')} value={form.customCropType} onChangeText={(v) => updateForm('customCropType', v)} placeholder={t('enterCropName')} />
           )}
 
-          <View style={styles.fieldSection}>
-            <Text style={[styles.label, { color: colors.foreground }]}>{t('variety')}</Text>
-            <View style={[styles.fieldBox, { borderColor: colors.border, backgroundColor: colors.card, borderRadius: colors.radius }]}>
-              <TextInput
-                value={form.variety}
-                onChangeText={(v) => updateForm('variety', v)}
-                placeholder={t('varietyPlaceholder')}
-                placeholderTextColor={colors.mutedFg}
-                style={[styles.fieldInput, { color: colors.foreground }]}
-              />
-            </View>
-          </View>
+          <Input label={t('variety')} value={form.variety} onChangeText={(v) => updateForm('variety', v)} placeholder={t('varietyPlaceholder')} />
 
           <View style={styles.fieldSection}>
-            <Text style={[styles.label, { color: colors.foreground }]}>{t('area')}</Text>
-            <View style={[styles.fieldBox, { borderColor: colors.border, backgroundColor: colors.card, borderRadius: colors.radius }]}>
-              <TextInput
-                value={form.area}
-                onChangeText={(v) => updateForm('area', v.replace(/[^0-9.]/g, ''))}
-                keyboardType="decimal-pad"
-                placeholder="0.00"
-                placeholderTextColor={colors.mutedFg}
-                style={[styles.fieldInput, { color: colors.foreground }]}
-              />
-            </View>
+            <Input label={t('area')} value={form.area} onChangeText={(v) => updateForm('area', v.replace(/[^0-9.]/g, ''))} keyboardType="decimal-pad" placeholder="0.00" />
             <View style={styles.unitRow}>
               {AREA_UNITS.map((u) => (
                 <TouchableOpacity
@@ -193,10 +172,10 @@ export function AddCropModal({ visible, onClose, plotId }: AddCropModalProps) {
         </ScrollView>
 
         <View style={[styles.footer, { backgroundColor: colors.card, borderTopColor: colors.border }]}>
-          <TouchableOpacity onPress={onClose} activeOpacity={0.7} style={[styles.cancelBtn, { borderColor: colors.destructive }]}>
-            <Text style={{ color: colors.destructive, fontWeight: '700', fontSize: 15 }}>✕ {t('cancel')}</Text>
+          <TouchableOpacity onPress={onClose} activeOpacity={0.7} style={[styles.cancelBtn, { backgroundColor: colors.destructive }]}>
+            <Text style={{ color: '#FFFFFF', fontWeight: '700', fontSize: 15 }}>✕ {t('cancel')}</Text>
           </TouchableOpacity>
-          <TouchableOpacity onPress={handleSave} activeOpacity={0.7} disabled={loading} style={[styles.saveBtn, { backgroundColor: colors.primary, shadowColor: colors.primary, opacity: loading ? 0.6 : 1 }]}>
+          <TouchableOpacity onPress={handleSave} activeOpacity={0.7} disabled={loading} style={[styles.saveBtn, { backgroundColor: '#16A34A', shadowColor: '#16A34A', opacity: loading ? 0.6 : 1 }]}>
             <Text style={{ color: '#FFFFFF', fontWeight: '800', fontSize: 16 }}>{loading ? '...' : `✓ ${t('save')}`}</Text>
           </TouchableOpacity>
         </View>
@@ -211,16 +190,14 @@ const styles = StyleSheet.create({
   title: { fontSize: 18, fontWeight: '800' },
   scroll: { padding: 16, paddingBottom: 40 },
   label: { fontSize: 14, fontWeight: '500', marginBottom: 6 },
-  fieldSection: { marginBottom: 16 },
-  fieldBox: { borderWidth: 1, paddingHorizontal: 14, paddingVertical: 12, minHeight: 48, justifyContent: 'center' },
-  fieldInput: { fontSize: 16, padding: 0 },
-  unitRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 10 },
-  dropdown: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', borderWidth: 1, borderRadius: 10, paddingHorizontal: 14, paddingVertical: 12 },
-  addCropBtn: { flexDirection: 'row', height: 44, borderRadius: 10, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 10 },
-  dropdownList: { borderWidth: 1, borderRadius: 10, marginBottom: 16, maxHeight: 220, overflow: 'hidden' },
+  fieldSection: { marginBottom: 0 },
+  unitRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: -6, marginBottom: 16 },
+  dropdown: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', borderWidth: 1, paddingHorizontal: 14, paddingVertical: 12, minHeight: 48 },
+  addCropBtn: { flexDirection: 'row', height: 48, borderRadius: 12, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 12 },
+  dropdownList: { borderWidth: 1, borderRadius: 12, marginBottom: 16, maxHeight: 220, overflow: 'hidden' },
   dropdownItem: { paddingHorizontal: 14, paddingVertical: 11, borderBottomWidth: StyleSheet.hairlineWidth },
   unitBtn: { borderWidth: 1.5, paddingHorizontal: 14, paddingVertical: 10 },
   footer: { flexDirection: 'row', padding: 16, gap: 12, borderTopWidth: 1 },
-  cancelBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 14, borderRadius: 14, borderWidth: 1.5 },
+  cancelBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 14, borderRadius: 14 },
   saveBtn: { flex: 1.5, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 14, borderRadius: 14, shadowOpacity: 0.35, shadowRadius: 8, shadowOffset: { width: 0, height: 4 }, elevation: 6 },
 });

@@ -80,13 +80,13 @@ export function DatePickerInput({ label, value, onChange }: DatePickerInputProps
 
   return (
     <>
-      <View style={{ marginBottom: 14 }}>
+      <View style={{ marginBottom: 16 }}>
         <Text style={[styles.label, { color: colors.foreground }]}>{label}</Text>
         <TouchableOpacity
           onPress={handleOpen}
-          style={[styles.input, { borderColor: colors.border, backgroundColor: colors.card }]}
+          style={[styles.input, { borderColor: colors.border, backgroundColor: colors.card, borderRadius: colors.radius }]}
         >
-          <Text style={{ color: value ? colors.foreground : colors.mutedFg, fontSize: 15 }}>{displayValue}</Text>
+          <Text style={{ color: value ? colors.foreground : colors.mutedFg, fontSize: 16 }}>{displayValue}</Text>
         </TouchableOpacity>
       </View>
 
@@ -138,7 +138,7 @@ export function DatePickerInput({ label, value, onChange }: DatePickerInputProps
 
 const styles = StyleSheet.create({
   label: { fontSize: 14, fontWeight: '500', marginBottom: 6 },
-  input: { borderWidth: 1, borderRadius: 10, paddingHorizontal: 14, paddingVertical: 12 },
+  input: { borderWidth: 1, paddingHorizontal: 14, paddingVertical: 12, minHeight: 48 },
   overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center', padding: 24 },
   sheet: { width: '100%', maxWidth: 360, borderRadius: 16, padding: 20, elevation: 5, shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.15, shadowRadius: 8 },
   monthNav: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 },

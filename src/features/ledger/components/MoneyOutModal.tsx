@@ -373,11 +373,11 @@ export function MoneyOutModal({ visible, onClose, initialData, plotId, cropId, f
         </ScrollView>
 
         <View style={[styles.footer, { backgroundColor: colors.card, borderTopColor: colors.border }]}>
-          <TouchableOpacity onPress={onClose} activeOpacity={0.7} style={[styles.cancelBtn, { borderColor: colors.destructive }]}>
-            <Text style={{ color: colors.destructive, fontWeight: '700', fontSize: 15 }}>✕ {t('cancel')}</Text>
+          <TouchableOpacity onPress={onClose} activeOpacity={0.7} style={[styles.cancelBtn, { backgroundColor: colors.destructive }]}>
+            <Text style={{ color: '#FFFFFF', fontWeight: '700', fontSize: 15 }}>✕ {t('cancel')}</Text>
           </TouchableOpacity>
           {section && (
-            <TouchableOpacity onPress={handleSave} activeOpacity={0.7} disabled={loading} style={[styles.saveBtn, { backgroundColor: colors.primary, shadowColor: colors.primary, opacity: loading ? 0.6 : 1 }]}>
+            <TouchableOpacity onPress={handleSave} activeOpacity={0.7} disabled={loading} style={[styles.saveBtn, { backgroundColor: '#16A34A', shadowColor: '#16A34A', opacity: loading ? 0.6 : 1 }]}>
               <Text style={{ color: '#FFFFFF', fontWeight: '800', fontSize: 16 }}>{loading ? '...' : `✓ ${t('save')}`}</Text>
             </TouchableOpacity>
           )}
@@ -578,9 +578,9 @@ export function MoneyOutModal({ visible, onClose, initialData, plotId, cropId, f
                     setNewCustomCategoryName('');
                     setAddCustomModalOpen(false);
                   }}
-                  style={[styles.customActionBtn, { borderColor: colors.border }]}
+                  style={[styles.customActionBtn, { backgroundColor: colors.destructive, borderColor: colors.destructive }]}
                 >
-                  <Text style={{ color: colors.foreground, fontWeight: '600' }}>{t('cancel')}</Text>
+                  <Text style={{ color: '#FFFFFF', fontWeight: '600' }}>{t('cancel')}</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
@@ -608,7 +608,7 @@ const styles = StyleSheet.create({
   chipGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 16 },
   chip: { borderWidth: 1.5, paddingVertical: 8, paddingHorizontal: 12 },
   footer: { flexDirection: 'row', padding: 16, gap: 12, borderTopWidth: 1 },
-  cancelBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 14, borderRadius: 14, borderWidth: 1.5 },
+  cancelBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 14, borderRadius: 14 },
   saveBtn: { flex: 1.5, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 14, borderRadius: 14, shadowOpacity: 0.35, shadowRadius: 8, shadowOffset: { width: 0, height: 4 }, elevation: 6 },
   categoryHeaderRow: {
     flexDirection: 'row',
@@ -640,10 +640,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    borderWidth: 1.5,
+    borderWidth: 1,
     borderRadius: 12,
     paddingHorizontal: 14,
     paddingVertical: 12,
+    minHeight: 48,
     marginBottom: 16,
   },
   dropdownLeft: {
@@ -707,9 +708,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1,
-    borderRadius: 10,
+    borderRadius: 12,
     paddingHorizontal: 10,
-    height: 42,
+    height: 48,
     gap: 6,
   },
   searchInput: {
@@ -722,8 +723,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#16A34A',
     paddingHorizontal: 14,
-    height: 42,
-    borderRadius: 10,
+    height: 48,
+    borderRadius: 12,
     gap: 4,
   },
   addCustomInlineBtnText: {
@@ -777,10 +778,11 @@ const styles = StyleSheet.create({
   },
   customCategoryInput: {
     borderWidth: 1,
-    borderRadius: 10,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    fontSize: 15,
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    fontSize: 16,
+    minHeight: 48,
     marginBottom: 16,
   },
   addCustomActions: {
@@ -789,11 +791,12 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   customActionBtn: {
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 10,
+    paddingHorizontal: 18,
+    paddingVertical: 12,
+    borderRadius: 12,
     borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    minHeight: 44,
   },
 });

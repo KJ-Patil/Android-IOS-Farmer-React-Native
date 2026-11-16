@@ -20,7 +20,7 @@ export function Input({ label, error, containerStyle, style, ...props }: InputPr
         style={[
           styles.input,
           {
-            backgroundColor: colors.background,
+            backgroundColor: colors.card,
             color: colors.foreground,
             borderColor: error ? colors.destructive : colors.border,
             borderRadius: colors.radius,

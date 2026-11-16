@@ -142,11 +142,11 @@ export function OCRScannerModal({ visible, onClose, onApply }: OCRScannerModalPr
         </ScrollView>
 
         <View style={[styles.footer, { backgroundColor: colors.card, borderTopColor: colors.border }]}>
-          <TouchableOpacity onPress={onClose} activeOpacity={0.7} style={[styles.cancelBtn, { borderColor: colors.destructive }]}>
-            <Text style={{ color: colors.destructive, fontWeight: '700', fontSize: 15 }}>✕ {t('cancel')}</Text>
+          <TouchableOpacity onPress={onClose} activeOpacity={0.7} style={[styles.cancelBtn, { backgroundColor: colors.destructive }]}>
+            <Text style={{ color: '#FFFFFF', fontWeight: '700', fontSize: 15 }}>✕ {t('cancel')}</Text>
           </TouchableOpacity>
           {result && editedResult && (
-            <TouchableOpacity onPress={handleApply} activeOpacity={0.7} style={[styles.saveBtn, { backgroundColor: colors.primary, shadowColor: colors.primary }]}>
+            <TouchableOpacity onPress={handleApply} activeOpacity={0.7} style={[styles.saveBtn, { backgroundColor: '#16A34A', shadowColor: '#16A34A' }]}>
               <Text style={{ color: '#FFFFFF', fontWeight: '800', fontSize: 16 }}>✓ {t('applyToEntry')}</Text>
             </TouchableOpacity>
           )}
@@ -166,6 +166,6 @@ const styles = StyleSheet.create({
   actionCard: { flex: 1, paddingVertical: 28, alignItems: 'center' },
   sectionTitle: { fontSize: 16, fontWeight: '600', marginBottom: 12 },
   footer: { flexDirection: 'row', padding: 16, gap: 12, borderTopWidth: 1 },
-  cancelBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 14, borderRadius: 14, borderWidth: 1.5 },
+  cancelBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 14, borderRadius: 14 },
   saveBtn: { flex: 1.5, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 14, borderRadius: 14, shadowOpacity: 0.35, shadowRadius: 8, shadowOffset: { width: 0, height: 4 }, elevation: 6 },
 });

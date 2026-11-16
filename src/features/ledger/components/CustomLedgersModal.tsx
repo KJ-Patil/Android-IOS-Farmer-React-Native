@@ -152,17 +152,17 @@ export function CustomLedgersModal({ visible, onClose }: CustomLedgersModalProps
           <TouchableOpacity
             onPress={handleClose}
             activeOpacity={0.7}
-            style={[styles.cancelBtn, { borderColor: colors.destructive }]}
+            style={[styles.cancelBtn, { backgroundColor: colors.destructive }]}
           >
-            <X color={colors.destructive} size={18} />
-            <Text style={{ color: colors.destructive, fontWeight: '700', fontSize: 15 }}>{t('cancel')}</Text>
+            <X color="#FFFFFF" size={18} />
+            <Text style={{ color: '#FFFFFF', fontWeight: '700', fontSize: 15 }}>{t('cancel')}</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
             onPress={handleCreate}
             activeOpacity={0.7}
             disabled={loading}
-            style={[styles.saveBtn, { backgroundColor: colors.primary, shadowColor: colors.primary, opacity: loading ? 0.6 : 1 }]}
+            style={[styles.saveBtn, { backgroundColor: '#16A34A', shadowColor: '#16A34A', opacity: loading ? 0.6 : 1 }]}
           >
             <Check color="#FFFFFF" size={20} strokeWidth={3} />
             <Text style={{ color: '#FFFFFF', fontWeight: '800', fontSize: 16 }}>
@@ -246,7 +246,6 @@ const styles = StyleSheet.create({
     gap: 6,
     paddingVertical: 14,
     borderRadius: 14,
-    borderWidth: 1.5,
   },
   saveBtn: {
     flex: 1.5,
