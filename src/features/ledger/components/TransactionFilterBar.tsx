@@ -16,7 +16,7 @@ interface TransactionFilterBarProps {
   onApply: (filters: TransactionFilters) => void;
 }
 
-const PAYMENT_MODES = ['cash', 'bank', 'upi', 'credit', 'cheque'];
+const PAYMENT_MODES = ['cash', 'upi', 'credit'];
 
 export function TransactionFilterBar({ filters, onApply }: TransactionFilterBarProps) {
   const { t } = useTranslation();

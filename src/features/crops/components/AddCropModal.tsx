@@ -88,13 +88,13 @@ export function AddCropModal({ visible, onClose, plotId }: AddCropModalProps) {
           </Text>
 
           <Text style={[styles.label, { color: colors.foreground }]}>{t('cropType')}</Text>
-          <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}>
+          <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center', marginBottom: 16 }}>
             <TouchableOpacity
               onPress={() => { setCropDropdownOpen(!cropDropdownOpen); setAddingCustomCrop(false); }}
               style={[styles.dropdown, { flex: 1, borderColor: colors.border, backgroundColor: colors.card, borderRadius: colors.radius }]}
               activeOpacity={0.7}
             >
-              <Text style={{ color: form.cropType ? colors.foreground : colors.mutedFg, fontSize: 14 }}>
+              <Text style={{ color: form.cropType ? colors.foreground : colors.mutedFg, fontSize: 16 }}>
                 {form.cropType === 'custom' && form.customCropType
                   ? form.customCropType
                   : form.cropType ? t(form.cropType) : t('selectCropType')}
@@ -103,11 +103,11 @@ export function AddCropModal({ visible, onClose, plotId }: AddCropModalProps) {
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => { setAddingCustomCrop(!addingCustomCrop); setCropDropdownOpen(false); updateForm('cropType', 'custom'); }}
-              style={[styles.addCropBtn, { backgroundColor: colors.primary }]}
+              style={[styles.addCropBtn, { backgroundColor: colors.primary, borderRadius: colors.radius }]}
               activeOpacity={0.7}
             >
-              <Plus color="#FFFFFF" size={14} />
-              <Text style={{ color: '#FFFFFF', fontSize: 12, fontWeight: '700', marginLeft: 3 }}>{t('addCrop')}</Text>
+              <Plus color="#FFFFFF" size={16} />
+              <Text style={{ color: '#FFFFFF', fontSize: 13, fontWeight: '700', marginLeft: 4 }}>{t('custom')}</Text>
             </TouchableOpacity>
           </View>
           {cropDropdownOpen && (
@@ -193,7 +193,7 @@ const styles = StyleSheet.create({
   fieldSection: { marginBottom: 0 },
   unitRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: -6, marginBottom: 16 },
   dropdown: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', borderWidth: 1, paddingHorizontal: 14, paddingVertical: 12, minHeight: 48 },
-  addCropBtn: { flexDirection: 'row', height: 48, borderRadius: 12, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 12 },
+  addCropBtn: { flexDirection: 'row', height: 48, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 16 },
   dropdownList: { borderWidth: 1, borderRadius: 12, marginBottom: 16, maxHeight: 220, overflow: 'hidden' },
   dropdownItem: { paddingHorizontal: 14, paddingVertical: 11, borderBottomWidth: StyleSheet.hairlineWidth },
   unitBtn: { borderWidth: 1.5, paddingHorizontal: 14, paddingVertical: 10 },

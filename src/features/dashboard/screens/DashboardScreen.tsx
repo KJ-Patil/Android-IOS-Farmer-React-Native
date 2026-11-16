@@ -553,10 +553,10 @@ export function DashboardScreen({ navigation }: any) {
                     key={ps.id}
                     style={[styles.plotCardDetailed, { backgroundColor: colors.card, borderColor: colors.border }]}
                   >
-                    {/* Plot Card Header - Tapping resets selection to All Crops */}
+                    {/* Plot Card Header - Tapping navigates to Plot Dashboard */}
                     <TouchableOpacity
                       activeOpacity={0.7}
-                      onPress={() => setSelectedCropByPlot((prev) => ({ ...prev, [ps.id]: 'all' }))}
+                      onPress={() => navigation.navigate('PlotsTab', { screen: 'PlotDashboard', params: { plotId: ps.id } })}
                       style={styles.plotHeaderRow}
                     >
                       <View style={{ flex: 1 }}>

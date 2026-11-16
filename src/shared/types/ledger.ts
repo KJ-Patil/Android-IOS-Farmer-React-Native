@@ -2,7 +2,7 @@ import { Timestamp } from 'firebase/firestore';
 
 export type TransactionType = 'income' | 'expense';
 export type LedgerType = 'personal' | 'agriculture' | 'party' | 'custom' | 'dairy';
-export type PaymentMode = 'cash' | 'bank' | 'upi' | 'credit' | 'cheque';
+export type PaymentMode = 'cash' | 'upi' | 'credit';
 export type IncomeCategory = 'crop_sale' | 'dairy' | 'loan' | 'other';
 
 export interface CropSaleDetails {

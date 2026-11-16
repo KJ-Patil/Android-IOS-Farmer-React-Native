@@ -53,7 +53,7 @@ export function IncomeRegisterView({ onOpenMoneyInModal }: IncomeRegisterViewPro
   const [selectedLoanTx, setSelectedLoanTx] = useState<Transaction | null>(null);
   const [emiAmount, setEmiAmount] = useState('');
   const [emiDate, setEmiDate] = useState(new Date().toISOString().split('T')[0]);
-  const [emiMode, setEmiMode] = useState<PaymentMode>('bank');
+  const [emiMode, setEmiMode] = useState<PaymentMode>('upi');
   const [emiNotes, setEmiNotes] = useState('');
   const [emiLoading, setEmiLoading] = useState(false);
 

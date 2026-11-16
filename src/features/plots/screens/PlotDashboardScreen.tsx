@@ -164,19 +164,21 @@ export function PlotDashboardScreen({ route, navigation }: any) {
             </View>
           </View>
 
-          <View style={styles.kpiRow}>
+          <View style={[styles.kpiCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
             <View style={styles.kpiCol}>
-              <Text style={[styles.kpiLabel, { color: colors.mutedFg }]}>{t('totalRevenue')}</Text>
+              <Text style={[styles.kpiLabel, { color: colors.mutedFg }]}>{t('income')}</Text>
               <Text style={[styles.kpiValue, { color: '#16A34A' }]} numberOfLines={1}>
                 +{fmtCurrency(financials.income)}
               </Text>
             </View>
+            <View style={[styles.kpiDivider, { backgroundColor: colors.border }]} />
             <View style={styles.kpiCol}>
-              <Text style={[styles.kpiLabel, { color: colors.mutedFg }]}>{t('totalExpenses')}</Text>
+              <Text style={[styles.kpiLabel, { color: colors.mutedFg }]}>{t('expense')}</Text>
               <Text style={[styles.kpiValue, { color: colors.destructive }]} numberOfLines={1}>
                 -{fmtCurrency(financials.expenses)}
               </Text>
             </View>
+            <View style={[styles.kpiDivider, { backgroundColor: colors.border }]} />
             <View style={styles.kpiCol}>
               <Text style={[styles.kpiLabel, { color: colors.mutedFg }]}>{t('netProfit')}</Text>
               <Text
@@ -221,15 +223,16 @@ export function PlotDashboardScreen({ route, navigation }: any) {
           <TouchableOpacity
             onPress={() => setAddCropVisible(true)}
             disabled={remaining <= 0}
+            activeOpacity={0.7}
             style={[
               styles.addCropChipBtn,
               {
-                backgroundColor: remaining > 0 ? colors.primary + '15' : colors.muted,
+                backgroundColor: remaining > 0 ? colors.primary : colors.muted,
                 borderColor: remaining > 0 ? colors.primary : colors.border,
               },
             ]}
           >
-            <Text style={{ fontSize: 12, fontWeight: '700', color: remaining > 0 ? colors.primary : colors.mutedFg }}>
+            <Text style={{ fontSize: 13, fontWeight: '700', color: remaining > 0 ? '#FFFFFF' : colors.mutedFg }}>
               + {t('addCrop')}
             </Text>
           </TouchableOpacity>
@@ -498,8 +501,9 @@ const styles = StyleSheet.create({
   financialCardTitle: { fontSize: 17, fontWeight: '800' },
   profitBadge: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6, borderWidth: 1 },
 
-  kpiRow: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 14 },
-  kpiCol: { flex: 1, alignItems: 'flex-start' },
+  kpiCard: { flexDirection: 'row', marginTop: 14, borderRadius: 12, borderWidth: 1, padding: 14, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.08, shadowRadius: 6, elevation: 3 },
+  kpiCol: { flex: 1, alignItems: 'center' },
+  kpiDivider: { width: 1, alignSelf: 'stretch', marginVertical: 2 },
   kpiLabel: { fontSize: 11, fontWeight: '600', textTransform: 'uppercase', letterSpacing: 0.3 },
   kpiValue: { fontSize: 16, fontWeight: '800', marginTop: 4 },
 
@@ -509,7 +513,7 @@ const styles = StyleSheet.create({
 
   cropSelectorHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 18, marginBottom: 8 },
   sectionLabel: { fontSize: 15, fontWeight: '800' },
-  addCropChipBtn: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 8, borderWidth: 1 },
+  addCropChipBtn: { paddingHorizontal: 14, paddingVertical: 8, borderRadius: 10, borderWidth: 1.5 },
   cropChipsScroll: { flexDirection: 'row', gap: 8, paddingBottom: 6 },
   cropChip: { paddingHorizontal: 14, paddingVertical: 8, borderRadius: 10, borderWidth: 1.5 },
   cropChipText: { fontSize: 13, fontWeight: '700' },

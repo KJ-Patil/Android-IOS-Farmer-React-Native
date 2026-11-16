@@ -39,7 +39,7 @@ interface MoneyOutModalProps {
   };
 }
 
-const PAYMENT_MODES: PaymentMode[] = ['cash', 'upi', 'bank', 'credit', 'cheque'];
+const PAYMENT_MODES: PaymentMode[] = ['cash', 'upi', 'credit'];
 
 const AGRI_CATEGORIES = ['seeds', 'fertilizers', 'pesticides', 'labor', 'weeding', 'tractor', 'irrigation', 'agriElectricity', 'transport', 'packing', 'marketCost', 'hamali', 'otherAgri'] as const;
 const DAIRY_CATEGORIES = ['fodder', 'medicines', 'veterinary', 'milkCollection', 'dairyElectricity', 'dairyLabor', 'otherDairy'] as const;

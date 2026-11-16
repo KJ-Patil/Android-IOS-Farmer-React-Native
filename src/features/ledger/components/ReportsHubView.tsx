@@ -84,7 +84,7 @@ export function ReportsHubView() {
         case 'cash_book':
           return tx.paymentMode === 'cash';
         case 'bank_book':
-          return tx.paymentMode === 'bank' || tx.paymentMode === 'upi' || tx.paymentMode === 'cheque';
+          return tx.paymentMode === 'upi';
         case 'profit_loss':
           return true;
         case 'plot_report':

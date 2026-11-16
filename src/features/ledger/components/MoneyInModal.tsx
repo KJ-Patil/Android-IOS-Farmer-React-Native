@@ -19,7 +19,7 @@ interface MoneyInModalProps {
   farmName?: string;
 }
 
-const PAYMENT_MODES: PaymentMode[] = ['cash', 'upi', 'bank', 'credit', 'cheque'];
+const PAYMENT_MODES: PaymentMode[] = ['cash', 'upi', 'credit'];
 const DAIRY_PRODUCTS = ['milk', 'ghee', 'paneer', 'curd', 'buttermilk', 'khava', 'animalSale', 'dung', 'other'] as const;
 const LOAN_TYPES = ['cropLoan', 'termLoan', 'tractorLoan', 'goldLoan', 'personalLoan'] as const;
 const OTHER_SUBTYPES = ['subsidy', 'insuranceClaim', 'tractorRent', 'implementsRent', 'waterSale', 'saplingsSale', 'seedsSale', 'organicManureSale', 'wages', 'interest', 'commission', 'custom'] as const;
@@ -166,7 +166,7 @@ export function MoneyInModal({ visible, onClose, plotId, cropId, farmId, farmNam
           ledgerType: 'personal',
           category: 'loanReceived',
           amount: loanNet,
-          date, paymentMode: 'bank', partyName, billNumber, notes,
+          date, paymentMode: 'upi', partyName, billNumber, notes,
           ...(farmId ? { farmId } : {}),
           ...(farmName ? { farmName } : {}),
           loanDetails: {
