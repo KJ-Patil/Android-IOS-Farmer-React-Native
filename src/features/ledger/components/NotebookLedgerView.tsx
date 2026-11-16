@@ -1,49 +1,13 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../../app/providers/ThemeProvider';
 import { useLedgerStore } from '../../../shared/hooks/useLedgerStore';
-import { usePlotStore } from '../../../shared/hooks/usePlotStore';
-import { useNotebookFarmStore, FarmType } from '../../../shared/hooks/useNotebookFarmStore';
-import { AddFarmModal } from './AddFarmModal';
-import { EditFarmModal } from './EditFarmModal';
-import type { NotebookFarm } from '../../../shared/hooks/useNotebookFarmStore';
 import { Card } from '../../../components/ui/Card';
 import { Badge } from '../../../components/ui/Badge';
 import { useLocalizedFormat } from '../../../shared/hooks/useLocalizedFormat';
 import { tCategory, tPaymentMode } from '../../../shared/utils/helpers';
 import { ArrowDownLeft, ArrowUpRight, ScanLine, BookOpen } from 'lucide-react-native';
-import type { Transaction } from '../../../shared/types/ledger';
-
-const FARM_EMOJI: Record<FarmType, string> = {
-  dairy: '🐄',
-  goat: '🐐',
-  poultry: '🐔',
-  fishery: '🐟',
-  piggery: '🐷',
-  sericulture: '🪱',
-  apiary: '🐝',
-  other: '🌾',
-};
-
-const ANIMAL_LABEL: Record<FarmType, string> = {
-  dairy: 'cows',
-  goat: 'goats',
-  poultry: 'birds',
-  fishery: 'fish',
-  piggery: 'pigs',
-  sericulture: 'trays',
-  apiary: 'hives',
-  other: 'animals',
-};
-
-function isDairyTransaction(tx: Transaction): boolean {
-  return (
-    tx.ledgerType === 'dairy' ||
-    tx.incomeCategory === 'dairy' ||
-    !!(tx.category && (tx.category.startsWith('dairy_') || tx.category.includes('dairy') || tx.category.includes('Dairy')))
-  );
-}
 
 interface NotebookLedgerViewProps {
   onMoneyIn: () => void;
@@ -56,88 +20,28 @@ export function NotebookLedgerView({ onMoneyIn, onMoneyOut, onScanBill, onCustom
   const { t } = useTranslation();
   const { colors } = useTheme();
   const { transactions } = useLedgerStore();
-  const { plots, fetchPlots } = usePlotStore();
-  const { farms, fetchFarms } = useNotebookFarmStore();
   const { fmtCurrency, toNative, fmtDMY } = useLocalizedFormat();
-
-  const [selectedFilter, setSelectedFilter] = useState<string | null>(null);
-  const [addFarmVisible, setAddFarmVisible] = useState(false);
-  const [editingFarm, setEditingFarm] = useState<NotebookFarm | null>(null);
-
-  useEffect(() => { fetchPlots(); fetchFarms(); }, []);
 
   const summaries = useMemo(() => {
     let allIncome = 0;
     let allExpense = 0;
-    const plotMap: Record<string, { income: number; expense: number }> = {};
-    let dairyIncome = 0;
-    let dairyExpense = 0;
-    let hasDairy = false;
-
-    for (const plot of plots) {
-      plotMap[plot.id] = { income: 0, expense: 0 };
-    }
-
     for (const tx of transactions) {
       const amt = tx.amount || 0;
       if (tx.type === 'income') allIncome += amt;
       else allExpense += amt;
-
-      if (tx.plotId && plotMap[tx.plotId]) {
-        if (tx.type === 'income') plotMap[tx.plotId].income += amt;
-        else plotMap[tx.plotId].expense += amt;
-      }
-
-      if (isDairyTransaction(tx)) {
-        hasDairy = true;
-        if (tx.type === 'income') dairyIncome += amt;
-        else dairyExpense += amt;
-      }
     }
+    return { allIncome, allExpense };
+  }, [transactions]);
 
-    const plotStats = plots.map((p) => ({
-      id: p.id,
-      name: p.name,
-      gatNumber: p.gatNumber,
-      income: plotMap[p.id]?.income || 0,
-      expense: plotMap[p.id]?.expense || 0,
-    }));
-
-    const farmStats = farms.map((f) => {
-      const farmTxns = transactions.filter((tx) => tx.farmId === f.id);
-      const income = farmTxns.filter((tx) => tx.type === 'income').reduce((s, tx) => s + (tx.amount || 0), 0);
-      const expense = farmTxns.filter((tx) => tx.type === 'expense').reduce((s, tx) => s + (tx.amount || 0), 0);
-      return { id: f.id, name: f.name, type: f.type, animalCount: f.animalCount, income, expense };
-    });
-
-    return { allIncome, allExpense, plotStats, farmStats, dairyIncome, dairyExpense, hasDairy };
-  }, [transactions, plots, farms]);
-
-  const filteredTransactions = useMemo(() => {
-    const sorted = [...transactions].sort((a, b) => (b.date || '').localeCompare(a.date || ''));
-    if (!selectedFilter || selectedFilter === 'overall') return sorted;
-    if (selectedFilter === 'dairy') return sorted.filter(isDairyTransaction);
-    if (selectedFilter.startsWith('plot_')) {
-      const plotId = selectedFilter.replace('plot_', '');
-      return sorted.filter((tx) => tx.plotId === plotId);
-    }
-    if (selectedFilter.startsWith('farm_')) {
-      const farmId = selectedFilter.replace('farm_', '');
-      return sorted.filter((tx) => tx.farmId === farmId);
-    }
-    return sorted;
-  }, [transactions, selectedFilter]);
+  const sortedTransactions = useMemo(() => {
+    return [...transactions].sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+  }, [transactions]);
 
   const fmt = (v: number) => fmtCurrency(Math.round(v));
 
-  const toggleFilter = (key: string) => {
-    setSelectedFilter((prev) => (prev === key ? null : key));
-  };
-
   return (
-    <>
     <FlatList
-      data={filteredTransactions}
+      data={sortedTransactions}
       keyExtractor={(item) => item.id}
       contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 40 }}
       ListHeaderComponent={
@@ -148,13 +52,6 @@ export function NotebookLedgerView({ onMoneyIn, onMoneyOut, onScanBill, onCustom
               <Text style={{ color: colors.foreground, fontSize: 18, fontWeight: '800' }}>
                 {t('notebook')}
               </Text>
-              <TouchableOpacity
-                onPress={() => setAddFarmVisible(true)}
-                activeOpacity={0.7}
-                style={[styles.addBtn, { backgroundColor: colors.primary }]}
-              >
-                <Text style={{ color: '#FFFFFF', fontWeight: '700', fontSize: 13 }}>+ {t('add')}</Text>
-              </TouchableOpacity>
             </View>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
               <View style={{ alignItems: 'center', flex: 1 }}>
@@ -198,121 +95,9 @@ export function NotebookLedgerView({ onMoneyIn, onMoneyOut, onScanBill, onCustom
             </TouchableOpacity>
           </View>
 
-          {/* My Farms — emoji KPI cards */}
-          {summaries.farmStats.length > 0 && (
-            <Text style={[styles.sectionLabel, { color: colors.foreground }]}>{t('myFarms')}</Text>
-          )}
-          <View style={styles.kpiGrid}>
-            {summaries.farmStats.map((fs) => {
-              const isActive = selectedFilter === `farm_${fs.id}`;
-              const farmObj = farms.find((f) => f.id === fs.id);
-              return (
-                <TouchableOpacity
-                  key={fs.id}
-                  onPress={() => { if (farmObj) setEditingFarm(farmObj); }}
-                  onLongPress={() => toggleFilter(`farm_${fs.id}`)}
-                  activeOpacity={0.7}
-                  style={[
-                    styles.kpiCard,
-                    { backgroundColor: colors.card, borderColor: isActive ? '#7C3AED' : colors.border },
-                    isActive && { backgroundColor: '#F5F3FF', borderColor: '#7C3AED' },
-                  ]}
-                >
-                  <Text style={styles.kpiEmoji}>{FARM_EMOJI[fs.type] || '🌾'}</Text>
-                  <Text style={[styles.kpiName, { color: colors.foreground }]} numberOfLines={1}>
-                    {fs.name}
-                  </Text>
-                  {fs.animalCount ? (
-                    <View style={[styles.animalRow, { backgroundColor: '#7C3AED' + '12' }]}>
-                      <Text style={styles.animalCount}>{fs.animalCount}</Text>
-                      <Text style={styles.animalLabel}>{t(ANIMAL_LABEL[fs.type])}</Text>
-                    </View>
-                  ) : null}
-                  <View style={styles.kpiAmounts}>
-                    <Text style={styles.kpiIncome}>+{fmt(fs.income)}</Text>
-                    <Text style={styles.kpiExpense}>-{fmt(fs.expense)}</Text>
-                  </View>
-                </TouchableOpacity>
-              );
-            })}
-          </View>
-
-          {/* My Plots */}
-          {summaries.plotStats.length > 0 && (
-            <Text style={[styles.sectionLabel, { color: colors.foreground }]}>{t('plots')}</Text>
-          )}
-          <View style={styles.kpiGrid}>
-            {summaries.plotStats.map((ps) => {
-              const isActive = selectedFilter === `plot_${ps.id}`;
-              return (
-                <TouchableOpacity
-                  key={ps.id}
-                  onPress={() => toggleFilter(`plot_${ps.id}`)}
-                  activeOpacity={0.7}
-                  style={[
-                    styles.kpiCard,
-                    { backgroundColor: colors.card, borderColor: isActive ? colors.primary : colors.border },
-                    isActive && { backgroundColor: '#F0FDF4', borderColor: colors.primary },
-                  ]}
-                >
-                  <Text style={styles.kpiEmoji}>🌱</Text>
-                  <Text style={[styles.kpiName, { color: colors.foreground }]} numberOfLines={1}>
-                    {ps.name}
-                  </Text>
-                  <Text style={{ color: colors.mutedFg, fontSize: 11 }}>{ps.gatNumber}</Text>
-                  <View style={styles.kpiAmounts}>
-                    <Text style={styles.kpiIncome}>+{fmt(ps.income)}</Text>
-                    <Text style={styles.kpiExpense}>-{fmt(ps.expense)}</Text>
-                  </View>
-                </TouchableOpacity>
-              );
-            })}
-
-            {summaries.hasDairy && (
-              <TouchableOpacity
-                onPress={() => toggleFilter('dairy')}
-                activeOpacity={0.7}
-                style={[
-                  styles.kpiCard,
-                  { backgroundColor: colors.card, borderColor: selectedFilter === 'dairy' ? '#D97706' : colors.border },
-                  selectedFilter === 'dairy' && { backgroundColor: '#FFFBEB', borderColor: '#D97706' },
-                ]}
-              >
-                <Text style={styles.kpiEmoji}>🥛</Text>
-                <Text style={[styles.kpiName, { color: colors.foreground }]}>
-                  {t('dairyFarming')}
-                </Text>
-                <View style={styles.kpiAmounts}>
-                  <Text style={styles.kpiIncome}>+{fmt(summaries.dairyIncome)}</Text>
-                  <Text style={styles.kpiExpense}>-{fmt(summaries.dairyExpense)}</Text>
-                </View>
-              </TouchableOpacity>
-            )}
-
-            {/* All / Overall card */}
-            <TouchableOpacity
-              onPress={() => toggleFilter('overall')}
-              activeOpacity={0.7}
-              style={[
-                styles.kpiCard,
-                { backgroundColor: colors.card, borderColor: selectedFilter === 'overall' ? '#2563EB' : colors.border },
-                selectedFilter === 'overall' && { backgroundColor: '#EFF6FF', borderColor: '#2563EB' },
-              ]}
-            >
-              <Text style={styles.kpiEmoji}>📊</Text>
-              <Text style={[styles.kpiName, { color: colors.foreground }]}>
-                {t('all')}
-              </Text>
-              <View style={styles.kpiAmounts}>
-                <Text style={styles.kpiIncome}>+{fmt(summaries.allIncome)}</Text>
-                <Text style={styles.kpiExpense}>-{fmt(summaries.allExpense)}</Text>
-              </View>
-            </TouchableOpacity>
-          </View>
-
           {/* Transaction list header */}
-          <Text style={[styles.sectionLabel, { color: colors.foreground, marginBottom: 6 }]}>
-            {t('allTransactions')} ({toNative(filteredTransactions.length)})
+          <Text style={[styles.sectionLabel, { color: colors.foreground, marginBottom: 6, marginTop: 18 }]}>
+            {t('allTransactions')} ({toNative(sortedTransactions.length)})
           </Text>
         </View>
       }
@@ -343,22 +128,10 @@ export function NotebookLedgerView({ onMoneyIn, onMoneyOut, onScanBill, onCustom
         </Card>
       )}
     />
-    <AddFarmModal visible={addFarmVisible} onClose={() => { setAddFarmVisible(false); fetchFarms(); }} />
-    {editingFarm && (
-      <EditFarmModal farm={editingFarm} onClose={() => { setEditingFarm(null); fetchFarms(); }} />
-    )}
-    </>
   );
 }
 
 const styles = StyleSheet.create({
-  addBtn: {
-    paddingHorizontal: 14,
-    height: 36,
-    borderRadius: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   actionGrid: {
     flexDirection: 'row',
     gap: 8,
@@ -395,66 +168,5 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     marginTop: 18,
     marginBottom: 10,
-  },
-  kpiGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-  },
-  kpiCard: {
-    width: '48%',
-    paddingVertical: 14,
-    paddingHorizontal: 12,
-    borderRadius: 16,
-    marginBottom: 10,
-    borderWidth: 1.5,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.04,
-    shadowRadius: 3,
-    elevation: 2,
-  },
-  kpiEmoji: {
-    fontSize: 26,
-  },
-  animalRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 8,
-    marginTop: 6,
-    alignSelf: 'flex-start',
-  },
-  animalCount: {
-    color: '#7C3AED',
-    fontSize: 16,
-    fontWeight: '900',
-  },
-  animalLabel: {
-    color: '#7C3AED',
-    fontSize: 12,
-    fontWeight: '600',
-  },
-  kpiName: {
-    fontSize: 14,
-    fontWeight: '700',
-    marginTop: 6,
-  },
-  kpiAmounts: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 10,
-  },
-  kpiIncome: {
-    color: '#16A34A',
-    fontSize: 12,
-    fontWeight: '700',
-  },
-  kpiExpense: {
-    color: '#DC2626',
-    fontSize: 12,
-    fontWeight: '700',
   },
 });

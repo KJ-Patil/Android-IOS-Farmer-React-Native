@@ -185,6 +185,8 @@ export default {
   harvested: 'Harvested',
   completed: 'Completed',
   running: 'Running',
+  goingLive: 'Going Live',
+  noCropsMentioned: 'No crops mentioned yet for this plot',
   harvestReminder: 'Harvest date has passed! Please update the crop status.',
   cropLocked: 'This crop is completed. No further changes allowed.',
   areaExceeded: 'Total crop area exceeds plot area. Cannot add more crops.',

@@ -183,6 +183,8 @@ export default {
   harvested: 'कटाई',
   completed: 'पूर्ण',
   running: 'चालू',
+  goingLive: 'चालू (Live)',
+  noCropsMentioned: 'इस प्लॉट पर अभी कोई फसल दर्ज नहीं की गई है',
   harvestReminder: 'कटाई की तिथि बीत चुकी है! कृपया फसल की स्थिति अपडेट करें।',
   cropLocked: 'यह फसल पूर्ण हो चुकी है। आगे कोई बदलाव संभव नहीं।',
   areaExceeded: 'कुल फसल क्षेत्रफल खेत के क्षेत्रफल से अधिक है।',

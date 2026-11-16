@@ -7,7 +7,6 @@ import {
   TouchableOpacity,
   Modal,
   Alert,
-  useWindowDimensions,
   StatusBar,
   TextInput,
 } from 'react-native';
@@ -17,14 +16,14 @@ import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../../app/providers/ThemeProvider';
 import { useLedgerStore } from '../../../shared/hooks/useLedgerStore';
 import { useAuthStore } from '../../../shared/hooks/useAuthStore';
+import { usePlotStore } from '../../../shared/hooks/usePlotStore';
+import { useNotebookFarmStore, FarmType, NotebookFarm } from '../../../shared/hooks/useNotebookFarmStore';
 import { ScreenLayout } from '../../../components/layout/ScreenLayout';
-import { Card } from '../../../components/ui/Card';
-import { Badge } from '../../../components/ui/Badge';
-import { Input } from '../../../components/ui/Input';
-import { AreaChart } from '../../../components/ui/AreaChart';
 import { useLocalizedFormat } from '../../../shared/hooks/useLocalizedFormat';
-import { tCategory, tPaymentMode } from '../../../shared/utils/helpers';
+import { AddFarmModal } from '../../ledger/components/AddFarmModal';
+import { EditFarmModal } from '../../ledger/components/EditFarmModal';
 import { LinearGradient } from 'expo-linear-gradient';
+import type { Transaction } from '../../../shared/types/ledger';
 import {
   X,
   Sun,
@@ -44,16 +43,83 @@ import {
 
 const STATUS_BAR_HEIGHT = StatusBar.currentHeight || 44;
 
-const CROPS_LIST = ['Wheat', 'Cotton', 'Soybean', 'Rice', 'Sugarcane'];
+const FARM_EMOJI: Record<FarmType, string> = {
+  dairy: '🐄',
+  goat: '🐐',
+  poultry: '🐔',
+  fishery: '🐟',
+  piggery: '🐷',
+  sericulture: '🪱',
+  apiary: '🐝',
+  other: '🌾',
+};
+
+const ANIMAL_LABEL: Record<FarmType, string> = {
+  dairy: 'cows',
+  goat: 'goats',
+  poultry: 'birds',
+  fishery: 'fish',
+  piggery: 'pigs',
+  sericulture: 'trays',
+  apiary: 'hives',
+  other: 'animals',
+};
+
+function isDairyTransaction(tx: Transaction): boolean {
+  return (
+    tx.ledgerType === 'dairy' ||
+    tx.incomeCategory === 'dairy' ||
+    !!(tx.category && (tx.category.startsWith('dairy_') || tx.category.includes('dairy') || tx.category.includes('Dairy')))
+  );
+}
+
+function getSelectionFinancials(
+  txns: Transaction[],
+  plotId: string,
+  plotName: string,
+  selectedCropId: string,
+  crops: { id: string; cropType: string; variety?: string }[]
+) {
+  const pTxns = txns.filter(
+    (tx) => tx.plotId === plotId || (plotName && tx.plotName === plotName)
+  );
+
+  if (selectedCropId === 'all') {
+    const inc = pTxns.reduce((s, tx) => s + (tx.type === 'income' || !tx.type ? tx.amount || 0 : 0), 0);
+    const exp = pTxns.reduce((s, tx) => s + (tx.type === 'expense' ? tx.amount || 0 : 0), 0);
+    return { income: inc, expense: exp, profit: inc - exp };
+  }
+
+  const targetCrop = crops.find((c) => c.id === selectedCropId);
+  const cropTxns = pTxns.filter((tx) => {
+    if (tx.cropId && tx.cropId === selectedCropId) return true;
+    if (targetCrop && tx.cropName) {
+      const cn = tx.cropName.trim().toLowerCase();
+      const ct = targetCrop.cropType.trim().toLowerCase();
+      const cv = targetCrop.variety?.trim().toLowerCase();
+      if (cn === ct || (cv && cn === cv)) return true;
+    }
+    return false;
+  });
+
+  const inc = cropTxns.reduce((s, tx) => s + (tx.type === 'income' || !tx.type ? tx.amount || 0 : 0), 0);
+  const exp = cropTxns.reduce((s, tx) => s + (tx.type === 'expense' ? tx.amount || 0 : 0), 0);
+  return { income: inc, expense: exp, profit: inc - exp };
+}
 
 export function DashboardScreen({ navigation }: any) {
   const { t, i18n } = useTranslation();
   const { colors } = useTheme();
-  const { width: screenWidth } = useWindowDimensions();
 
   const user = useAuthStore((s) => s.user);
-  const { transactions, fetchTransactions, postIncomeTransaction } = useLedgerStore();
-  const { fmtCurrency, fmtDMY, toNative } = useLocalizedFormat();
+  const { transactions, fetchTransactions } = useLedgerStore();
+  const { plots, fetchPlots, crops, fetchCrops } = usePlotStore();
+  const { farms, fetchFarms } = useNotebookFarmStore();
+  const { fmtCurrency, toNative } = useLocalizedFormat();
+
+  const [addFarmVisible, setAddFarmVisible] = useState(false);
+  const [editingFarm, setEditingFarm] = useState<NotebookFarm | null>(null);
+  const [selectedCropByPlot, setSelectedCropByPlot] = useState<Record<string, string>>({});
 
   // Weather & location state
   const [tempC, setTempC] = useState<number | null>(null);
@@ -217,63 +283,102 @@ export function DashboardScreen({ navigation }: any) {
     await fetchWeatherForLocation(lat, lon);
   }, [fetchWeatherForLocation]);
 
-  // Quick transaction modal state
-  const [modalOpen, setModalOpen] = useState(false);
-  const [modalFarmer, setModalFarmer] = useState('');
-  const [modalCrop, setModalCrop] = useState('Wheat');
-  const [modalAmount, setModalAmount] = useState('');
-  const [submitting, setSubmitting] = useState(false);
-
   useEffect(() => {
     fetchTransactions();
-    loadSavedLocations();
-    fetchTemperature();
+    fetchPlots();
+    fetchFarms();
+    Promise.resolve().then(() => {
+      loadSavedLocations();
+      fetchTemperature();
+    });
   }, []);
+
+  useEffect(() => {
+    if (plots.length > 0) {
+      plots.forEach((p) => {
+        fetchCrops(p.id);
+      });
+    }
+  }, [plots, fetchCrops]);
 
   // Compute financial metrics consistent with Ledger
   const totalRevenue = useMemo(() => {
     return transactions.reduce((acc, tx) => acc + (tx.type === 'income' || !tx.type ? tx.amount || 0 : 0), 0);
   }, [transactions]);
 
+  const totalExpenses = useMemo(() => {
+    return transactions.reduce((acc, tx) => acc + (tx.type === 'expense' ? tx.amount || 0 : 0), 0);
+  }, [transactions]);
+
   const incomeCount = useMemo(() => {
     return transactions.filter((tx) => tx.type === 'income' || !tx.type).length;
   }, [transactions]);
 
-  // Aggregate monthly trend data from transactions for the AreaChart
-  const getTxDateString = (tx: any): string => {
-    if (typeof tx.date === 'string') return tx.date;
-    if (typeof tx.timestamp === 'string') return tx.timestamp.split('T')[0];
-    if (tx.timestamp && typeof tx.timestamp.toDate === 'function') {
-      return tx.timestamp.toDate().toISOString().split('T')[0];
-    }
-    return '';
-  };
-
-  const chartData = useMemo(() => {
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    const now = new Date();
-    const result = [];
-    for (let i = 5; i >= 0; i--) {
-      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-      const monthTxns = transactions.filter((tx) => getTxDateString(tx).startsWith(key));
-      const inc = monthTxns
-        .filter((tx) => tx.type === 'income' || !tx.type)
-        .reduce((s, tx) => s + (tx.amount || 0), 0);
-      const exp = monthTxns
-        .filter((tx) => tx.type === 'expense')
-        .reduce((s, tx) => s + (tx.amount || 0), 0);
-
-      result.push({
-        label: months[d.getMonth()],
-        income: inc,
-        expense: exp,
-      });
-    }
-    return result;
+  const expenseCount = useMemo(() => {
+    return transactions.filter((tx) => tx.type === 'expense').length;
   }, [transactions]);
 
-  const recentTxns = transactions.slice(0, 5);
+  const summaries = useMemo(() => {
+    const plotMap: Record<string, { income: number; expense: number }> = {};
+    let dairyIncome = 0;
+    let dairyExpense = 0;
+    let hasDairy = false;
+
+    for (const plot of plots) {
+      plotMap[plot.id] = { income: 0, expense: 0 };
+    }
+
+    for (const tx of transactions) {
+      const amt = tx.amount || 0;
+      if (tx.plotId && plotMap[tx.plotId]) {
+        if (tx.type === 'income') plotMap[tx.plotId].income += amt;
+        else plotMap[tx.plotId].expense += amt;
+      }
+
+      if (isDairyTransaction(tx)) {
+        hasDairy = true;
+        if (tx.type === 'income') dairyIncome += amt;
+        else dairyExpense += amt;
+      }
+    }
+
+    const plotStats = plots.map((p) => {
+      const plotCropsList = crops[p.id] || [];
+      const mentionedCrops = plotCropsList.map((c) => {
+        const isDone = c.status === 'harvested' || c.status === 'completed';
+        return {
+          id: c.id,
+          cropType: c.cropType,
+          variety: c.variety,
+          area: c.area,
+          areaUnit: c.areaUnit,
+          rawStatus: c.status,
+          isDone,
+        };
+      });
+
+      return {
+        id: p.id,
+        name: p.name,
+        gatNumber: p.gatNumber,
+        area: p.area,
+        areaUnit: p.areaUnit,
+        soilType: p.soilType,
+        income: plotMap[p.id]?.income || 0,
+        expense: plotMap[p.id]?.expense || 0,
+        crops: mentionedCrops,
+      };
+    });
+
+    const farmStats = farms.map((f) => {
+      const farmTxns = transactions.filter((tx) => tx.farmId === f.id);
+      const income = farmTxns.filter((tx) => tx.type === 'income').reduce((s, tx) => s + (tx.amount || 0), 0);
+      const expense = farmTxns.filter((tx) => tx.type === 'expense').reduce((s, tx) => s + (tx.amount || 0), 0);
+      return { id: f.id, name: f.name, type: f.type, animalCount: f.animalCount, income, expense };
+    });
+
+    return { plotStats, farmStats, dairyIncome, dairyExpense, hasDairy };
+  }, [transactions, plots, farms, crops]);
 
   const formatC = (v: number) => fmtCurrency(v);
 
@@ -297,38 +402,6 @@ export function DashboardScreen({ navigation }: any) {
     month: 'long',
     year: 'numeric',
   }));
-
-  const handleAddTransaction = async () => {
-    if (!modalFarmer.trim() || !modalAmount.trim()) {
-      Alert.alert(t('required'), t('enterFarmerNameAndAmount'));
-      return;
-    }
-    const amt = parseFloat(modalAmount);
-    if (isNaN(amt) || amt <= 0) {
-      Alert.alert(t('invalid'), t('enterValidPositiveAmount'));
-      return;
-    }
-
-    setSubmitting(true);
-    try {
-      await postIncomeTransaction({
-        ledgerType: 'agriculture',
-        category: modalCrop || 'Crop Sale',
-        amount: amt,
-        date: new Date().toISOString().split('T')[0],
-        paymentMode: 'cash',
-        partyName: modalFarmer.trim() || undefined,
-      });
-
-      setModalFarmer('');
-      setModalAmount('');
-      setModalOpen(false);
-    } catch (err: any) {
-      Alert.alert(t('error'), err.message || t('failedToSaveTransaction'));
-    } finally {
-      setSubmitting(false);
-    }
-  };
 
   return (
     <ScreenLayout noPadding noTopInset>
@@ -367,113 +440,310 @@ export function DashboardScreen({ navigation }: any) {
         </LinearGradient>
 
         <View style={styles.contentPadding}>
-
-        {/* KPI Card: Revenue */}
-        <View style={styles.kpiGrid}>
-          <View style={[styles.kpiCard, { backgroundColor: colors.card }]}>
-            <Text style={[styles.kpiLabel, { color: colors.mutedFg }]}>{t('totalRevenue')}</Text>
-            <Text style={[styles.kpiValue, { color: '#16A34A' }]}>
-              {formatC(totalRevenue)}
-            </Text>
-            <Text style={[styles.kpiSub, { color: colors.mutedFg }]}>
-              {toNative(incomeCount)} {t('entries')}
-            </Text>
-          </View>
-        </View>
-
-        {/* Revenue Trend Chart */}
-        <Card style={styles.chartCard} padding={16}>
-          <View style={styles.chartHeader}>
-            <Text style={[styles.sectionTitle, { color: colors.foreground }]}>
-              {t('revenueTrend')}
-            </Text>
-            <Text style={[styles.chartDesc, { color: colors.mutedFg }]}>
-              {t('revenueTrendDesc')}
-            </Text>
-          </View>
-          <View style={styles.chartWrapper}>
-            <AreaChart data={chartData} width={Math.min(screenWidth - 48, 640)} height={170} />
-          </View>
-          <View style={styles.chartLegend}>
-            <View style={styles.legendItem}>
-              <View style={[styles.legendDot, { backgroundColor: colors.primary }]} />
-              <Text style={{ color: colors.mutedFg, fontSize: 12 }}>{t('revenue')} (₹)</Text>
-            </View>
-            <View style={styles.legendItem}>
-              <View style={[styles.legendDot, { backgroundColor: colors.destructive }]} />
-              <Text style={{ color: colors.mutedFg, fontSize: 12 }}>{t('expenses')} (₹)</Text>
-            </View>
-          </View>
-        </Card>
-
-        {/* Recent Ledger Feed matching FarmerLedger */}
-        <Card style={styles.feedCard} padding={16}>
-          <View style={styles.feedHeader}>
-            <View>
-              <Text style={[styles.sectionTitle, { color: colors.foreground }]}>
-                {t('recentLedger')}
+          {/* KPI Grid: Revenue & Expenses */}
+          <View style={styles.kpiGrid}>
+            <View style={[styles.kpiCard, { backgroundColor: colors.card }]}>
+              <Text style={[styles.kpiLabel, { color: colors.mutedFg }]}>{t('totalRevenue')}</Text>
+              <Text style={[styles.kpiValue, { color: '#16A34A' }]}>
+                {formatC(totalRevenue)}
               </Text>
-              <Text style={[styles.chartDesc, { color: colors.mutedFg }]}>
-                {t('realTimeJournal')}
+              <Text style={[styles.kpiSub, { color: colors.mutedFg }]}>
+                {toNative(incomeCount)} {t('entries')}
               </Text>
             </View>
+            <View style={[styles.kpiCard, { backgroundColor: colors.card }]}>
+              <Text style={[styles.kpiLabel, { color: colors.mutedFg }]}>{t('totalExpenses')}</Text>
+              <Text style={[styles.kpiValue, { color: colors.destructive }]}>
+                {formatC(totalExpenses)}
+              </Text>
+              <Text style={[styles.kpiSub, { color: colors.mutedFg }]}>
+                {toNative(expenseCount)} {t('entries')}
+              </Text>
+            </View>
+          </View>
+
+          {/* My Farms */}
+          <View style={styles.sectionHeader}>
+            <Text style={[styles.sectionTitle, { color: colors.foreground }]}>{t('myFarms')}</Text>
             <TouchableOpacity
-              onPress={() => setModalOpen(true)}
-              style={[styles.addButton, { backgroundColor: colors.primary }]}
-              activeOpacity={0.8}
+              onPress={() => setAddFarmVisible(true)}
+              style={[styles.sectionActionBtn, { backgroundColor: colors.primary }]}
+              activeOpacity={0.7}
             >
               <Text style={{ color: '#FFFFFF', fontWeight: '700', fontSize: 13 }}>+ {t('add')}</Text>
             </TouchableOpacity>
           </View>
 
-          {recentTxns.length === 0 ? (
-            <Text style={{ color: colors.mutedFg, textAlign: 'center', marginVertical: 24 }}>
-              {t('noData')}
-            </Text>
+          {summaries.farmStats.length === 0 ? (
+            <TouchableOpacity
+              onPress={() => setAddFarmVisible(true)}
+              style={[styles.emptyCard, { backgroundColor: colors.card, borderColor: colors.border }]}
+              activeOpacity={0.7}
+            >
+              <Text style={{ fontSize: 26, marginBottom: 4 }}>🐄</Text>
+              <Text style={{ color: colors.foreground, fontWeight: '700', fontSize: 14 }}>
+                + {t('addFarm')}
+              </Text>
+              <Text style={{ color: colors.mutedFg, fontSize: 12, marginTop: 2 }}>
+                Dairy, Goat, Poultry, etc.
+              </Text>
+            </TouchableOpacity>
           ) : (
-            recentTxns.map((txn, index) => {
-              const farmerTitle = txn.partyName || (txn as any).farmer || t('generalFarmer');
-              const cropOrCategory = txn.category ? tCategory(txn.category, t) : (txn as any).crop || t('general');
-              const dateStr = fmtDMY(getTxDateString(txn)) || t('today');
-              return (
-                <View
-                  key={txn.id || index}
-                  style={[
-                    styles.txnRow,
-                    { borderBottomColor: colors.border },
-                    index === recentTxns.length - 1 && { borderBottomWidth: 0 },
-                  ]}
-                >
-                  <View style={{ flex: 1 }}>
-                    <Text style={[styles.txnFarmer, { color: colors.foreground }]}>
-                      {farmerTitle}
+            <View style={styles.kpiGrid}>
+              {summaries.farmStats.map((fs) => {
+                const farmObj = farms.find((f) => f.id === fs.id);
+                return (
+                  <TouchableOpacity
+                    key={fs.id}
+                    onPress={() => { if (farmObj) setEditingFarm(farmObj); }}
+                    activeOpacity={0.7}
+                    style={[styles.farmCard, { backgroundColor: colors.card, borderColor: colors.border }]}
+                  >
+                    <Text style={styles.kpiEmoji}>{FARM_EMOJI[fs.type] || '🌾'}</Text>
+                    <Text style={[styles.kpiName, { color: colors.foreground }]} numberOfLines={1}>
+                      {fs.name}
                     </Text>
-                    <Text style={[styles.txnMeta, { color: colors.mutedFg }]}>
-                      {cropOrCategory} • {dateStr}
-                    </Text>
-                  </View>
-                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                    <Text
-                      style={[
-                        styles.txnAmount,
-                        { color: txn.type === 'expense' ? colors.destructive : colors.primary },
-                      ]}
+                    {fs.animalCount ? (
+                      <View style={[styles.animalRow, { backgroundColor: '#7C3AED' + '12' }]}>
+                        <Text style={styles.animalCount}>{toNative(fs.animalCount)}</Text>
+                        <Text style={styles.animalLabel}>{t(ANIMAL_LABEL[fs.type])}</Text>
+                      </View>
+                    ) : null}
+                    <View style={styles.kpiAmounts}>
+                      <Text style={styles.kpiIncome}>+{formatC(fs.income)}</Text>
+                      <Text style={styles.kpiExpense}>-{formatC(fs.expense)}</Text>
+                    </View>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          )}
+
+          {/* My Plots */}
+          <View style={styles.sectionHeader}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+              <Text style={[styles.sectionTitle, { color: colors.foreground }]}>{t('plots')}</Text>
+              <View style={[styles.plotCountBadge, { backgroundColor: colors.primary + '18' }]}>
+                <Text style={[styles.plotCountText, { color: colors.primary }]}>{toNative(summaries.plotStats.length)}</Text>
+              </View>
+            </View>
+          </View>
+
+          {summaries.plotStats.length === 0 ? (
+            <View
+              style={[styles.emptyCard, { backgroundColor: colors.card, borderColor: colors.border }]}
+            >
+              <Text style={{ fontSize: 26, marginBottom: 4 }}>🌱</Text>
+              <Text style={{ color: colors.foreground, fontWeight: '700', fontSize: 14 }}>
+                {t('plots')}
+              </Text>
+              <Text style={{ color: colors.mutedFg, fontSize: 12, marginTop: 2 }}>
+                {t('noPlotsFound') || 'No land plots recorded yet'}
+              </Text>
+            </View>
+          ) : (
+            <View style={styles.plotListContainer}>
+              {summaries.plotStats.map((ps) => {
+                const activeCropId = selectedCropByPlot[ps.id] || 'all';
+                const selectedCrop = activeCropId !== 'all' ? ps.crops.find((c) => c.id === activeCropId) : null;
+                const fin = getSelectionFinancials(transactions, ps.id, ps.name, activeCropId, ps.crops);
+
+                return (
+                  <View
+                    key={ps.id}
+                    style={[styles.plotCardDetailed, { backgroundColor: colors.card, borderColor: colors.border }]}
+                  >
+                    {/* Plot Card Header - Tapping resets selection to All Crops */}
+                    <TouchableOpacity
+                      activeOpacity={0.7}
+                      onPress={() => setSelectedCropByPlot((prev) => ({ ...prev, [ps.id]: 'all' }))}
+                      style={styles.plotHeaderRow}
                     >
-                      {txn.type === 'expense' ? '-' : '+'}
-                      {formatC(txn.amount)}
-                    </Text>
-                    <Badge
-                      text={tPaymentMode(txn.paymentMode, t)}
-                      variant={txn.type === 'expense' ? 'destructive' : 'success'}
-                    />
+                      <View style={{ flex: 1 }}>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                          <Text style={{ fontSize: 18 }}>🌱</Text>
+                          <Text style={[styles.plotTitleText, { color: colors.foreground }]} numberOfLines={1}>
+                            {ps.name}
+                          </Text>
+                          {ps.gatNumber ? (
+                            <View style={[styles.gatPill, { backgroundColor: colors.primary + '15', borderColor: colors.primary + '30' }]}>
+                              <Text style={[styles.gatPillText, { color: colors.primary }]}>
+                                {t('gatNumber')} #{toNative(ps.gatNumber)}
+                              </Text>
+                            </View>
+                          ) : null}
+                        </View>
+                        <Text style={[styles.plotSubtitleText, { color: colors.mutedFg }]}>
+                          {toNative(ps.area)} {t(ps.areaUnit || 'acre')} • {t(ps.soilType || 'medium')} {t('soil')}
+                        </Text>
+                      </View>
+                    </TouchableOpacity>
+
+                    {/* Crop Selection Bar (Only Farmer-Mentioned Crops) */}
+                    {ps.crops.length > 0 && (
+                      <View style={styles.cropSelectorWrapper}>
+                        <Text style={[styles.cropSelectorLabel, { color: colors.mutedFg }]}>
+                          {t('selectCrop') || 'Select Crop'}:
+                        </Text>
+                        <ScrollView
+                          horizontal
+                          showsHorizontalScrollIndicator={false}
+                          contentContainerStyle={styles.cropChipsScrollRow}
+                        >
+                          {/* All Crops Option */}
+                          <TouchableOpacity
+                            onPress={() => setSelectedCropByPlot((prev) => ({ ...prev, [ps.id]: 'all' }))}
+                            activeOpacity={0.7}
+                            style={[
+                              styles.cropPillBtn,
+                              {
+                                backgroundColor: activeCropId === 'all' ? colors.primary : colors.card,
+                                borderColor: activeCropId === 'all' ? colors.primary : colors.border,
+                              },
+                            ]}
+                          >
+                            <Text
+                              style={[
+                                styles.cropPillBtnText,
+                                { color: activeCropId === 'all' ? '#FFFFFF' : colors.foreground },
+                              ]}
+                            >
+                              🌱 {t('allCrops')}
+                            </Text>
+                          </TouchableOpacity>
+
+                          {/* Individual Mentioned Crops */}
+                          {ps.crops.map((c) => {
+                            const isSelected = activeCropId === c.id;
+                            return (
+                              <TouchableOpacity
+                                key={c.id}
+                                onPress={() => setSelectedCropByPlot((prev) => ({ ...prev, [ps.id]: c.id }))}
+                                activeOpacity={0.7}
+                                style={[
+                                  styles.cropPillBtn,
+                                  {
+                                    backgroundColor: isSelected ? colors.primary : (c.isDone ? '#F1F5F9' : '#DCFCE7'),
+                                    borderColor: isSelected ? colors.primary : (c.isDone ? '#CBD5E1' : '#86EFAC'),
+                                  },
+                                ]}
+                              >
+                                <Text
+                                  style={[
+                                    styles.cropPillBtnText,
+                                    {
+                                      color: isSelected ? '#FFFFFF' : (c.isDone ? '#334155' : '#14532D'),
+                                    },
+                                  ]}
+                                >
+                                  🌾 {t(c.cropType) || c.cropType} {c.variety ? `(${c.variety})` : ''}
+                                </Text>
+                                <View
+                                  style={[
+                                    styles.miniStatusDot,
+                                    { backgroundColor: isSelected ? '#FFFFFF' : (c.isDone ? '#64748B' : '#16A34A') },
+                                  ]}
+                                />
+                              </TouchableOpacity>
+                            );
+                          })}
+                        </ScrollView>
+                      </View>
+                    )}
+
+                    {/* Active Selected Scope & Status Banner */}
+                    <View style={[styles.selectedScopeBanner, { backgroundColor: colors.muted + '20' }]}>
+                      <View style={{ flex: 1, paddingRight: 8 }}>
+                        <Text style={[styles.selectedScopeTitle, { color: colors.foreground }]} numberOfLines={1}>
+                          {selectedCrop
+                            ? `🌾 ${t(selectedCrop.cropType) || selectedCrop.cropType} ${selectedCrop.variety ? '(' + selectedCrop.variety + ')' : ''}`
+                            : `🌱 ${ps.name} (${t('allCrops')})`}
+                        </Text>
+                        <Text style={{ fontSize: 11, color: colors.mutedFg, marginTop: 1 }}>
+                          {selectedCrop
+                            ? (selectedCrop.area ? `${toNative(selectedCrop.area)} ${t(selectedCrop.areaUnit || 'acre')}` : '')
+                            : `${toNative(ps.crops.length)} ${t('crops')}`}
+                        </Text>
+                      </View>
+                      <View
+                        style={[
+                          styles.cropStatusBadge,
+                          {
+                            backgroundColor: selectedCrop
+                              ? (selectedCrop.isDone ? '#E2E8F0' : '#DCFCE7')
+                              : colors.primary + '18',
+                            borderColor: selectedCrop
+                              ? (selectedCrop.isDone ? '#94A3B8' : '#22C55E')
+                              : colors.primary + '30',
+                          },
+                        ]}
+                      >
+                        <Text
+                          style={[
+                            styles.cropStatusBadgeText,
+                            {
+                              color: selectedCrop
+                                ? (selectedCrop.isDone ? '#475569' : '#15803D')
+                                : colors.primary,
+                            },
+                          ]}
+                        >
+                          {selectedCrop
+                            ? (selectedCrop.isDone ? `✓ ${t('done') || 'Done'}` : `● ${t('goingLive') || 'Going Live'}`)
+                            : `${toNative(ps.crops.length)} ${t('crops')}`}
+                        </Text>
+                      </View>
+                    </View>
+
+                    {/* Income & Expense Display for Selected Crop / Scope */}
+                    <View style={[styles.plotIncomeExpenseBar, { backgroundColor: colors.card, borderColor: colors.border }]}>
+                      <View style={styles.plotIncomeCol}>
+                        <Text style={[styles.plotBarLabel, { color: colors.mutedFg }]}>{t('income')}</Text>
+                        <Text style={[styles.plotBarValue, { color: '#16A34A' }]}>+{formatC(fin.income)}</Text>
+                      </View>
+                      <View style={[styles.plotBarDivider, { backgroundColor: colors.border }]} />
+                      <View style={styles.plotIncomeCol}>
+                        <Text style={[styles.plotBarLabel, { color: colors.mutedFg }]}>{t('expense')}</Text>
+                        <Text style={[styles.plotBarValue, { color: colors.destructive }]}>-{formatC(fin.expense)}</Text>
+                      </View>
+                      <View style={[styles.plotBarDivider, { backgroundColor: colors.border }]} />
+                      <View style={styles.plotIncomeCol}>
+                        <Text style={[styles.plotBarLabel, { color: colors.mutedFg }]}>{t('netProfit')}</Text>
+                        <Text style={[styles.plotBarValue, { color: fin.profit >= 0 ? '#16A34A' : colors.destructive }]}>
+                          {fin.profit >= 0 ? '+' : ''}{formatC(fin.profit)}
+                        </Text>
+                      </View>
+                    </View>
+
+                    {ps.crops.length === 0 && (
+                      <View style={[styles.noCropNotice, { backgroundColor: colors.muted + '15', marginTop: 4 }]}>
+                        <Text style={[styles.noCropText, { color: colors.mutedFg }]}>
+                          {t('noCropsMentioned') || 'No crops mentioned yet for this plot'}
+                        </Text>
+                      </View>
+                    )}
+                  </View>
+                );
+              })}
+
+              {summaries.hasDairy && (
+                <View
+                  style={[styles.dairyCard, { backgroundColor: colors.card, borderColor: '#D97706' }]}
+                >
+                  <Text style={styles.kpiEmoji}>🥛</Text>
+                  <Text style={[styles.kpiName, { color: colors.foreground }]}>
+                    {t('dairyFarming')}
+                  </Text>
+                  <View style={styles.kpiAmounts}>
+                    <Text style={styles.kpiIncome}>+{formatC(summaries.dairyIncome)}</Text>
+                    <Text style={styles.kpiExpense}>-{formatC(summaries.dairyExpense)}</Text>
                   </View>
                 </View>
-              );
-            })
+              )}
+            </View>
           )}
-        </Card>
 
-        <View style={{ height: 80 }} />
+          <View style={{ height: 80 }} />
         </View>
       </ScrollView>
 
@@ -487,13 +757,11 @@ export function DashboardScreen({ navigation }: any) {
                 <TouchableOpacity
                   onPress={() => setShowLocationPicker(!showLocationPicker)}
                   style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 4 }}
-                  activeOpacity={0.7}
                 >
-                  <MapPin size={13} color={colors.primary} />
-                  <Text style={{ color: colors.primary, fontSize: 13, fontWeight: '600' }}>
-                    {weatherLocation?.name || 'Set Location'}
+                  <MapPin size={14} color={colors.primary} />
+                  <Text style={{ fontSize: 13, color: colors.primary, fontWeight: '600' }}>
+                    {weatherLocation?.name || 'Select Location'}
                   </Text>
-                  <Text style={{ color: colors.mutedFg, fontSize: 11 }}> • Tap to change</Text>
                 </TouchableOpacity>
               </View>
               <TouchableOpacity onPress={() => { setWeatherModalOpen(false); setShowLocationPicker(false); }}>
@@ -504,14 +772,13 @@ export function DashboardScreen({ navigation }: any) {
             {showLocationPicker && (
               <View style={[styles.locationPickerBox, { backgroundColor: colors.background, borderColor: colors.border }]}>
                 <View style={[styles.locationSearchRow, { borderColor: colors.border, backgroundColor: colors.card }]}>
-                  <SearchIcon size={16} color={colors.mutedFg} />
+                  <SearchIcon size={16} color={colors.mutedFg} style={{ marginRight: 8 }} />
                   <TextInput
-                    placeholder="Search city (e.g. Pune, Nashik)"
+                    placeholder="Search city or village..."
                     placeholderTextColor={colors.mutedFg}
                     value={locationSearch}
-                    onChangeText={(text) => { setLocationSearch(text); searchCity(text); }}
-                    style={{ flex: 1, marginLeft: 8, fontSize: 14, color: colors.foreground, paddingVertical: 0 }}
-                    autoFocus
+                    onChangeText={(q) => { setLocationSearch(q); searchCity(q); }}
+                    style={{ flex: 1, fontSize: 14, color: colors.foreground }}
                   />
                   {locationSearch.length > 0 && (
                     <TouchableOpacity onPress={() => { setLocationSearch(''); setLocationResults([]); }}>
@@ -523,107 +790,91 @@ export function DashboardScreen({ navigation }: any) {
                 <TouchableOpacity
                   onPress={useCurrentGPS}
                   style={[styles.locationOption, { borderBottomColor: colors.border }]}
-                  activeOpacity={0.7}
                 >
                   <Navigation size={16} color={colors.primary} />
-                  <Text style={{ color: colors.primary, fontSize: 14, fontWeight: '600', flex: 1 }}>Use Current GPS Location</Text>
+                  <Text style={{ fontSize: 13, color: colors.primary, fontWeight: '600' }}>Use GPS Current Location</Text>
                 </TouchableOpacity>
 
-                {locationResults.map((loc, idx) => (
+                {locationResults.map((loc) => (
                   <TouchableOpacity
-                    key={`${loc.lat}-${loc.lon}-${idx}`}
-                    onPress={async () => {
-                      await saveLocation({ name: `${loc.name}, ${loc.admin1}`, lat: loc.lat, lon: loc.lon });
-                      await fetchWeatherForLocation(loc.lat, loc.lon);
+                    key={`${loc.lat}-${loc.lon}`}
+                    onPress={() => {
+                      saveLocation({ name: `${loc.name}, ${loc.admin1}`, lat: loc.lat, lon: loc.lon });
+                      fetchWeatherForLocation(loc.lat, loc.lon);
+                      setShowLocationPicker(false);
                       setLocationSearch('');
                       setLocationResults([]);
-                      setShowLocationPicker(false);
                     }}
                     style={[styles.locationOption, { borderBottomColor: colors.border }]}
-                    activeOpacity={0.7}
                   >
                     <MapPin size={14} color={colors.mutedFg} />
-                    <View style={{ flex: 1 }}>
-                      <Text style={{ color: colors.foreground, fontSize: 14, fontWeight: '600' }}>{loc.name}</Text>
-                      <Text style={{ color: colors.mutedFg, fontSize: 11 }}>{[loc.admin1, loc.country].filter(Boolean).join(', ')}</Text>
-                    </View>
+                    <Text style={{ fontSize: 13, color: colors.foreground }}>{loc.name}, {loc.admin1} ({loc.country})</Text>
                   </TouchableOpacity>
                 ))}
 
                 {savedLocations.length > 0 && locationResults.length === 0 && (
-                  <View style={{ marginTop: 8 }}>
-                    <Text style={{ fontSize: 11, fontWeight: '700', color: colors.mutedFg, letterSpacing: 0.8, marginBottom: 6 }}>SAVED LOCATIONS</Text>
+                  <View style={{ marginTop: 6 }}>
+                    <Text style={{ fontSize: 11, fontWeight: '700', color: colors.mutedFg, marginBottom: 4 }}>SAVED LOCATIONS</Text>
                     {savedLocations.map((loc) => (
-                      <TouchableOpacity
-                        key={loc.name}
-                        onPress={async () => {
-                          await saveLocation(loc);
-                          await fetchWeatherForLocation(loc.lat, loc.lon);
-                          setShowLocationPicker(false);
-                        }}
-                        style={[styles.locationOption, { borderBottomColor: colors.border }]}
-                        activeOpacity={0.7}
-                      >
-                        <MapPin size={14} color={weatherLocation?.name === loc.name ? colors.primary : colors.mutedFg} />
-                        <Text style={{
-                          color: weatherLocation?.name === loc.name ? colors.primary : colors.foreground,
-                          fontSize: 14,
-                          fontWeight: weatherLocation?.name === loc.name ? '700' : '500',
-                          flex: 1,
-                        }}>
-                          {loc.name}
-                        </Text>
+                      <View key={loc.name} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
                         <TouchableOpacity
-                          onPress={(e) => { e.stopPropagation?.(); removeSavedLocation(loc.name); }}
-                          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                          onPress={() => {
+                            saveLocation(loc);
+                            fetchWeatherForLocation(loc.lat, loc.lon);
+                            setShowLocationPicker(false);
+                          }}
+                          style={[styles.locationOption, { borderBottomColor: colors.border, flex: 1 }]}
+                        >
+                          <MapPin size={14} color={colors.mutedFg} />
+                          <Text style={{ fontSize: 13, color: colors.foreground }}>{loc.name}</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                          onPress={() => removeSavedLocation(loc.name)}
+                          style={{ padding: 6 }}
                         >
                           <X size={14} color={colors.mutedFg} />
                         </TouchableOpacity>
-                      </TouchableOpacity>
+                      </View>
                     ))}
                   </View>
                 )}
               </View>
             )}
 
-            {tempC != null && (
-              <View style={[styles.weatherCurrentCard, { backgroundColor: colors.primary + '12' }]}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-                  {React.createElement(getWeatherInfo(weatherCode).Icon, { size: 36, color: getWeatherInfo(weatherCode).color })}
-                  <View style={{ flex: 1 }}>
-                    <Text style={{ fontSize: 32, fontWeight: '800', color: colors.foreground, letterSpacing: -1 }}>
-                      {toNative(Math.round(tempC))}°C
-                    </Text>
-                    <Text style={{ fontSize: 14, color: colors.mutedFg, fontWeight: '600' }}>
-                      {toNative(Math.round(tempC * 9 / 5 + 32))}°F • {getWeatherInfo(weatherCode).label}
-                    </Text>
+            <ScrollView showsVerticalScrollIndicator={false}>
+              {tempC != null && (
+                <View style={[styles.weatherCurrentCard, { backgroundColor: colors.primary + '12' }]}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <View>
+                      <Text style={{ fontSize: 36, fontWeight: '900', color: colors.foreground }}>
+                        {Math.round(tempC)}°C
+                      </Text>
+                      <Text style={{ fontSize: 14, color: colors.mutedFg, marginTop: 2 }}>
+                        {getWeatherInfo(weatherCode).label}
+                      </Text>
+                    </View>
+                    {React.createElement(getWeatherInfo(weatherCode).Icon, { size: 48, color: getWeatherInfo(weatherCode).color })}
                   </View>
                 </View>
-              </View>
-            )}
+              )}
 
-            <ScrollView style={{ maxHeight: 400 }} showsVerticalScrollIndicator={false}>
-              {dailyWeather.filter(d => d.isPast).length > 0 && (
-                <View style={{ marginBottom: 12 }}>
+              {dailyWeather.length > 0 && (
+                <View style={{ marginTop: 8 }}>
                   <Text style={[styles.weatherSectionLabel, { color: colors.mutedFg }]}>{t('past7Days')}</Text>
-                  {dailyWeather.filter(d => d.isPast).map((day) => {
+                  {dailyWeather.filter((d) => d.isPast).map((day) => {
                     const info = getWeatherInfo(day.code);
-                    const dateObj = new Date(day.date + 'T00:00:00');
-                    const dayName = dateObj.toLocaleDateString(langLocaleMap[i18n.language] || 'en-IN', { weekday: 'short', day: 'numeric', month: 'short' });
+                    const dayDate = new Date(day.date);
+                    const dayName = dayDate.toLocaleDateString(langLocaleMap[i18n.language] || 'en-IN', { weekday: 'short', day: 'numeric' });
                     return (
                       <View key={day.date} style={[styles.weatherDayRow, { borderBottomColor: colors.border }]}>
-                        <View style={{ width: 90 }}>
-                          <Text style={{ fontSize: 13, fontWeight: '600', color: colors.foreground }}>{dayName}</Text>
-                        </View>
-                        <info.Icon size={18} color={info.color} />
-                        <Text style={{ fontSize: 11, color: colors.mutedFg, width: 65 }} numberOfLines={1}>{info.label}</Text>
-                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginLeft: 'auto' }}>
-                          <Text style={{ fontSize: 14, fontWeight: '700', color: colors.foreground }}>{toNative(Math.round(day.maxTemp))}°</Text>
-                          <Text style={{ fontSize: 13, color: colors.mutedFg }}>/</Text>
-                          <Text style={{ fontSize: 13, color: colors.mutedFg }}>{toNative(Math.round(day.minTemp))}°</Text>
-                        </View>
+                        <Text style={{ width: 80, fontSize: 13, color: colors.mutedFg }}>{toNative(dayName)}</Text>
+                        <info.Icon size={16} color={info.color} />
+                        <Text style={{ flex: 1, fontSize: 12, color: colors.foreground, marginLeft: 4 }} numberOfLines={1}>{info.label}</Text>
+                        <Text style={{ fontSize: 12, color: colors.foreground, fontWeight: '600' }}>
+                          {toNative(Math.round(day.minTemp))}° - {toNative(Math.round(day.maxTemp))}°
+                        </Text>
                         {day.rain > 0 && (
-                          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 2, marginLeft: 8 }}>
+                          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 2, marginLeft: 6 }}>
                             <Droplets size={11} color="#3B82F6" />
                             <Text style={{ fontSize: 11, color: '#3B82F6' }}>{toNative(day.rain.toFixed(1))}</Text>
                           </View>
@@ -631,43 +882,36 @@ export function DashboardScreen({ navigation }: any) {
                       </View>
                     );
                   })}
-                </View>
-              )}
 
-              {dailyWeather.filter(d => d.isToday).map((day) => {
-                const info = getWeatherInfo(day.code);
-                return (
-                  <View key={day.date} style={[styles.weatherTodayRow, { backgroundColor: colors.primary + '10', borderColor: colors.primary + '30' }]}>
-                    <Text style={{ fontSize: 13, fontWeight: '800', color: colors.primary }}>{t('today').toUpperCase()}</Text>
-                    <info.Icon size={18} color={info.color} />
-                    <Text style={{ fontSize: 12, color: colors.foreground, fontWeight: '600', flex: 1 }}>{info.label}</Text>
-                    <Text style={{ fontSize: 15, fontWeight: '700', color: colors.foreground }}>{toNative(Math.round(day.maxTemp))}°</Text>
-                    <Text style={{ fontSize: 13, color: colors.mutedFg }}> / {toNative(Math.round(day.minTemp))}°</Text>
-                  </View>
-                );
-              })}
-
-              {dailyWeather.filter(d => !d.isPast && !d.isToday).length > 0 && (
-                <View style={{ marginTop: 12 }}>
-                  <Text style={[styles.weatherSectionLabel, { color: colors.mutedFg }]}>{t('next4Days')}</Text>
-                  {dailyWeather.filter(d => !d.isPast && !d.isToday).map((day) => {
+                  {dailyWeather.filter((d) => d.isToday).map((day) => {
                     const info = getWeatherInfo(day.code);
-                    const dateObj = new Date(day.date + 'T00:00:00');
-                    const dayName = dateObj.toLocaleDateString(langLocaleMap[i18n.language] || 'en-IN', { weekday: 'short', day: 'numeric', month: 'short' });
+                    return (
+                      <View key={day.date} style={[styles.weatherTodayRow, { backgroundColor: colors.primary + '10', borderColor: colors.primary + '30' }]}>
+                        <Text style={{ width: 80, fontSize: 13, fontWeight: '800', color: colors.primary }}>{t('today')}</Text>
+                        <info.Icon size={18} color={info.color} />
+                        <Text style={{ flex: 1, fontSize: 13, fontWeight: '700', color: colors.primary, marginLeft: 4 }}>{info.label}</Text>
+                        <Text style={{ fontSize: 13, fontWeight: '800', color: colors.primary }}>
+                          {toNative(Math.round(day.minTemp))}° - {toNative(Math.round(day.maxTemp))}°
+                        </Text>
+                      </View>
+                    );
+                  })}
+
+                  <Text style={[styles.weatherSectionLabel, { color: colors.mutedFg, marginTop: 14 }]}>{t('next4Days')}</Text>
+                  {dailyWeather.filter((d) => !d.isPast && !d.isToday).map((day) => {
+                    const info = getWeatherInfo(day.code);
+                    const dayDate = new Date(day.date);
+                    const dayName = dayDate.toLocaleDateString(langLocaleMap[i18n.language] || 'en-IN', { weekday: 'short', day: 'numeric' });
                     return (
                       <View key={day.date} style={[styles.weatherDayRow, { borderBottomColor: colors.border }]}>
-                        <View style={{ width: 90 }}>
-                          <Text style={{ fontSize: 13, fontWeight: '600', color: colors.foreground }}>{dayName}</Text>
-                        </View>
-                        <info.Icon size={18} color={info.color} />
-                        <Text style={{ fontSize: 11, color: colors.mutedFg, width: 65 }} numberOfLines={1}>{info.label}</Text>
-                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginLeft: 'auto' }}>
-                          <Text style={{ fontSize: 14, fontWeight: '700', color: colors.foreground }}>{toNative(Math.round(day.maxTemp))}°</Text>
-                          <Text style={{ fontSize: 13, color: colors.mutedFg }}>/</Text>
-                          <Text style={{ fontSize: 13, color: colors.mutedFg }}>{toNative(Math.round(day.minTemp))}°</Text>
-                        </View>
+                        <Text style={{ width: 80, fontSize: 13, color: colors.mutedFg }}>{toNative(dayName)}</Text>
+                        <info.Icon size={16} color={info.color} />
+                        <Text style={{ flex: 1, fontSize: 12, color: colors.foreground, marginLeft: 4 }} numberOfLines={1}>{info.label}</Text>
+                        <Text style={{ fontSize: 12, color: colors.foreground, fontWeight: '600' }}>
+                          {toNative(Math.round(day.minTemp))}° - {toNative(Math.round(day.maxTemp))}°
+                        </Text>
                         {day.rain > 0 && (
-                          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 2, marginLeft: 8 }}>
+                          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 2, marginLeft: 6 }}>
                             <Droplets size={11} color="#3B82F6" />
                             <Text style={{ fontSize: 11, color: '#3B82F6' }}>{toNative(day.rain.toFixed(1))}</Text>
                           </View>
@@ -682,71 +926,16 @@ export function DashboardScreen({ navigation }: any) {
         </View>
       </Modal>
 
-      {/* Quick Add Transaction Modal identical to FarmerLedger */}
-      <Modal visible={modalOpen} animationType="slide" onRequestClose={() => setModalOpen(false)}>
-        <View style={{ flex: 1, backgroundColor: colors.background }}>
-          <View style={[styles.unifiedHeader, { backgroundColor: colors.card, borderBottomColor: colors.border }]}>
-            <View style={{ width: 40 }} />
-            <View style={{ alignItems: 'center', flex: 1 }}>
-              <Text style={[styles.unifiedTitle, { color: colors.foreground }]}>📝 {t('addTransaction')}</Text>
-            </View>
-            <View style={{ width: 40 }} />
-          </View>
-
-          <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 40 }} keyboardShouldPersistTaps="handled">
-            <Input
-              label={t('farmer')}
-              placeholder={t('farmerNamePlaceholder')}
-              value={modalFarmer}
-              onChangeText={setModalFarmer}
-            />
-
-            <Text style={[styles.inputLabel, { color: colors.foreground }]}>{t('crop')}</Text>
-            <View style={styles.cropSelector}>
-              {CROPS_LIST.map((c) => (
-                <TouchableOpacity
-                  key={c}
-                  onPress={() => setModalCrop(c)}
-                  style={[
-                    styles.cropChip,
-                    {
-                      borderColor: modalCrop === c ? colors.primary : colors.border,
-                      backgroundColor: modalCrop === c ? colors.primary + '15' : colors.card,
-                    },
-                  ]}
-                >
-                  <Text
-                    style={{
-                      color: modalCrop === c ? colors.primary : colors.foreground,
-                      fontWeight: '600',
-                      fontSize: 12,
-                    }}
-                  >
-                    {t(c.toLowerCase()) || c}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-
-            <Input
-              label={t('amount')}
-              placeholder={t('amountPlaceholder')}
-              value={modalAmount}
-              onChangeText={setModalAmount}
-              keyboardType="number-pad"
-            />
-          </ScrollView>
-
-          <View style={[styles.unifiedFooter, { backgroundColor: colors.card, borderTopColor: colors.border }]}>
-            <TouchableOpacity onPress={() => setModalOpen(false)} activeOpacity={0.7} style={[styles.unifiedCancelBtn, { borderColor: colors.destructive }]}>
-              <Text style={{ color: colors.destructive, fontWeight: '700', fontSize: 15 }}>✕ {t('cancel')}</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={handleAddTransaction} activeOpacity={0.7} disabled={submitting} style={[styles.unifiedSaveBtn, { backgroundColor: colors.primary, shadowColor: colors.primary, opacity: submitting ? 0.6 : 1 }]}>
-              <Text style={{ color: '#FFFFFF', fontWeight: '800', fontSize: 16 }}>{submitting ? '...' : `✓ ${t('save')}`}</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
+      <AddFarmModal
+        visible={addFarmVisible}
+        onClose={() => { setAddFarmVisible(false); fetchFarms(); }}
+      />
+      {editingFarm && (
+        <EditFarmModal
+          farm={editingFarm}
+          onClose={() => { setEditingFarm(null); fetchFarms(); }}
+        />
+      )}
     </ScreenLayout>
   );
 }
@@ -771,43 +960,188 @@ const styles = StyleSheet.create({
   locationSearchRow: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, height: 42, borderRadius: 10, borderWidth: 1, marginBottom: 8 },
   locationOption: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 10, borderBottomWidth: StyleSheet.hairlineWidth },
   waveDate: { fontSize: 13, color: 'rgba(255,255,255,0.8)', marginTop: 3, fontWeight: '500' },
-  waveStatRow: { flexDirection: 'row', alignItems: 'center', marginTop: 16, backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: 14, paddingVertical: 10, paddingHorizontal: 6 },
-  waveStatItem: { flex: 1, alignItems: 'center' },
-  waveStatValue: { fontSize: 16, fontWeight: '800', color: '#FFFFFF', letterSpacing: -0.3 },
-  waveStatLabel: { fontSize: 11, color: 'rgba(255,255,255,0.85)', marginTop: 2, fontWeight: '600', textTransform: 'uppercase', letterSpacing: 0.3 },
-  waveStatDivider: { width: 1, height: 28, backgroundColor: 'rgba(255,255,255,0.3)' },
   contentPadding: { paddingHorizontal: 16, marginTop: 16 },
-  kpiGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', marginBottom: 16 },
-  kpiCard: { width: '48.5%' as any, marginBottom: 10, minHeight: 96, borderRadius: 24, padding: 14, shadowColor: '#000', shadowOffset: { width: 0, height: 3 }, shadowOpacity: 0.12, shadowRadius: 8, elevation: 4 },
+  kpiGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', marginBottom: 6 },
+  kpiCard: { width: '48.5%' as any, marginBottom: 10, minHeight: 96, borderRadius: 20, padding: 14, shadowColor: '#000', shadowOffset: { width: 0, height: 3 }, shadowOpacity: 0.08, shadowRadius: 6, elevation: 3 },
   kpiLabel: { fontSize: 12, fontWeight: '600', letterSpacing: 0.3, textTransform: 'uppercase' },
   kpiValue: { fontSize: 22, fontWeight: '800', marginVertical: 4, letterSpacing: -0.5 },
   kpiSub: { fontSize: 13, fontWeight: '600' },
-  chartCard: { marginBottom: 16 },
-  chartHeader: { marginBottom: 8 },
-  sectionTitle: { fontSize: 16, fontWeight: '700' },
-  chartDesc: { fontSize: 13, marginTop: 2 },
-  chartWrapper: { alignItems: 'center', marginVertical: 8 },
-  chartLegend: { flexDirection: 'row', justifyContent: 'center', gap: 16, marginTop: 6 },
-  legendItem: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  legendDot: { width: 10, height: 3, borderRadius: 2 },
-  feedCard: { marginBottom: 20 },
-  feedHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
-  addButton: { paddingHorizontal: 14, height: 36, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
-  txnRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 12, borderBottomWidth: 1 },
-  txnFarmer: { fontSize: 14, fontWeight: '700' },
-  txnMeta: { fontSize: 12, marginTop: 2 },
-  txnAmount: { fontSize: 16, fontWeight: '700' },
+  sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 16, marginBottom: 10 },
+  sectionTitle: { fontSize: 16, fontWeight: '800' },
+  sectionActionBtn: { paddingHorizontal: 12, height: 32, borderRadius: 8, alignItems: 'center', justifyContent: 'center' },
+  emptyCard: { width: '100%', alignItems: 'center', paddingVertical: 20, paddingHorizontal: 16, borderRadius: 16, borderWidth: 1, borderStyle: 'dashed', marginBottom: 12 },
+  farmCard: { width: '48.5%' as any, paddingVertical: 14, paddingHorizontal: 12, borderRadius: 16, marginBottom: 10, borderWidth: 1.5, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 4, elevation: 2 },
+  kpiEmoji: { fontSize: 26 },
+  kpiName: { fontSize: 14, fontWeight: '700', marginTop: 6 },
+  animalRow: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 8, paddingVertical: 3, borderRadius: 8, marginTop: 6, alignSelf: 'flex-start' },
+  animalCount: { color: '#7C3AED', fontSize: 15, fontWeight: '900' },
+  animalLabel: { color: '#7C3AED', fontSize: 11, fontWeight: '600' },
+  kpiAmounts: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 10 },
+  kpiIncome: { color: '#16A34A', fontSize: 12, fontWeight: '700' },
+  kpiExpense: { color: '#DC2626', fontSize: 12, fontWeight: '700' },
   modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', padding: 20 },
-  modalCard: { width: '100%', maxWidth: 440, alignSelf: 'center' },
-  modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 },
-  modalTitle: { fontSize: 17, fontWeight: '700' },
-  inputLabel: { fontSize: 13, fontWeight: '600', marginBottom: 6, marginTop: 10 },
-  cropSelector: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginBottom: 12 },
-  cropChip: { paddingHorizontal: 12, paddingVertical: 7, borderRadius: 8, borderWidth: 1 },
-  modalActions: { flexDirection: 'row', gap: 10, marginTop: 16 },
-  unifiedHeader: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, paddingTop: 14, paddingBottom: 10, borderBottomWidth: 1 },
-  unifiedTitle: { fontSize: 18, fontWeight: '800' },
-  unifiedFooter: { flexDirection: 'row', padding: 16, gap: 12, borderTopWidth: 1 },
-  unifiedCancelBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 14, borderRadius: 14, borderWidth: 1.5 },
-  unifiedSaveBtn: { flex: 1.5, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 14, borderRadius: 14, shadowOpacity: 0.35, shadowRadius: 8, shadowOffset: { width: 0, height: 4 }, elevation: 6 },
+  plotCountBadge: { paddingHorizontal: 7, paddingVertical: 2, borderRadius: 10 },
+  plotCountText: { fontSize: 12, fontWeight: '800' },
+  plotListContainer: { width: '100%', marginBottom: 6 },
+  plotCardDetailed: {
+    width: '100%',
+    borderRadius: 18,
+    borderWidth: 1.5,
+    padding: 16,
+    marginBottom: 14,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 5,
+    elevation: 2,
+  },
+  plotHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  plotTitleText: {
+    fontSize: 16,
+    fontWeight: '700',
+    letterSpacing: -0.2,
+  },
+  gatPill: {
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 6,
+    borderWidth: 1,
+  },
+  gatPillText: {
+    fontSize: 11,
+    fontWeight: '700',
+  },
+  plotSubtitleText: {
+    fontSize: 12,
+    marginTop: 4,
+  },
+  plotIncomeExpenseBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-around',
+    borderRadius: 12,
+    borderWidth: 1,
+    paddingVertical: 10,
+    paddingHorizontal: 8,
+    marginTop: 12,
+    marginBottom: 12,
+  },
+  plotIncomeCol: {
+    alignItems: 'center',
+    flex: 1,
+  },
+  plotBarDivider: {
+    width: 1,
+    height: 24,
+  },
+  plotBarLabel: {
+    fontSize: 11,
+    fontWeight: '600',
+    textTransform: 'uppercase',
+    letterSpacing: 0.3,
+    marginBottom: 2,
+  },
+  plotBarValue: {
+    fontSize: 14,
+    fontWeight: '800',
+  },
+  plotCropsSection: {
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: 'rgba(0,0,0,0.06)',
+    paddingTop: 10,
+  },
+  plotCropsHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  plotCropsHeading: {
+    fontSize: 12,
+    fontWeight: '700',
+    textTransform: 'uppercase',
+    letterSpacing: 0.4,
+  },
+  noCropNotice: {
+    borderRadius: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    alignItems: 'center',
+  },
+  noCropText: {
+    fontSize: 12,
+    fontStyle: 'italic',
+  },
+  cropSelectorWrapper: {
+    marginTop: 10,
+    marginBottom: 6,
+  },
+  cropSelectorLabel: {
+    fontSize: 11,
+    fontWeight: '700',
+    textTransform: 'uppercase',
+    letterSpacing: 0.3,
+    marginBottom: 6,
+  },
+  cropChipsScrollRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    paddingVertical: 2,
+  },
+  cropPillBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 11,
+    paddingVertical: 7,
+    borderRadius: 10,
+    borderWidth: 1,
+    gap: 6,
+  },
+  cropPillBtnText: {
+    fontSize: 12,
+    fontWeight: '700',
+  },
+  miniStatusDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+  },
+  selectedScopeBanner: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 10,
+    marginTop: 8,
+    marginBottom: 4,
+  },
+  selectedScopeTitle: {
+    fontSize: 13,
+    fontWeight: '700',
+  },
+  cropStatusBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 6,
+    borderWidth: 1,
+  },
+  cropStatusBadgeText: {
+    fontSize: 11,
+    fontWeight: '800',
+    letterSpacing: 0.2,
+  },
+  dairyCard: {
+    width: '100%',
+    paddingVertical: 14,
+    paddingHorizontal: 14,
+    borderRadius: 16,
+    marginBottom: 10,
+    borderWidth: 1.5,
+  },
 });

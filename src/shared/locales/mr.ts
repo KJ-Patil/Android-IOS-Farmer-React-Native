@@ -183,6 +183,8 @@ export default {
   harvested: 'काढणी',
   completed: 'पूर्ण',
   running: 'सुरू',
+  goingLive: 'चालू (Live)',
+  noCropsMentioned: 'या प्लॉटवर अजून कोणतेही पीक नोंदवले नाही',
   harvestReminder: 'काढणीची तारीख उलटली आहे! कृपया पीक स्थिती अपडेट करा.',
   cropLocked: 'हे पीक पूर्ण झाले आहे. पुढील बदल शक्य नाहीत.',
   areaExceeded: 'एकूण पीक क्षेत्रफळ प्लॉट क्षेत्रफळापेक्षा जास्त आहे.',
