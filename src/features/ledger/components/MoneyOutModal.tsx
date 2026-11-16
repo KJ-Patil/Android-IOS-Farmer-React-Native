@@ -19,7 +19,7 @@ import { Input } from '../../../components/ui/Input';
 import { Card } from '../../../components/ui/Card';
 import { DatePickerInput } from '../../../components/ui/DatePickerInput';
 import type { PaymentMode, LedgerType } from '../../../shared/types/ledger';
-import { ChevronDown, Search, Plus, X, Check, Trash2 } from 'lucide-react-native';
+import { ArrowLeft, ChevronDown, Search, Plus, X, Check, Trash2 } from 'lucide-react-native';
 
 interface MoneyOutModalProps {
   visible: boolean;
@@ -28,6 +28,7 @@ interface MoneyOutModalProps {
   cropId?: string;
   farmId?: string;
   farmName?: string;
+  farmType?: string;
   initialData?: {
     amount?: number;
     partyName?: string;
@@ -42,7 +43,7 @@ interface MoneyOutModalProps {
 const PAYMENT_MODES: PaymentMode[] = ['cash', 'upi', 'credit'];
 
 const AGRI_CATEGORIES = ['seeds', 'fertilizers', 'pesticides', 'labor', 'weeding', 'tractor', 'irrigation', 'agriElectricity', 'transport', 'packing', 'marketCost', 'hamali', 'otherAgri'] as const;
-const DAIRY_CATEGORIES = ['fodder', 'medicines', 'veterinary', 'milkCollection', 'dairyElectricity', 'dairyLabor', 'otherDairy'] as const;
+const DAIRY_CATEGORIES = ['fodder', 'animalFeed', 'vaccination', 'medicines', 'veterinary', 'animalPurchase', 'breeding', 'animalInsurance', 'shedMaintenance', 'equipment', 'milkCollection', 'dairyElectricity', 'dairyLabor', 'dairyTransport', 'otherDairy'] as const;
 const PERSONAL_CATEGORIES = ['homeExpenses', 'groceries', 'medical', 'education', 'travel', 'petrol', 'diesel', 'electricityBill', 'mobileRecharge', 'marriageFunction', 'emergency', 'otherPersonal'] as const;
 
 const CATEGORY_EMOJIS: Record<string, string> = {
@@ -60,13 +61,21 @@ const CATEGORY_EMOJIS: Record<string, string> = {
   marketCost: '🏪',
   hamali: '🏋️',
   otherAgri: '🌾',
-  // Dairy
+  // Dairy / Livestock
   fodder: '🌾',
+  animalFeed: '🌽',
+  vaccination: '💉',
   medicines: '💊',
   veterinary: '🩺',
+  animalPurchase: '🐄',
+  breeding: '🧬',
+  animalInsurance: '🛡️',
+  shedMaintenance: '🏚️',
+  equipment: '⚙️',
   milkCollection: '🥛',
   dairyElectricity: '⚡',
   dairyLabor: '👷',
+  dairyTransport: '🚛',
   otherDairy: '🐄',
   // Personal
   homeExpenses: '🏠',
@@ -84,18 +93,19 @@ const CATEGORY_EMOJIS: Record<string, string> = {
 };
 
 const STORAGE_KEY_CUSTOM_EXPENSE_CATS = '@farmer_custom_expense_categories';
+const STORAGE_KEY_PARTY_NAMES = '@farmer_party_names';
 
 type Section = 'agriculture' | 'dairy' | 'personal';
 
-export function MoneyOutModal({ visible, onClose, initialData, plotId, cropId, farmId, farmName }: MoneyOutModalProps) {
+export function MoneyOutModal({ visible, onClose, initialData, plotId, cropId, farmId, farmName, farmType }: MoneyOutModalProps) {
   const { t } = useTranslation();
   const { colors } = useTheme();
-  const { postExpenseTransaction } = useLedgerStore();
+  const { postExpenseTransaction, transactions } = useLedgerStore();
   const { plots, crops } = usePlotStore();
 
   const [loading, setLoading] = useState(false);
-  const [section, setSection] = useState<Section | ''>('agriculture');
-  const [selectedCategory, setSelectedCategory] = useState('fertilizers');
+  const [section, setSection] = useState<Section | ''>(farmType ? 'dairy' : 'agriculture');
+  const [selectedCategory, setSelectedCategory] = useState(farmType ? 'fodder' : 'fertilizers');
   const [amount, setAmount] = useState('');
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
   const [paymentMode, setPaymentMode] = useState<PaymentMode>('cash');
@@ -111,6 +121,11 @@ export function MoneyOutModal({ visible, onClose, initialData, plotId, cropId, f
   const [newCustomCategoryName, setNewCustomCategoryName] = useState('');
   const [categorySearchQuery, setCategorySearchQuery] = useState('');
 
+  const [savedPartyNames, setSavedPartyNames] = useState<string[]>([]);
+  const [partyDropdownOpen, setPartyDropdownOpen] = useState(false);
+  const [addPartyModalOpen, setAddPartyModalOpen] = useState(false);
+  const [newPartyName, setNewPartyName] = useState('');
+
   const loadCustomCategories = async () => {
     try {
       const raw = await AsyncStorage.getItem(STORAGE_KEY_CUSTOM_EXPENSE_CATS);
@@ -123,10 +138,44 @@ export function MoneyOutModal({ visible, onClose, initialData, plotId, cropId, f
     } catch {}
   };
 
+  const loadSavedPartyNames = async () => {
+    try {
+      const raw = await AsyncStorage.getItem(STORAGE_KEY_PARTY_NAMES);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) setSavedPartyNames(parsed);
+      }
+    } catch {}
+  };
+
+  const addPartyName = async (name: string) => {
+    const trimmed = name.trim();
+    if (!trimmed) return;
+    const updated = [...new Set([trimmed, ...savedPartyNames])];
+    setSavedPartyNames(updated);
+    try {
+      await AsyncStorage.setItem(STORAGE_KEY_PARTY_NAMES, JSON.stringify(updated));
+    } catch {}
+  };
+
+  const allPartyNames = useMemo(() => {
+    const fromTxns = transactions
+      .map((tx) => tx.partyName?.trim())
+      .filter((n): n is string => !!n);
+    return [...new Set([...savedPartyNames, ...fromTxns])].sort();
+  }, [savedPartyNames, transactions]);
+
+  const filteredPartyNames = useMemo(() => {
+    if (!partyName.trim()) return allPartyNames;
+    const q = partyName.toLowerCase();
+    return allPartyNames.filter((n) => n.toLowerCase().includes(q));
+  }, [allPartyNames, partyName]);
+
   useEffect(() => {
     if (visible) {
       Promise.resolve().then(() => {
         loadCustomCategories();
+        loadSavedPartyNames();
         if (plotId) setSelectedPlotId(plotId);
         if (cropId) setSelectedCropId(cropId);
         if (initialData) {
@@ -137,14 +186,17 @@ export function MoneyOutModal({ visible, onClose, initialData, plotId, cropId, f
           if (initialData.category) setSelectedCategory(initialData.category);
           if (initialData.notes) setNotes(initialData.notes);
           if (initialData.paymentMode) setPaymentMode(initialData.paymentMode);
-          setSection('agriculture');
+          setSection(farmType ? 'dairy' : 'agriculture');
+        } else if (farmType) {
+          setSection('dairy');
+          setSelectedCategory('fodder');
         }
       });
     }
-  }, [visible, initialData, plotId, cropId]);
+  }, [visible, initialData, plotId, cropId, farmType]);
 
   const selectedPlot = plots.find((p) => p.id === selectedPlotId);
-  const plotCrops = selectedPlotId ? (crops[selectedPlotId] || []).filter((c) => !c.isLocked) : [];
+  const plotCrops = selectedPlotId ? (crops[selectedPlotId] || []) : [];
   const selectedCrop = plotCrops.find((c) => c.id === selectedCropId);
 
   const categoryList = section === 'agriculture' ? AGRI_CATEGORIES : section === 'dairy' ? DAIRY_CATEGORIES : PERSONAL_CATEGORIES;
@@ -205,6 +257,7 @@ export function MoneyOutModal({ visible, onClose, initialData, plotId, cropId, f
 
     setLoading(true);
     try {
+      if (partyName.trim()) addPartyName(partyName.trim());
       await postExpenseTransaction({
         ledgerType,
         category: selectedCategory,
@@ -245,11 +298,16 @@ export function MoneyOutModal({ visible, onClose, initialData, plotId, cropId, f
     </View>
   );
 
-  const sections: { key: Section; label: string; count: number }[] = [
-    { key: 'agriculture', label: t('agricultureExpenses'), count: 13 },
-    { key: 'dairy', label: t('dairyExpenses'), count: 7 },
-    { key: 'personal', label: t('personalExpenses'), count: 12 },
+  const allSections: { key: Section; label: string; count: number }[] = [
+    { key: 'agriculture', label: t('agricultureExpenses'), count: AGRI_CATEGORIES.length },
+    { key: 'dairy', label: t('dairyExpenses'), count: DAIRY_CATEGORIES.length },
+    { key: 'personal', label: t('personalExpenses'), count: PERSONAL_CATEGORIES.length },
   ];
+  const sections = plotId
+    ? allSections.filter((s) => s.key !== 'dairy')
+    : farmType
+      ? allSections.filter((s) => s.key !== 'agriculture')
+      : allSections;
 
   return (
     <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
@@ -277,8 +335,13 @@ export function MoneyOutModal({ visible, onClose, initialData, plotId, cropId, f
             </>
           ) : (
             <>
-              <TouchableOpacity onPress={() => { setSection(''); setSelectedCategory(''); }} style={{ marginBottom: 12 }}>
-                <Text style={{ color: colors.destructive, fontWeight: '600' }}>&larr; {t('back')}</Text>
+              <TouchableOpacity
+                onPress={() => { setSection(''); setSelectedCategory(''); }}
+                activeOpacity={0.7}
+                style={[styles.backBtn, { borderColor: colors.border, backgroundColor: colors.card }]}
+              >
+                <ArrowLeft size={16} color={colors.foreground} />
+                <Text style={{ color: colors.foreground, fontWeight: '700', fontSize: 14, marginLeft: 6 }}>{t('back')}</Text>
               </TouchableOpacity>
 
               {/* Category Header Row with + Add Button */}
@@ -330,30 +393,55 @@ export function MoneyOutModal({ visible, onClose, initialData, plotId, cropId, f
 
               {section === 'agriculture' && (
                 <>
-                  <Text style={[styles.label, { color: colors.foreground }]}>{t('linkToPlotCropOptional')}</Text>
-                  <View style={styles.chipGrid}>
-                    {plots.map((p) => (
-                      <TouchableOpacity
-                        key={p.id}
-                        onPress={() => { setSelectedPlotId(p.id); setSelectedCropId(''); }}
-                        style={[styles.chip, { borderColor: selectedPlotId === p.id ? colors.primary : colors.border, backgroundColor: selectedPlotId === p.id ? colors.primary + '15' : colors.card, borderRadius: 8 }]}
-                      >
-                        <Text style={{ color: selectedPlotId === p.id ? colors.primary : colors.foreground, fontWeight: '600', fontSize: 12 }}>{p.name}</Text>
-                      </TouchableOpacity>
-                    ))}
-                  </View>
+                  {plotId ? (
+                    <>
+                      <Text style={[styles.label, { color: colors.foreground }]}>{t('plot')}</Text>
+                      <View style={[styles.chip, { borderColor: colors.primary, backgroundColor: colors.primary + '15', borderRadius: 8, alignSelf: 'flex-start', marginBottom: 12 }]}>
+                        <Text style={{ color: colors.primary, fontWeight: '700', fontSize: 12 }}>{selectedPlot?.name}</Text>
+                      </View>
+                    </>
+                  ) : (
+                    <>
+                      <Text style={[styles.label, { color: colors.foreground }]}>{t('linkToPlotCropOptional')}</Text>
+                      <View style={styles.chipGrid}>
+                        {plots.map((p) => (
+                          <TouchableOpacity
+                            key={p.id}
+                            onPress={() => { setSelectedPlotId(p.id); setSelectedCropId(''); }}
+                            style={[styles.chip, { borderColor: selectedPlotId === p.id ? colors.primary : colors.border, backgroundColor: selectedPlotId === p.id ? colors.primary + '15' : colors.card, borderRadius: 8 }]}
+                          >
+                            <Text style={{ color: selectedPlotId === p.id ? colors.primary : colors.foreground, fontWeight: '600', fontSize: 12 }}>{p.name}</Text>
+                          </TouchableOpacity>
+                        ))}
+                      </View>
+                    </>
+                  )}
                   {selectedPlotId && plotCrops.length > 0 && (
-                    <View style={styles.chipGrid}>
-                      {plotCrops.map((c) => (
-                        <TouchableOpacity
-                          key={c.id}
-                          onPress={() => setSelectedCropId(c.id)}
-                          style={[styles.chip, { borderColor: selectedCropId === c.id ? colors.primary : colors.border, backgroundColor: selectedCropId === c.id ? colors.primary + '15' : colors.card, borderRadius: 8 }]}
-                        >
-                          <Text style={{ color: selectedCropId === c.id ? colors.primary : colors.foreground, fontWeight: '600', fontSize: 12 }}>{t(c.cropType)}</Text>
-                        </TouchableOpacity>
-                      ))}
-                    </View>
+                    <>
+                      <Text style={[styles.label, { color: colors.foreground }]}>{t('crop')}</Text>
+                      <View style={styles.chipGrid}>
+                        {plotCrops.map((c) => {
+                          const isDone = c.status === 'harvested' || c.status === 'completed';
+                          const isSelected = selectedCropId === c.id;
+                          return (
+                            <TouchableOpacity
+                              key={c.id}
+                              onPress={() => setSelectedCropId(c.id)}
+                              style={[styles.chip, {
+                                borderColor: isSelected ? colors.primary : colors.border,
+                                backgroundColor: isSelected ? colors.primary + '15' : isDone ? colors.muted : colors.card,
+                                borderRadius: 8,
+                                opacity: isDone ? 0.55 : 1,
+                              }]}
+                            >
+                              <Text style={{ color: isSelected ? colors.primary : isDone ? colors.mutedFg : colors.foreground, fontWeight: '600', fontSize: 12 }}>
+                                {t(c.cropType)} {isDone ? `(${t(c.status)})` : ''}
+                              </Text>
+                            </TouchableOpacity>
+                          );
+                        })}
+                      </View>
+                    </>
                   )}
                 </>
               )}
@@ -365,7 +453,109 @@ export function MoneyOutModal({ visible, onClose, initialData, plotId, cropId, f
               {renderChips(PAYMENT_MODES, paymentMode, (v) => setPaymentMode(v as PaymentMode))}
 
 
-              <Input label={t('partyName')} value={partyName} onChangeText={setPartyName} placeholder={t('optional')} />
+              <Text style={[styles.label, { color: colors.foreground }]}>{t('partyName')}</Text>
+              <View style={{ flexDirection: 'row', gap: 10, alignItems: 'flex-start' }}>
+                <View style={{ flex: 1 }}>
+                  <TouchableOpacity
+                    onPress={() => { setPartyDropdownOpen(!partyDropdownOpen); }}
+                    style={[styles.partyDropdown, { borderColor: colors.border, backgroundColor: colors.card, borderRadius: colors.radius }]}
+                    activeOpacity={0.7}
+                  >
+                    <Text style={{ color: partyName ? colors.foreground : colors.mutedFg, fontSize: 15, flex: 1 }} numberOfLines={1}>
+                      {partyName || t('optional')}
+                    </Text>
+                    <ChevronDown size={16} color={colors.mutedFg} />
+                  </TouchableOpacity>
+                  {partyDropdownOpen && (
+                    <View style={[styles.partyDropdownList, { borderColor: colors.border, backgroundColor: colors.card }]}>
+                      <View style={[styles.partySearchRow, { borderBottomColor: colors.border }]}>
+                        <Search size={14} color={colors.mutedFg} />
+                        <TextInput
+                          value={partyName}
+                          onChangeText={setPartyName}
+                          placeholder={t('searchOrType')}
+                          placeholderTextColor={colors.mutedFg}
+                          style={{ flex: 1, color: colors.foreground, fontSize: 14, padding: 0, marginLeft: 8 }}
+                          autoFocus
+                        />
+                        {partyName ? (
+                          <TouchableOpacity onPress={() => setPartyName('')}>
+                            <X size={14} color={colors.mutedFg} />
+                          </TouchableOpacity>
+                        ) : null}
+                      </View>
+                      <ScrollView style={{ maxHeight: 150 }} keyboardShouldPersistTaps="handled" nestedScrollEnabled>
+                        {filteredPartyNames.map((name) => (
+                          <TouchableOpacity
+                            key={name}
+                            onPress={() => { setPartyName(name); setPartyDropdownOpen(false); }}
+                            style={[styles.partyDropdownItem, { borderBottomColor: colors.border }]}
+                          >
+                            <Text style={{ color: colors.foreground, fontSize: 14 }}>{name}</Text>
+                          </TouchableOpacity>
+                        ))}
+                        {filteredPartyNames.length === 0 && partyName.trim() ? (
+                          <TouchableOpacity
+                            onPress={() => { addPartyName(partyName.trim()); setPartyDropdownOpen(false); }}
+                            style={[styles.partyDropdownItem, { borderBottomColor: colors.border }]}
+                          >
+                            <Plus size={14} color={colors.primary} />
+                            <Text style={{ color: colors.primary, fontSize: 14, fontWeight: '600', marginLeft: 6 }}>
+                              {t('add')} {`"${partyName.trim()}"`}
+                            </Text>
+                          </TouchableOpacity>
+                        ) : null}
+                      </ScrollView>
+                    </View>
+                  )}
+                </View>
+                <TouchableOpacity
+                  onPress={() => { setNewPartyName(''); setAddPartyModalOpen(true); }}
+                  style={[styles.addPartyBtn, { backgroundColor: colors.primary, borderRadius: colors.radius }]}
+                  activeOpacity={0.7}
+                >
+                  <Plus color="#FFFFFF" size={18} />
+                </TouchableOpacity>
+              </View>
+
+              {/* Add Party Name Modal */}
+              <Modal visible={addPartyModalOpen} transparent animationType="fade">
+                <View style={styles.addPartyOverlay}>
+                  <View style={[styles.addPartyCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+                    <Text style={{ color: colors.foreground, fontSize: 16, fontWeight: '700', marginBottom: 12 }}>
+                      {t('addPartyName')}
+                    </Text>
+                    <TextInput
+                      value={newPartyName}
+                      onChangeText={setNewPartyName}
+                      placeholder={t('enterPartyName')}
+                      placeholderTextColor={colors.mutedFg}
+                      style={[styles.addPartyInput, { color: colors.foreground, borderColor: colors.border, backgroundColor: colors.background }]}
+                      autoFocus
+                    />
+                    <View style={{ flexDirection: 'row', gap: 10, marginTop: 14 }}>
+                      <TouchableOpacity
+                        onPress={() => setAddPartyModalOpen(false)}
+                        style={[styles.addPartyActionBtn, { backgroundColor: colors.muted }]}
+                      >
+                        <Text style={{ color: colors.foreground, fontWeight: '600' }}>{t('cancel')}</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        onPress={() => {
+                          if (newPartyName.trim()) {
+                            addPartyName(newPartyName.trim());
+                            setPartyName(newPartyName.trim());
+                          }
+                          setAddPartyModalOpen(false);
+                        }}
+                        style={[styles.addPartyActionBtn, { backgroundColor: colors.primary }]}
+                      >
+                        <Text style={{ color: '#FFFFFF', fontWeight: '700' }}>{t('save')}</Text>
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                </View>
+              </Modal>
               <Input label={t('billNumber')} value={billNumber} onChangeText={setBillNumber} placeholder={t('optional')} />
               <Input label={t('notes')} value={notes} onChangeText={setNotes} placeholder={t('optional')} multiline />
             </>
@@ -799,4 +989,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     minHeight: 44,
   },
+  backBtn: { flexDirection: 'row', alignItems: 'center', alignSelf: 'flex-start', paddingHorizontal: 14, paddingVertical: 10, borderRadius: 10, borderWidth: 1, marginBottom: 14 },
+  partyDropdown: { flexDirection: 'row', alignItems: 'center', borderWidth: 1, paddingHorizontal: 14, paddingVertical: 12, minHeight: 48 },
+  partyDropdownList: { borderWidth: 1, borderRadius: 12, marginTop: 4, marginBottom: 12, overflow: 'hidden' },
+  partySearchRow: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, paddingVertical: 10, borderBottomWidth: StyleSheet.hairlineWidth },
+  partyDropdownItem: { paddingHorizontal: 14, paddingVertical: 11, borderBottomWidth: StyleSheet.hairlineWidth, flexDirection: 'row', alignItems: 'center' },
+  addPartyBtn: { width: 48, height: 48, alignItems: 'center', justifyContent: 'center' },
+  addPartyOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center', padding: 20 },
+  addPartyCard: { width: '100%', maxWidth: 380, borderRadius: 20, padding: 20, borderWidth: 1, shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.15, shadowRadius: 10, elevation: 8 },
+  addPartyInput: { borderWidth: 1, borderRadius: 12, paddingHorizontal: 14, paddingVertical: 12, fontSize: 16, minHeight: 48 },
+  addPartyActionBtn: { flex: 1, alignItems: 'center', paddingVertical: 12, borderRadius: 12 },
 });

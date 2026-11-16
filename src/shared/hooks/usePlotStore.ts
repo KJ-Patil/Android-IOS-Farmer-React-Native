@@ -212,7 +212,9 @@ export const usePlotStore = create<PlotStore>((set, get) => ({
     const plot = get().plots.find((p) => p.id === plotId);
     if (!plot) return 0;
     const plotCrops = get().crops[plotId] || [];
-    const usedArea = plotCrops.reduce((sum, c) => sum + (c.area || 0), 0);
+    const usedArea = plotCrops
+      .filter((c) => c.status !== 'harvested' && c.status !== 'completed')
+      .reduce((sum, c) => sum + (c.area || 0), 0);
     return plot.area - usedArea;
   },
 

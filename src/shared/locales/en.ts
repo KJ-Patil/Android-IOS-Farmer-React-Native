@@ -86,6 +86,7 @@ export default {
 
   // Navigation
   dashboard: 'Dashboard',
+  plot: 'Plot',
   plots: 'Plots',
   ledger: 'Ledger',
   settings: 'Settings',
@@ -235,6 +236,8 @@ export default {
   deleteFarmConfirm: 'Remove this farm from your notebook?',
   allTransactions: 'All Transactions',
   incomeRegister: 'Income Register',
+  profit: 'Profit',
+  loss: 'Loss',
   profitLoss: 'Profit & Loss',
   reportsExport: 'Reports & Export',
   partyLedgers: 'Party Ledgers',
@@ -254,6 +257,9 @@ export default {
   credit: 'Credit',
   cheque: 'Cheque',
   partyName: 'Party Name',
+  addPartyName: 'Add Party Name',
+  enterPartyName: 'Enter party name',
+  searchOrType: 'Search or type...',
   billNumber: 'Bill Number',
   notes: 'Notes',
   dueDate: 'Due Date',
@@ -330,13 +336,21 @@ export default {
   marketCost: 'Market Cost',
   otherAgri: 'Other Agri',
 
-  // Expense Categories - Dairy
+  // Expense Categories - Dairy / Livestock
   fodder: 'Fodder',
+  animalFeed: 'Animal Feed',
+  vaccination: 'Vaccination',
   medicines: 'Medicines',
   veterinary: 'Veterinary',
+  animalPurchase: 'Animal Purchase',
+  breeding: 'Breeding / AI',
+  animalInsurance: 'Animal Insurance',
+  shedMaintenance: 'Shed Maintenance',
+  equipment: 'Equipment',
   milkCollection: 'Milk Collection',
   dairyElectricity: 'Dairy Electricity',
   dairyLabor: 'Dairy Labor',
+  dairyTransport: 'Dairy Transport',
   otherDairy: 'Other Dairy',
 
   // Expense Categories - Personal

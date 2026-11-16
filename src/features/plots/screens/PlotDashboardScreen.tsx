@@ -11,9 +11,18 @@ import { Badge } from '../../../components/ui/Badge';
 import { AddCropModal } from '../../crops/components/AddCropModal';
 import { MoneyInModal } from '../../ledger/components/MoneyInModal';
 import { MoneyOutModal } from '../../ledger/components/MoneyOutModal';
-import { ArrowLeft, ArrowDownLeft, ArrowUpRight, Trash2 } from 'lucide-react-native';
+import { ArrowLeft, ArrowDownLeft, ArrowUpRight, Trash2, BookOpen, Wallet, TrendingUp } from 'lucide-react-native';
 import { useLocalizedFormat } from '../../../shared/hooks/useLocalizedFormat';
 import { tCategory, tPaymentMode } from '../../../shared/utils/helpers';
+
+type LedgerTab = 'notebook' | 'income' | 'pnl';
+
+const DIRECT_COST_CATEGORIES = [
+  'seeds', 'fertilizers', 'pesticides', 'labor', 'weeding', 'tractor',
+  'irrigation', 'transport', 'packing', 'market_cost', 'hamali',
+  'harvesting_cost', 'dairy_fodder', 'dairy_medicines', 'veterinary_doctor',
+  'milk_collection', 'dairy_labor',
+];
 
 export function PlotDashboardScreen({ route, navigation }: any) {
   const { plotId, cropId } = route.params || {};
@@ -33,6 +42,7 @@ export function PlotDashboardScreen({ route, navigation }: any) {
   const [addCropVisible, setAddCropVisible] = useState(false);
   const [moneyInOpen, setMoneyInOpen] = useState(false);
   const [moneyOutOpen, setMoneyOutOpen] = useState(false);
+  const [ledgerTab, setLedgerTab] = useState<LedgerTab>('notebook');
 
   const plot = plots.find((p) => p.id === plotId);
   const plotCrops = useMemo(() => crops[plotId] || [], [crops, plotId]);
@@ -41,8 +51,11 @@ export function PlotDashboardScreen({ route, navigation }: any) {
   const occupancyPercent = plot && plot.area > 0 ? (usedArea / plot.area) * 100 : 0;
 
   useEffect(() => {
-    fetchCrops(plotId);
-    fetchTransactions();
+    const id = requestAnimationFrame(() => {
+      fetchCrops(plotId);
+      fetchTransactions();
+    });
+    return () => cancelAnimationFrame(id);
   }, [plotId]);
 
   const selectedCrop = selectedCropId !== 'all'
@@ -79,6 +92,51 @@ export function PlotDashboardScreen({ route, navigation }: any) {
     const margin = income > 0 ? (profit / income) * 100 : 0;
     return { income, expenses, profit, margin };
   }, [displayedTxns]);
+
+  const incomeTxns = useMemo(() => {
+    return displayedTxns.filter((tx) => tx.type === 'income');
+  }, [displayedTxns]);
+
+  const expenseTxns = useMemo(() => {
+    return displayedTxns.filter((tx) => tx.type === 'expense');
+  }, [displayedTxns]);
+
+  const pnl = useMemo(() => {
+    const cropSales = incomeTxns
+      .filter((tx) => tx.incomeCategory === 'crop_sale' || tx.cropName || tx.category === 'crop_sale')
+      .reduce((s, tx) => s + (tx.amount || 0), 0);
+    const dairyIncome = incomeTxns
+      .filter((tx) => tx.incomeCategory === 'dairy' || (tx.category && tx.category.toLowerCase().includes('dairy')))
+      .reduce((s, tx) => s + (tx.amount || 0), 0);
+    const otherIncome = incomeTxns
+      .filter((tx) => tx.incomeCategory === 'other' || (!tx.incomeCategory && tx.category !== 'crop_sale' && !tx.category?.toLowerCase().includes('dairy')))
+      .reduce((s, tx) => s + (tx.amount || 0), 0);
+    const totalRevenue = cropSales + dairyIncome + otherIncome;
+
+    const categoryCostMap: Record<string, number> = {};
+    let directCosts = 0;
+    let indirectCosts = 0;
+    expenseTxns.forEach((tx) => {
+      const amt = tx.amount || 0;
+      const catLower = (tx.category || '').toLowerCase();
+      const isDirect = DIRECT_COST_CATEGORIES.some((c) => catLower.includes(c));
+      if (isDirect) {
+        directCosts += amt;
+        const key = tx.category || 'Direct';
+        categoryCostMap[key] = (categoryCostMap[key] || 0) + amt;
+      } else {
+        indirectCosts += amt;
+      }
+    });
+
+    const grossProfit = totalRevenue - directCosts;
+    const grossMargin = totalRevenue > 0 ? (grossProfit / totalRevenue) * 100 : 0;
+    const netProfit = grossProfit - indirectCosts;
+    const netMargin = totalRevenue > 0 ? (netProfit / totalRevenue) * 100 : 0;
+    const costBreakdown = Object.entries(categoryCostMap).sort((a, b) => b[1] - a[1]);
+
+    return { cropSales, dairyIncome, otherIncome, totalRevenue, directCosts, grossProfit, grossMargin, indirectCosts, netProfit, netMargin, costBreakdown };
+  }, [incomeTxns, expenseTxns]);
 
   if (!plot) return null;
 
@@ -159,7 +217,7 @@ export function PlotDashboardScreen({ route, navigation }: any) {
                   color: financials.profit >= 0 ? '#16A34A' : '#DC2626',
                 }}
               >
-                {financials.profit >= 0 ? `+${financials.margin.toFixed(0)}% Margin` : `${financials.margin.toFixed(0)}% Margin`}
+                {financials.profit >= 0 ? `+ ${fmtCurrency(financials.profit)} ${t('profit')}` : `- ${fmtCurrency(Math.abs(financials.profit))} ${t('loss')}`}
               </Text>
             </View>
           </View>
@@ -329,65 +387,238 @@ export function PlotDashboardScreen({ route, navigation }: any) {
           </Card>
         )}
 
-        {/* Ledger Transactions Section */}
-        <View style={styles.txHeaderRow}>
-          <Text style={[styles.sectionLabel, { color: colors.foreground }]}>
-            {selectedCrop
-              ? `${t(selectedCrop.cropType)} ${t('ledger')} (${toNative(displayedTxns.length)})`
-              : `${t('allTransactions')} (${toNative(displayedTxns.length)})`}
-          </Text>
+        {/* Mini-Ledger Tabs */}
+        <View style={styles.ledgerTabBar}>
+          {([
+            { key: 'notebook' as LedgerTab, label: t('notebook'), Icon: BookOpen },
+            { key: 'income' as LedgerTab, label: t('incomeRegister'), Icon: Wallet },
+            { key: 'pnl' as LedgerTab, label: t('profitLoss'), Icon: TrendingUp },
+          ]).map((tab) => {
+            const isActive = ledgerTab === tab.key;
+            return (
+              <TouchableOpacity
+                key={tab.key}
+                onPress={() => setLedgerTab(tab.key)}
+                activeOpacity={0.7}
+                style={[
+                  styles.ledgerTabPill,
+                  {
+                    backgroundColor: isActive ? colors.primary : colors.card,
+                    borderColor: isActive ? colors.primary : colors.border,
+                  },
+                ]}
+              >
+                <tab.Icon size={14} color={isActive ? '#FFFFFF' : colors.mutedFg} />
+                <Text style={{ fontSize: 12, fontWeight: '700', color: isActive ? '#FFFFFF' : colors.mutedFg, marginLeft: 4 }} numberOfLines={1}>
+                  {tab.label}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
         </View>
 
-        {displayedTxns.length === 0 ? (
-          <Card style={{ padding: 24, alignItems: 'center', marginTop: 4 }}>
-            <Text style={{ color: colors.mutedFg, textAlign: 'center', fontSize: 13, fontWeight: '500' }}>
-              {t('noData')}
-            </Text>
-            <Text style={{ color: colors.mutedFg, textAlign: 'center', fontSize: 11, marginTop: 4 }}>
-              {t('moneyIn')} / {t('moneyOut')}
-            </Text>
-          </Card>
-        ) : (
-          displayedTxns.map((txn, index) => (
-            <Card key={txn.id || index} style={{ marginBottom: 8 }} padding={12}>
-              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                <View style={{ flex: 1, paddingRight: 8 }}>
-                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
-                    <Text style={{ color: colors.foreground, fontWeight: '700', fontSize: 14 }}>
-                      {tCategory(txn.category, t)}
-                    </Text>
-                    {txn.cropName && (
-                      <View style={[styles.miniCropTag, { backgroundColor: colors.primary + '12' }]}>
-                        <Text style={{ fontSize: 10, fontWeight: '600', color: colors.primary }}>
-                          {t(txn.cropName) || txn.cropName}
+        {/* Notebook Tab — All Transactions */}
+        {ledgerTab === 'notebook' && (
+          <View>
+            <View style={styles.txHeaderRow}>
+              <Text style={[styles.sectionLabel, { color: colors.foreground }]}>
+                {selectedCrop
+                  ? `${t(selectedCrop.cropType)} ${t('ledger')} (${toNative(displayedTxns.length)})`
+                  : `${t('allTransactions')} (${toNative(displayedTxns.length)})`}
+              </Text>
+            </View>
+
+            {displayedTxns.length === 0 ? (
+              <Card style={{ padding: 24, alignItems: 'center', marginTop: 4 }}>
+                <Text style={{ color: colors.mutedFg, textAlign: 'center', fontSize: 13, fontWeight: '500' }}>
+                  {t('noData')}
+                </Text>
+                <Text style={{ color: colors.mutedFg, textAlign: 'center', fontSize: 11, marginTop: 4 }}>
+                  {t('moneyIn')} / {t('moneyOut')}
+                </Text>
+              </Card>
+            ) : (
+              displayedTxns.map((txn, index) => (
+                <Card key={txn.id || index} style={{ marginBottom: 8 }} padding={12}>
+                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <View style={{ flex: 1, paddingRight: 8 }}>
+                      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                        <Text style={{ color: colors.foreground, fontWeight: '700', fontSize: 14 }}>
+                          {tCategory(txn.category, t)}
                         </Text>
+                        {txn.cropName && (
+                          <View style={[styles.miniCropTag, { backgroundColor: colors.primary + '12' }]}>
+                            <Text style={{ fontSize: 10, fontWeight: '600', color: colors.primary }}>
+                              {t(txn.cropName) || txn.cropName}
+                            </Text>
+                          </View>
+                        )}
                       </View>
-                    )}
+                      <Text style={{ color: colors.mutedFg, fontSize: 12, marginTop: 3 }}>
+                        {fmtDMY(txn.date)} {txn.partyName ? `• ${txn.partyName}` : ''}{txn.billNumber ? ` • #${txn.billNumber}` : ''}
+                      </Text>
+                      {txn.notes ? (
+                        <Text style={{ color: colors.mutedFg, fontSize: 11, marginTop: 2 }} numberOfLines={1}>
+                          {txn.notes}
+                        </Text>
+                      ) : null}
+                    </View>
+                    <View style={{ alignItems: 'flex-end' }}>
+                      <Text
+                        style={{
+                          color: txn.type === 'income' ? '#16A34A' : colors.destructive,
+                          fontWeight: '800',
+                          fontSize: 15,
+                        }}
+                      >
+                        {txn.type === 'income' ? '+' : '-'}{fmtCurrency(txn.amount)}
+                      </Text>
+                      <Badge text={tPaymentMode(txn.paymentMode, t)} />
+                    </View>
                   </View>
-                  <Text style={{ color: colors.mutedFg, fontSize: 12, marginTop: 3 }}>
-                    {fmtDMY(txn.date)} {txn.partyName ? `• ${txn.partyName}` : ''}{txn.billNumber ? ` • #${txn.billNumber}` : ''}
-                  </Text>
-                  {txn.notes ? (
-                    <Text style={{ color: colors.mutedFg, fontSize: 11, marginTop: 2 }} numberOfLines={1}>
-                      {txn.notes}
-                    </Text>
-                  ) : null}
-                </View>
-                <View style={{ alignItems: 'flex-end' }}>
-                  <Text
-                    style={{
-                      color: txn.type === 'income' ? '#16A34A' : colors.destructive,
-                      fontWeight: '800',
-                      fontSize: 15,
-                    }}
-                  >
-                    {txn.type === 'income' ? '+' : '-'}{fmtCurrency(txn.amount)}
-                  </Text>
-                  <Badge text={tPaymentMode(txn.paymentMode, t)} />
-                </View>
+                </Card>
+              ))
+            )}
+          </View>
+        )}
+
+        {/* Income Tab — Income Transactions Only */}
+        {ledgerTab === 'income' && (
+          <View>
+            <View style={styles.txHeaderRow}>
+              <Text style={[styles.sectionLabel, { color: colors.foreground }]}>
+                {t('incomeRegister')} ({toNative(incomeTxns.length)})
+              </Text>
+            </View>
+
+            {incomeTxns.length === 0 ? (
+              <Card style={{ padding: 24, alignItems: 'center', marginTop: 4 }}>
+                <Text style={{ color: colors.mutedFg, textAlign: 'center', fontSize: 13, fontWeight: '500' }}>
+                  {t('noData')}
+                </Text>
+              </Card>
+            ) : (
+              incomeTxns.map((txn, index) => (
+                <Card key={txn.id || index} style={{ marginBottom: 8 }} padding={12}>
+                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <View style={{ flex: 1, paddingRight: 8 }}>
+                      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                        <Text style={{ color: colors.foreground, fontWeight: '700', fontSize: 14 }}>
+                          {tCategory(txn.category, t)}
+                        </Text>
+                        {txn.incomeCategory && (
+                          <Badge text={t(txn.incomeCategory)} variant="success" />
+                        )}
+                      </View>
+                      <Text style={{ color: colors.mutedFg, fontSize: 12, marginTop: 3 }}>
+                        {fmtDMY(txn.date)} {txn.partyName ? `• ${txn.partyName}` : ''}
+                      </Text>
+                    </View>
+                    <View style={{ alignItems: 'flex-end' }}>
+                      <Text style={{ color: '#16A34A', fontWeight: '800', fontSize: 15 }}>
+                        +{fmtCurrency(txn.amount)}
+                      </Text>
+                      <Badge text={tPaymentMode(txn.paymentMode, t)} />
+                    </View>
+                  </View>
+                </Card>
+              ))
+            )}
+          </View>
+        )}
+
+        {/* P&L Tab — Profit & Loss Breakdown */}
+        {ledgerTab === 'pnl' && (
+          <View>
+            {/* Net Profit Hero */}
+            <View style={[styles.pnlHeroCard, { backgroundColor: colors.card }]}>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                <Text style={{ color: colors.mutedFg, fontSize: 12, fontWeight: '700', textTransform: 'uppercase' }}>
+                  {t('netProfit')}
+                </Text>
+                <Badge
+                  text={`${pnl.netMargin >= 0 ? '+' : ''}${toNative(pnl.netMargin.toFixed(1))}% ${t('margin')}`}
+                  variant={pnl.netProfit >= 0 ? 'success' : 'destructive'}
+                />
+              </View>
+              <Text style={{ color: pnl.netProfit >= 0 ? '#16A34A' : '#DC2626', fontSize: 26, fontWeight: '900', marginTop: 6 }}>
+                {pnl.netProfit < 0 ? '-' : ''}{fmtCurrency(Math.abs(pnl.netProfit))}
+              </Text>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 10, paddingTop: 10, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.border }}>
+                <Text style={{ color: colors.mutedFg, fontSize: 13 }}>
+                  {t('revenue')}: <Text style={{ color: '#16A34A', fontWeight: '700' }}>{fmtCurrency(pnl.totalRevenue)}</Text>
+                </Text>
+                <Text style={{ color: colors.mutedFg, fontSize: 13 }}>
+                  {t('expenses')}: <Text style={{ color: '#DC2626', fontWeight: '700' }}>{fmtCurrency(pnl.directCosts + pnl.indirectCosts)}</Text>
+                </Text>
+              </View>
+            </View>
+
+            {/* Revenue Breakdown */}
+            <Card style={{ marginBottom: 10 }} padding={14}>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                <Text style={{ color: colors.primary, fontSize: 13, fontWeight: '700' }}>A. {t('totalFarmRevenue')}</Text>
+                <Text style={{ color: colors.primary, fontSize: 15, fontWeight: '800' }}>{fmtCurrency(pnl.totalRevenue)}</Text>
+              </View>
+              <View style={styles.pnlDataRow}>
+                <Text style={{ color: colors.mutedFg, fontSize: 13 }}>{t('cropSales')}</Text>
+                <Text style={{ color: colors.foreground, fontWeight: '700', fontSize: 13 }}>{fmtCurrency(pnl.cropSales)}</Text>
+              </View>
+              <View style={styles.pnlDataRow}>
+                <Text style={{ color: colors.mutedFg, fontSize: 13 }}>{t('dairyIncome')}</Text>
+                <Text style={{ color: colors.foreground, fontWeight: '700', fontSize: 13 }}>{fmtCurrency(pnl.dairyIncome)}</Text>
+              </View>
+              <View style={styles.pnlDataRow}>
+                <Text style={{ color: colors.mutedFg, fontSize: 13 }}>{t('otherSubsidies')}</Text>
+                <Text style={{ color: colors.foreground, fontWeight: '700', fontSize: 13 }}>{fmtCurrency(pnl.otherIncome)}</Text>
               </View>
             </Card>
-          ))
+
+            {/* Direct Costs */}
+            <Card style={{ marginBottom: 10 }} padding={14}>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                <Text style={{ color: colors.destructive, fontSize: 13, fontWeight: '700' }}>B. {t('directCosts')}</Text>
+                <Text style={{ color: colors.destructive, fontSize: 15, fontWeight: '800' }}>{fmtCurrency(pnl.directCosts)}</Text>
+              </View>
+              {pnl.costBreakdown.length > 0 ? (
+                pnl.costBreakdown.slice(0, 8).map(([cat, amt]) => (
+                  <View key={cat} style={styles.pnlDataRow}>
+                    <Text style={{ color: colors.mutedFg, fontSize: 13 }}>{t(cat)}</Text>
+                    <Text style={{ color: colors.foreground, fontWeight: '600', fontSize: 13 }}>{fmtCurrency(amt)}</Text>
+                  </View>
+                ))
+              ) : (
+                <Text style={{ color: colors.mutedFg, fontSize: 12, fontStyle: 'italic', paddingVertical: 4 }}>
+                  {t('noData')}
+                </Text>
+              )}
+            </Card>
+
+            {/* Gross Profit */}
+            <View style={[styles.pnlHeroCard, { backgroundColor: colors.card, marginBottom: 10 }]}>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                <View>
+                  <Text style={{ color: '#2563EB', fontSize: 13, fontWeight: '700' }}>C. {t('grossProfit')}</Text>
+                </View>
+                <View style={{ alignItems: 'flex-end' }}>
+                  <Text style={{ color: pnl.grossProfit >= 0 ? '#16A34A' : '#DC2626', fontSize: 16, fontWeight: '800' }}>
+                    {fmtCurrency(pnl.grossProfit)}
+                  </Text>
+                  <Text style={{ color: '#2563EB', fontSize: 13, fontWeight: '700' }}>
+                    {toNative(pnl.grossMargin.toFixed(1))}% {t('margin')}
+                  </Text>
+                </View>
+              </View>
+            </View>
+
+            {/* Indirect Costs */}
+            <Card style={{ marginBottom: 10 }} padding={14}>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                <Text style={{ color: '#D97706', fontSize: 13, fontWeight: '700' }}>D. {t('indirectCosts')}</Text>
+                <Text style={{ color: '#D97706', fontSize: 15, fontWeight: '800' }}>{fmtCurrency(pnl.indirectCosts)}</Text>
+              </View>
+            </Card>
+          </View>
         )}
 
         {/* Plot Specifications & Area Occupancy */}
@@ -456,34 +687,40 @@ export function PlotDashboardScreen({ route, navigation }: any) {
         />
       </ScrollView>
 
-      <MoneyInModal
-        visible={moneyInOpen}
-        onClose={() => {
-          setMoneyInOpen(false);
-          fetchTransactions();
-        }}
-        plotId={plotId}
-        cropId={selectedCropId !== 'all' ? selectedCropId : undefined}
-      />
+      {moneyInOpen && (
+        <MoneyInModal
+          visible
+          onClose={() => {
+            setMoneyInOpen(false);
+            fetchTransactions();
+          }}
+          plotId={plotId}
+          cropId={selectedCropId !== 'all' ? selectedCropId : undefined}
+        />
+      )}
 
-      <MoneyOutModal
-        visible={moneyOutOpen}
-        onClose={() => {
-          setMoneyOutOpen(false);
-          fetchTransactions();
-        }}
-        plotId={plotId}
-        cropId={selectedCropId !== 'all' ? selectedCropId : undefined}
-      />
+      {moneyOutOpen && (
+        <MoneyOutModal
+          visible
+          onClose={() => {
+            setMoneyOutOpen(false);
+            fetchTransactions();
+          }}
+          plotId={plotId}
+          cropId={selectedCropId !== 'all' ? selectedCropId : undefined}
+        />
+      )}
 
-      <AddCropModal
-        visible={addCropVisible}
-        plotId={plotId}
-        onClose={() => {
-          setAddCropVisible(false);
-          fetchCrops(plotId);
-        }}
-      />
+      {addCropVisible && (
+        <AddCropModal
+          visible
+          plotId={plotId}
+          onClose={() => {
+            setAddCropVisible(false);
+            fetchCrops(plotId);
+          }}
+        />
+      )}
     </ScreenLayout>
   );
 }
@@ -521,8 +758,12 @@ const styles = StyleSheet.create({
   selectedCropCard: { marginTop: 10, borderRadius: 12 },
   manageCropBtn: { paddingHorizontal: 10, paddingVertical: 6, borderRadius: 8, borderWidth: 1 },
 
-  txHeaderRow: { marginTop: 16, marginBottom: 8 },
+  ledgerTabBar: { flexDirection: 'row', marginTop: 16, marginBottom: 8, gap: 8 },
+  ledgerTabPill: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 9, borderRadius: 10, borderWidth: 1 },
+  txHeaderRow: { marginTop: 8, marginBottom: 8 },
   miniCropTag: { paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4 },
+  pnlHeroCard: { borderRadius: 16, padding: 16, marginBottom: 12, shadowColor: '#000', shadowOffset: { width: 0, height: 3 }, shadowOpacity: 0.1, shadowRadius: 8, elevation: 4 },
+  pnlDataRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 6, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: 'rgba(0,0,0,0.06)' },
 
   sectionTitle: { fontSize: 15, fontWeight: '700' },
   progressBar: { height: 8, borderRadius: 4, overflow: 'hidden', marginTop: 10, marginBottom: 8 },

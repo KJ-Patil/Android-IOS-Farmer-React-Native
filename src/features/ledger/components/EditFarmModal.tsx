@@ -296,12 +296,14 @@ export function EditFarmModal({ farm, onClose }: EditFarmModalProps) {
         onClose={handleMoneyInClose}
         farmId={farm.id}
         farmName={farm.name}
+        farmType={farm.type}
       />
       <MoneyOutModal
         visible={moneyOutVisible}
         onClose={handleMoneyOutClose}
         farmId={farm.id}
         farmName={farm.name}
+        farmType={farm.type}
       />
     </>
   );

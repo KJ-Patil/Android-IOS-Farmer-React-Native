@@ -86,6 +86,7 @@ export default {
 
   // Navigation
   dashboard: 'डॅशबोर्ड',
+  plot: 'प्लॉट',
   plots: 'प्लॉट',
   ledger: 'खातेवही',
   settings: 'सेटिंग्ज',
@@ -223,6 +224,8 @@ export default {
   deleteFarmConfirm: 'तुम्हाला हा फार्म हटवायचा आहे का?',
   allTransactions: 'सर्व व्यवहार',
   incomeRegister: 'उत्पन्न नोंदवही',
+  profit: 'नफा',
+  loss: 'तोटा',
   profitLoss: 'नफा व तोटा',
   reportsExport: 'अहवाल व निर्यात',
   partyLedgers: 'पार्टी खातेवही',
@@ -242,6 +245,9 @@ export default {
   credit: 'उधारी',
   cheque: 'चेक',
   partyName: 'पार्टी नाव',
+  addPartyName: 'पार्टी नाव जोडा',
+  enterPartyName: 'पार्टी नाव टाका',
+  searchOrType: 'शोधा किंवा टाइप करा...',
   billNumber: 'बिल क्रमांक',
   notes: 'टिपणी',
   dueDate: 'देय तारीख',
@@ -318,13 +324,21 @@ export default {
   marketCost: 'बाजार खर्च',
   otherAgri: 'इतर शेती',
 
-  // Expense Categories - Dairy
+  // Expense Categories - Dairy / Livestock
   fodder: 'चारा',
+  animalFeed: 'पशुखाद्य',
+  vaccination: 'लसीकरण',
   medicines: 'औषधे',
   veterinary: 'पशुवैद्यकीय',
+  animalPurchase: 'जनावर खरेदी',
+  breeding: 'प्रजनन / AI',
+  animalInsurance: 'जनावर विमा',
+  shedMaintenance: 'शेड देखभाल',
+  equipment: 'उपकरणे',
   milkCollection: 'दूध संकलन',
   dairyElectricity: 'डेअरी वीज',
   dairyLabor: 'डेअरी मजूर',
+  dairyTransport: 'डेअरी वाहतूक',
   otherDairy: 'इतर डेअरी',
 
   // Expense Categories - Personal

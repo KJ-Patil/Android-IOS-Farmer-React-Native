@@ -380,6 +380,18 @@ export function DashboardScreen({ navigation }: any) {
     return { plotStats, farmStats, dairyIncome, dairyExpense, hasDairy };
   }, [transactions, plots, farms, crops]);
 
+  const plotFinancials = useMemo(() => {
+    const result: Record<string, Record<string, { income: number; expense: number; profit: number }>> = {};
+    for (const ps of summaries.plotStats) {
+      result[ps.id] = {};
+      result[ps.id]['all'] = getSelectionFinancials(transactions, ps.id, ps.name, 'all', ps.crops);
+      for (const c of ps.crops) {
+        result[ps.id][c.id] = getSelectionFinancials(transactions, ps.id, ps.name, c.id, ps.crops);
+      }
+    }
+    return result;
+  }, [transactions, summaries.plotStats]);
+
   const formatC = (v: number) => fmtCurrency(v);
 
   const getGreeting = () => {
@@ -546,19 +558,17 @@ export function DashboardScreen({ navigation }: any) {
               {summaries.plotStats.map((ps) => {
                 const activeCropId = selectedCropByPlot[ps.id] || 'all';
                 const selectedCrop = activeCropId !== 'all' ? ps.crops.find((c) => c.id === activeCropId) : null;
-                const fin = getSelectionFinancials(transactions, ps.id, ps.name, activeCropId, ps.crops);
+                const fin = plotFinancials[ps.id]?.[activeCropId] || { income: 0, expense: 0, profit: 0 };
 
                 return (
-                  <View
+                  <TouchableOpacity
                     key={ps.id}
+                    activeOpacity={0.8}
+                    onPress={() => navigation.navigate('PlotsTab', { screen: 'PlotDashboard', params: { plotId: ps.id } })}
                     style={[styles.plotCardDetailed, { backgroundColor: colors.card, borderColor: colors.border }]}
                   >
-                    {/* Plot Card Header - Tapping navigates to Plot Dashboard */}
-                    <TouchableOpacity
-                      activeOpacity={0.7}
-                      onPress={() => navigation.navigate('PlotsTab', { screen: 'PlotDashboard', params: { plotId: ps.id } })}
-                      style={styles.plotHeaderRow}
-                    >
+                    {/* Plot Card Header */}
+                    <View style={styles.plotHeaderRow}>
                       <View style={{ flex: 1 }}>
                         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
                           <Text style={{ fontSize: 18 }}>🌱</Text>
@@ -577,7 +587,7 @@ export function DashboardScreen({ navigation }: any) {
                           {toNative(ps.area)} {t(ps.areaUnit || 'acre')} • {t(ps.soilType || 'medium')} {t('soil')}
                         </Text>
                       </View>
-                    </TouchableOpacity>
+                    </View>
 
                     {/* Crop Selection Bar (Only Farmer-Mentioned Crops) */}
                     {ps.crops.length > 0 && (
@@ -722,7 +732,7 @@ export function DashboardScreen({ navigation }: any) {
                         </Text>
                       </View>
                     )}
-                  </View>
+                  </TouchableOpacity>
                 );
               })}
 
@@ -926,10 +936,12 @@ export function DashboardScreen({ navigation }: any) {
         </View>
       </Modal>
 
-      <AddFarmModal
-        visible={addFarmVisible}
-        onClose={() => { setAddFarmVisible(false); fetchFarms(); }}
-      />
+      {addFarmVisible && (
+        <AddFarmModal
+          visible
+          onClose={() => { setAddFarmVisible(false); fetchFarms(); }}
+        />
+      )}
       {editingFarm && (
         <EditFarmModal
           farm={editingFarm}
