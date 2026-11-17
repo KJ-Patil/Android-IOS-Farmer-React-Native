@@ -197,7 +197,7 @@ const styles = StyleSheet.create({
   dropdownList: { borderWidth: 1, borderRadius: 12, marginBottom: 16, maxHeight: 220, overflow: 'hidden' },
   dropdownItem: { paddingHorizontal: 14, paddingVertical: 11, borderBottomWidth: StyleSheet.hairlineWidth },
   unitBtn: { borderWidth: 1.5, paddingHorizontal: 14, paddingVertical: 10 },
-  footer: { flexDirection: 'row', padding: 16, gap: 12, borderTopWidth: 1 },
+  footer: { flexDirection: 'row', padding: 16, paddingBottom: 34, gap: 12, borderTopWidth: 1 },
   cancelBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 14, borderRadius: 14 },
   saveBtn: { flex: 1.5, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 14, borderRadius: 14, shadowOpacity: 0.35, shadowRadius: 8, shadowOffset: { width: 0, height: 4 }, elevation: 6 },
 });

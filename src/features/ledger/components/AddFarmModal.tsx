@@ -232,7 +232,7 @@ const styles = StyleSheet.create({
     fontWeight: '800',
   },
   error: { color: '#DC2626', fontSize: 13, marginTop: 8 },
-  footer: { flexDirection: 'row', padding: 16, gap: 12, borderTopWidth: 1 },
+  footer: { flexDirection: 'row', padding: 16, paddingBottom: 34, gap: 12, borderTopWidth: 1 },
   cancelBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 14, borderRadius: 14 },
   saveBtn: { flex: 1.5, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 14, borderRadius: 14, shadowOpacity: 0.35, shadowRadius: 8, shadowOffset: { width: 0, height: 4 }, elevation: 6 },
 });
