@@ -654,6 +654,7 @@ export default {
   gstAmount: 'GST தொகை',
   items: 'பொருட்கள் பட்டியல்',
   scanAgain: 'மீண்டும் ஸ்கேன் செய்',
+  viewRawText: 'ஸ்கேன் செய்த உரையைப் பாருங்கள்',
   enterName: 'பெயரை உள்ளிடவும்',
   customLedgerPlaceholder: 'உதா. கூலி செலவுகள்',
   createNewLedgerDesc: 'புதிய தனிப்பயன் பேரேடு உருவாக்கவும்',

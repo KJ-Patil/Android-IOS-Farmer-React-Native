@@ -8,6 +8,7 @@ import { Badge } from '../../../components/ui/Badge';
 import { useLocalizedFormat } from '../../../shared/hooks/useLocalizedFormat';
 import { tCategory, tPaymentMode } from '../../../shared/utils/helpers';
 import { ArrowDownLeft, ArrowUpRight, ScanLine, BookOpen } from 'lucide-react-native';
+import { ms } from '../../../shared/utils/responsive';
 
 interface NotebookLedgerViewProps {
   onMoneyIn: () => void;
@@ -48,28 +49,39 @@ export function NotebookLedgerView({ onMoneyIn, onMoneyOut, onScanBill, onCustom
         <View style={{ paddingTop: 8 }}>
           {/* Hero Summary */}
           <Card style={{ borderRadius: 20 }} padding={16}>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
-              <Text style={{ color: colors.foreground, fontSize: 18, fontWeight: '800' }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+              <View style={[styles.headingIcon, { backgroundColor: '#FEF3C7' }]}>
+                <BookOpen color="#D97706" size={20} />
+              </View>
+              <Text style={{ color: colors.foreground, fontSize: ms(16), fontWeight: '700' }}>
                 {t('notebook')}
               </Text>
             </View>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-              <View style={{ alignItems: 'center', flex: 1 }}>
-                <Text style={{ color: colors.mutedFg, fontSize: 11 }}>{t('overallIncome')}</Text>
-                <Text style={{ color: '#16A34A', fontSize: 18, fontWeight: '800' }}>{fmt(summaries.allIncome)}</Text>
+            <View style={[styles.kpiTable, { backgroundColor: colors.card, borderColor: colors.border }]}>
+              <View style={styles.kpiCol}>
+                <Text style={[styles.kpiLabel, { color: colors.mutedFg }]}>{t('income')}</Text>
+                <Text style={[styles.kpiValue, { color: '#16A34A' }]} numberOfLines={1}>
+                  +{fmt(summaries.allIncome)}
+                </Text>
               </View>
-              <View style={{ alignItems: 'center', flex: 1 }}>
-                <Text style={{ color: colors.mutedFg, fontSize: 11 }}>{t('overallExpense')}</Text>
-                <Text style={{ color: '#DC2626', fontSize: 18, fontWeight: '800' }}>{fmt(summaries.allExpense)}</Text>
+              <View style={[styles.kpiDivider, { backgroundColor: colors.border }]} />
+              <View style={styles.kpiCol}>
+                <Text style={[styles.kpiLabel, { color: colors.mutedFg }]}>{t('expense')}</Text>
+                <Text style={[styles.kpiValue, { color: '#DC2626' }]} numberOfLines={1}>
+                  -{fmt(summaries.allExpense)}
+                </Text>
               </View>
-              <View style={{ alignItems: 'center', flex: 1 }}>
-                <Text style={{ color: colors.mutedFg, fontSize: 11 }}>{t('netBalance')}</Text>
-                <Text style={{
-                  color: summaries.allIncome - summaries.allExpense >= 0 ? '#16A34A' : '#DC2626',
-                  fontSize: 18,
-                  fontWeight: '800',
-                }}>
-                  {fmt(Math.abs(summaries.allIncome - summaries.allExpense))}
+              <View style={[styles.kpiDivider, { backgroundColor: colors.border }]} />
+              <View style={styles.kpiCol}>
+                <Text style={[styles.kpiLabel, { color: colors.mutedFg }]}>{t('netProfit')}</Text>
+                <Text
+                  style={[
+                    styles.kpiValue,
+                    { color: summaries.allIncome - summaries.allExpense >= 0 ? '#16A34A' : '#DC2626' },
+                  ]}
+                  numberOfLines={1}
+                >
+                  {summaries.allIncome - summaries.allExpense >= 0 ? '+' : ''}{fmt(summaries.allIncome - summaries.allExpense)}
                 </Text>
               </View>
             </View>
@@ -103,7 +115,7 @@ export function NotebookLedgerView({ onMoneyIn, onMoneyOut, onScanBill, onCustom
       }
       ListEmptyComponent={
         <View style={{ paddingVertical: 40, alignItems: 'center' }}>
-          <Text style={{ color: colors.mutedFg, fontSize: 13, fontWeight: '600' }}>{t('noData')}</Text>
+          <Text style={{ color: colors.mutedFg, fontSize: ms(13), fontWeight: '600' }}>{t('noData')}</Text>
         </View>
       }
       renderItem={({ item: txn }) => (
@@ -111,15 +123,15 @@ export function NotebookLedgerView({ onMoneyIn, onMoneyOut, onScanBill, onCustom
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
             <View style={{ flex: 1 }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                <Text style={{ color: colors.foreground, fontWeight: '600', fontSize: 14 }}>{tCategory(txn.category, t)}</Text>
+                <Text style={{ color: colors.foreground, fontWeight: '700', fontSize: ms(13) }}>{tCategory(txn.category, t)}</Text>
                 {txn.isAutoGenerated && <Badge text={t('autoGenerated')} variant="warning" />}
               </View>
-              <Text style={{ color: colors.mutedFg, fontSize: 12, marginTop: 2 }}>
+              <Text style={{ color: colors.mutedFg, fontSize: ms(12), marginTop: 2 }}>
                 {fmtDMY(txn.date)} {txn.partyName ? `• ${txn.partyName}` : ''}{txn.plotName ? ` • ${txn.plotName}` : ''}
               </Text>
             </View>
             <View style={{ alignItems: 'flex-end' }}>
-              <Text style={{ color: txn.type === 'income' ? colors.primary : colors.destructive, fontWeight: '700', fontSize: 15 }}>
+              <Text style={{ color: txn.type === 'income' ? colors.primary : colors.destructive, fontWeight: '700', fontSize: ms(15) }}>
                 {txn.type === 'income' ? '+' : '-'}{fmtCurrency(txn.amount)}
               </Text>
               <Badge text={tPaymentMode(txn.paymentMode, t)} />
@@ -157,16 +169,22 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   actionLabel: {
-    fontSize: 12,
+    fontSize: ms(12),
     fontWeight: '600',
     textAlign: 'center',
     marginTop: 4,
-    lineHeight: 15,
+    lineHeight: ms(16),
   },
   sectionLabel: {
-    fontSize: 14,
-    fontWeight: '800',
+    fontSize: ms(14),
+    fontWeight: '700',
     marginTop: 18,
     marginBottom: 10,
   },
+  headingIcon: { width: 36, height: 36, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
+  kpiTable: { flexDirection: 'row', marginTop: 14, borderRadius: 12, borderWidth: 1, padding: 14, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.08, shadowRadius: 6, elevation: 3 },
+  kpiCol: { flex: 1, alignItems: 'center', justifyContent: 'space-between' },
+  kpiDivider: { width: 1, alignSelf: 'stretch', marginVertical: 2 },
+  kpiLabel: { fontSize: ms(11), fontWeight: '600', textTransform: 'uppercase', letterSpacing: 0.3, textAlign: 'center' },
+  kpiValue: { fontSize: ms(16), fontWeight: '800', marginTop: 4, textAlign: 'center' },
 });

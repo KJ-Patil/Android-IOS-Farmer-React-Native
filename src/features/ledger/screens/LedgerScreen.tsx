@@ -17,6 +17,7 @@ import { NotebookLedgerView } from '../components/NotebookLedgerView';
 import { useLocalizedFormat } from '../../../shared/hooks/useLocalizedFormat';
 import { BookOpen, Wallet, TrendingUp, FileText, Users, CreditCard } from 'lucide-react-native';
 import { WaveHeader } from '../../../components/ui/WaveHeader';
+import { ms } from '../../../shared/utils/responsive';
 
 type TabKey = 'notebook' | 'income' | 'pnl' | 'reports' | 'party' | 'credit';
 
@@ -48,7 +49,7 @@ export function LedgerScreen({ navigation }: any) {
 
   useEffect(() => {
     fetchTransactions();
-  }, []);
+  }, [fetchTransactions]);
 
   const tabDefs: { key: TabKey; label: string; Icon: typeof BookOpen }[] = [
     { key: 'notebook', label: t('notebook'), Icon: BookOpen },
@@ -91,7 +92,7 @@ export function LedgerScreen({ navigation }: any) {
                 <tab.Icon size={15} color={isActive ? '#FFFFFF' : colors.mutedFg} />
                 <Text
                   style={{
-                    fontSize: 12,
+                    fontSize: ms(12),
                     fontWeight: '700',
                     color: isActive ? '#FFFFFF' : colors.mutedFg,
                     marginLeft: 5,

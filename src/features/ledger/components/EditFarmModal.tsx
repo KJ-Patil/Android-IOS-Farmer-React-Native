@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   View,
   Text,
@@ -66,17 +66,20 @@ export function EditFarmModal({ farm, onClose }: EditFarmModalProps) {
   const [moneyInVisible, setMoneyInVisible] = useState(false);
   const [moneyOutVisible, setMoneyOutVisible] = useState(false);
 
-  useEffect(() => {
-    if (farm) {
-      setName(farm.name);
-      setCount(farm.animalCount || 0);
-      setDisplayName(farm.name);
-      setDisplayCount(farm.animalCount || 0);
-      setError('');
-      setLoading(false);
-      setEditing(false);
-    }
-  }, [farm]);
+  const [prevFarmId, setPrevFarmId] = useState<string | null>(null);
+  if (farm && farm.id !== prevFarmId) {
+    setPrevFarmId(farm.id);
+    setName(farm.name);
+    setCount(farm.animalCount || 0);
+    setDisplayName(farm.name);
+    setDisplayCount(farm.animalCount || 0);
+    setError('');
+    setLoading(false);
+    setEditing(false);
+  }
+  if (!farm && prevFarmId) {
+    setPrevFarmId(null);
+  }
 
   const farmTransactions = useMemo(() => {
     if (!farm) return [];

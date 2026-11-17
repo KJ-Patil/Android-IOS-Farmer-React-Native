@@ -1,3 +1,5 @@
+import TextRecognition, { TextRecognitionScript } from '@react-native-ml-kit/text-recognition';
+
 export interface ParsedBillData {
   shopName?: string;
   billNumber?: string;
@@ -8,56 +10,165 @@ export interface ParsedBillData {
   confidence: number;
 }
 
+const DEVANAGARI_DIGIT_MAP: Record<string, string> = {
+  '०': '0', '१': '1', '२': '2', '३': '3', '४': '4',
+  '५': '5', '६': '6', '७': '7', '८': '8', '९': '9',
+};
+
+function normalizeDigits(text: string): string {
+  return text.replace(/[०-९]/g, (ch) => DEVANAGARI_DIGIT_MAP[ch] || ch);
+}
+
+function getScriptForLanguage(langCode: string): TextRecognitionScript {
+  if (langCode === 'hi' || langCode === 'mr') return TextRecognitionScript.DEVANAGARI;
+  return TextRecognitionScript.LATIN;
+}
+
+export async function recognizeText(imageUri: string, appLanguage?: string): Promise<string> {
+  const primaryScript = appLanguage ? getScriptForLanguage(appLanguage) : TextRecognitionScript.LATIN;
+
+  const primaryResult = await TextRecognition.recognize(imageUri, primaryScript);
+  let text = primaryResult.text;
+
+  // For non-Devanagari Indian languages, bills may still have Hindi text.
+  // Run a second Devanagari pass if the primary Latin pass found very little.
+  if (primaryScript === TextRecognitionScript.LATIN && text.length < 30) {
+    try {
+      const devResult = await TextRecognition.recognize(imageUri, TextRecognitionScript.DEVANAGARI);
+      if (devResult.text.length > text.length) {
+        text = devResult.text;
+      }
+    } catch {}
+  }
+
+  // For Devanagari primary, also try Latin if no numbers were found
+  if (primaryScript === TextRecognitionScript.DEVANAGARI && !/\d/.test(text)) {
+    try {
+      const latinResult = await TextRecognition.recognize(imageUri, TextRecognitionScript.LATIN);
+      if (/\d/.test(latinResult.text)) {
+        text = text + '\n' + latinResult.text;
+      }
+    } catch {}
+  }
+
+  return text;
+}
+
 export function parseBillData(rawText: string): ParsedBillData {
-  const lines = rawText.split('\n').map((l) => l.trim()).filter(Boolean);
+  const normalized = normalizeDigits(rawText);
+  const lines = normalized.split('\n').map((l) => l.trim()).filter(Boolean);
   const result: ParsedBillData = { confidence: 0 };
   let matchCount = 0;
+  const totalFields = 6;
 
-  // Shop name: usually the first substantial line
-  if (lines.length > 0) {
-    result.shopName = lines[0];
-    matchCount++;
-  }
-
-  // Bill number patterns
-  const billMatch = rawText.match(/(?:bill|invoice|receipt|no|#)\s*[.:# ]*\s*([A-Za-z0-9/-]+)/i);
-  if (billMatch) { result.billNumber = billMatch[1]; matchCount++; }
-
-  // Date patterns
-  const dateMatch = rawText.match(/(\d{1,2})[/.-](\d{1,2})[/.-](\d{2,4})/);
-  if (dateMatch) {
-    const [, d, m, y] = dateMatch;
-    const year = y.length === 2 ? `20${y}` : y;
-    result.date = `${year}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
-    matchCount++;
-  }
-
-  // Amount patterns (Rs, ₹, Total, Grand Total, Net)
-  const amountMatches = rawText.match(/(?:total|net|grand\s*total|amount|rs\.?|₹)\s*[.:]*\s*([0-9,]+\.?\d*)/gi);
-  if (amountMatches && amountMatches.length > 0) {
-    const lastMatch = amountMatches[amountMatches.length - 1];
-    const numMatch = lastMatch.match(/([0-9,]+\.?\d*)/);
-    if (numMatch) {
-      result.amount = parseFloat(numMatch[1].replace(/,/g, ''));
+  // --- Shop name ---
+  const skipPattern = /^(\d|gst|bill|invoice|receipt|date|total|rs|₹|ph|mob|tel|fax|दिनांक|बिल|कुल|रसीद)/i;
+  for (const line of lines) {
+    if (!skipPattern.test(line) && line.length >= 3 && line.length <= 60) {
+      result.shopName = line;
       matchCount++;
+      break;
     }
   }
 
-  // GST
-  const gstMatch = rawText.match(/(?:gst|tax|cgst|sgst|igst)\s*[.:]*\s*([0-9,]+\.?\d*)/i);
-  if (gstMatch) {
-    result.gstAmount = parseFloat(gstMatch[1].replace(/,/g, ''));
+  // --- Bill / Invoice number ---
+  const billPatterns = [
+    /(?:bill|invoice|receipt|memo|voucher|challan|token|बिल|रसीद|पावती)\s*(?:no|number|#|num|नं|क्र)?[\s.:# -]*([A-Za-z0-9/\-]+)/i,
+    /(?:no|#)[\s.:]*\s*([A-Za-z]{1,5}[\-/][A-Za-z0-9/\-]+)/i,
+    /\b([A-Z]{2,5}[\-/]\d{2,}[\-/]?\d*)\b/,
+  ];
+  for (const pat of billPatterns) {
+    const m = normalized.match(pat);
+    if (m) {
+      result.billNumber = m[1].trim();
+      matchCount++;
+      break;
+    }
+  }
+
+  // --- Date ---
+  const datePatterns = [
+    /(?:date|dt|dated|दिनांक|तारीख)?[\s.:]*(\d{1,2})[/.\-](\d{1,2})[/.\-](\d{2,4})/i,
+    /(\d{4})-(\d{2})-(\d{2})/,
+  ];
+  for (const pat of datePatterns) {
+    const m = normalized.match(pat);
+    if (m) {
+      if (m[1].length === 4) {
+        result.date = `${m[1]}-${m[2]}-${m[3]}`;
+      } else {
+        const year = m[3].length === 2 ? `20${m[3]}` : m[3];
+        result.date = `${year}-${m[2].padStart(2, '0')}-${m[1].padStart(2, '0')}`;
+      }
+      matchCount++;
+      break;
+    }
+  }
+
+  // --- Amount ---
+  const amountPatterns: { pattern: RegExp; priority: number }[] = [
+    { pattern: /grand\s*total[\s.:₹]*(?:rs\.?\s*)?([0-9,]+\.?\d*)/i, priority: 5 },
+    { pattern: /(?:कुल\s*(?:योग|रक्कम|रकम)|एकूण)[\s.:₹]*(?:rs\.?\s*)?([0-9,]+\.?\d*)/i, priority: 5 },
+    { pattern: /net\s*(?:amount|total|payable)[\s.:₹]*(?:rs\.?\s*)?([0-9,]+\.?\d*)/i, priority: 4 },
+    { pattern: /(?:total\s*amount|final\s*amount|amount\s*payable)[\s.:₹]*(?:rs\.?\s*)?([0-9,]+\.?\d*)/i, priority: 3 },
+    { pattern: /total[\s.:₹]*(?:rs\.?\s*)?([0-9,]+\.?\d*)/i, priority: 2 },
+    { pattern: /(?:rs\.?|₹|रु\.?)\s*([0-9,]+\.?\d*)/i, priority: 1 },
+  ];
+
+  let bestAmount = 0;
+  let bestPriority = 0;
+  for (const { pattern, priority } of amountPatterns) {
+    const globalPat = new RegExp(pattern.source, pattern.flags.includes('g') ? pattern.flags : pattern.flags + 'g');
+    let match;
+    while ((match = globalPat.exec(normalized)) !== null) {
+      const val = parseFloat(match[1].replace(/,/g, ''));
+      if (val > 0 && (priority > bestPriority || (priority === bestPriority && val > bestAmount))) {
+        bestAmount = val;
+        bestPriority = priority;
+      }
+    }
+  }
+  if (bestAmount > 0) {
+    result.amount = bestAmount;
     matchCount++;
   }
 
-  // Items description: lines that look like item entries
-  const itemLines = lines.filter((l) => /\d+\s*[xX×]\s*\d/.test(l) || /\d+\.\d{2}$/.test(l));
-  if (itemLines.length > 0) {
-    result.items = itemLines.join('; ');
+  // --- GST / Tax ---
+  let totalGst = 0;
+  let gstFound = false;
+
+  const combinedGst = normalized.match(/(?:total\s*)?(?:gst|tax|कर)\s*(?:amount)?[\s.:₹]*(?:rs\.?\s*)?([0-9,]+\.?\d*)/i);
+  if (combinedGst) {
+    totalGst = parseFloat(combinedGst[1].replace(/,/g, ''));
+    gstFound = true;
+  } else {
+    const cgstMatches = [...normalized.matchAll(/cgst\s*[\d.]*%?[\s.:₹]*(?:rs\.?\s*)?([0-9,]+\.?\d*)/gi)];
+    const sgstMatches = [...normalized.matchAll(/sgst\s*[\d.]*%?[\s.:₹]*(?:rs\.?\s*)?([0-9,]+\.?\d*)/gi)];
+    for (const m of cgstMatches) totalGst += parseFloat(m[1].replace(/,/g, ''));
+    for (const m of sgstMatches) totalGst += parseFloat(m[1].replace(/,/g, ''));
+    if (totalGst > 0) gstFound = true;
+  }
+  if (gstFound && totalGst > 0) {
+    result.gstAmount = Math.round(totalGst * 100) / 100;
     matchCount++;
   }
 
-  result.confidence = Math.min(100, Math.round((matchCount / 5) * 100));
+  // --- Items ---
+  const itemLines = lines.filter((l) => {
+    const ln = normalizeDigits(l);
+    if (/\d+\s*[xX×]\s*[\d,]+/.test(ln)) return true;
+    if (/[\d,]+\.\d{2}\s*$/.test(ln)) return true;
+    if (/\d+\s*(?:qty|nos|pcs|kg|ltr|ml|gm|bag|packet|नग|किलो|लिटर)/i.test(ln) && /[\d,]+\.?\d*\s*$/.test(ln)) return true;
+    return false;
+  });
+  const totalKeywords = /^(sub\s*total|total|grand|net|cgst|sgst|igst|gst|tax|discount|round|कुल|एकूण|सूट)/i;
+  const filteredItems = itemLines.filter((l) => !totalKeywords.test(normalizeDigits(l)));
+  if (filteredItems.length > 0) {
+    result.items = filteredItems.join('; ');
+    matchCount++;
+  }
+
+  result.confidence = Math.min(100, Math.round((matchCount / totalFields) * 100));
   return result;
 }
 
@@ -107,5 +218,19 @@ Cotton BG-II Packet    2 x 800.00      1600.00
 Total Amount: Rs. 12800.00
 Discount: 200.00
 Grand Total: Rs. 12600`,
+  },
+  {
+    name: 'कृषी सेवा केंद्र (Marathi)',
+    text: `कृषी सेवा केंद्र
+पिंपळगाव, जि. नाशिक
+बिल नं: KSK/५६७८
+दिनांक: २०/०७/२०२४
+
+युरिया ५० किलो     २ x २६७.००    ५३४.००
+DAP ५० किलो        १ x १३५०.००  १३५०.००
+
+कुल योग: रु. १८८४.००
+GST ५%:               ९४.२०
+एकूण: रु. १९७८.२०`,
   },
 ];

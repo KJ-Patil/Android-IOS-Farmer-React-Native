@@ -25,6 +25,7 @@ import {
   Download,
   Share2,
 } from 'lucide-react-native';
+import { ms } from '../../../shared/utils/responsive';
 
 type ReportKey =
   | 'ledger'
@@ -225,23 +226,29 @@ export function ReportsHubView() {
                 <View style={[styles.summaryIcon, { backgroundColor: '#DBEAFE' }]}>
                   <FileText color="#2563EB" size={20} />
                 </View>
-                <Text style={{ color: colors.foreground, fontSize: 15, fontWeight: '700' }}>
+                <Text style={{ color: colors.foreground, fontSize: ms(16), fontWeight: '700' }}>
                   {t('reportsHubTitle')}
                 </Text>
               </View>
 
-              <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 14 }}>
-                <View style={{ alignItems: 'center', flex: 1 }}>
-                  <Text style={{ color: colors.mutedFg, fontSize: 11 }}>{t('totalInflow')}</Text>
-                  <Text style={{ color: '#16A34A', fontSize: 16, fontWeight: '800' }}>{fmt(summary.totalIn)}</Text>
+              <View style={[styles.kpiTable, { backgroundColor: colors.card, borderColor: colors.border }]}>
+                <View style={styles.kpiCol}>
+                  <Text style={[styles.kpiLabel, { color: colors.mutedFg }]}>{t('totalInflow')}</Text>
+                  <Text style={[styles.kpiValue, { color: '#16A34A' }]} numberOfLines={1}>
+                    {fmt(summary.totalIn)}
+                  </Text>
                 </View>
-                <View style={{ alignItems: 'center', flex: 1 }}>
-                  <Text style={{ color: colors.mutedFg, fontSize: 11 }}>{t('totalOutflow')}</Text>
-                  <Text style={{ color: '#DC2626', fontSize: 16, fontWeight: '800' }}>{fmt(summary.totalOut)}</Text>
+                <View style={[styles.kpiDivider, { backgroundColor: colors.border }]} />
+                <View style={styles.kpiCol}>
+                  <Text style={[styles.kpiLabel, { color: colors.mutedFg }]}>{t('totalOutflow')}</Text>
+                  <Text style={[styles.kpiValue, { color: '#DC2626' }]} numberOfLines={1}>
+                    {fmt(summary.totalOut)}
+                  </Text>
                 </View>
-                <View style={{ alignItems: 'center', flex: 1 }}>
-                  <Text style={{ color: colors.mutedFg, fontSize: 11 }}>{t('netBalance')}</Text>
-                  <Text style={{ color: summary.net >= 0 ? '#16A34A' : '#DC2626', fontSize: 16, fontWeight: '800' }}>
+                <View style={[styles.kpiDivider, { backgroundColor: colors.border }]} />
+                <View style={styles.kpiCol}>
+                  <Text style={[styles.kpiLabel, { color: colors.mutedFg }]}>{t('netBalance')}</Text>
+                  <Text style={[styles.kpiValue, { color: summary.net >= 0 ? '#16A34A' : '#DC2626' }]} numberOfLines={1}>
                     {summary.net < 0 ? '-' : ''}{fmt(Math.abs(summary.net))}
                   </Text>
                 </View>
@@ -277,7 +284,7 @@ export function ReportsHubView() {
                     style={{
                       color: selectedReport === tab.key ? colors.primary : colors.mutedFg,
                       fontWeight: '700',
-                      fontSize: 12,
+                      fontSize: ms(12),
                     }}
                   >
                     {t(tab.labelKey)}
@@ -296,7 +303,7 @@ export function ReportsHubView() {
               </View>
             </View>
 
-            <Text style={{ color: colors.foreground, fontSize: 13, fontWeight: '700', marginBottom: 6 }}>
+            <Text style={{ color: colors.foreground, fontSize: ms(14), fontWeight: '700', marginBottom: 6 }}>
               {t('reportRecordsPreview')} ({toNative(filteredData.length)})
             </Text>
           </View>
@@ -304,7 +311,7 @@ export function ReportsHubView() {
         ListEmptyComponent={
           <View style={{ paddingVertical: 40, alignItems: 'center' }}>
             <FileText color={colors.mutedFg} size={36} />
-            <Text style={{ color: colors.mutedFg, marginTop: 10, fontSize: 13, fontWeight: '600' }}>
+            <Text style={{ color: colors.mutedFg, marginTop: 10, fontSize: ms(13), fontWeight: '600' }}>
               {t('noRecordsFound')}
             </Text>
           </View>
@@ -314,7 +321,7 @@ export function ReportsHubView() {
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
               <View style={{ flex: 1 }}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
-                  <Text style={{ color: colors.foreground, fontWeight: '700', fontSize: 13 }}>
+                  <Text style={{ color: colors.foreground, fontWeight: '700', fontSize: ms(13) }}>
                     {tCategory(tx.category, t)}
                   </Text>
                   <Badge
@@ -323,7 +330,7 @@ export function ReportsHubView() {
                   />
                   {tx.billNumber && <Badge text={`#${tx.billNumber}`} variant="default" />}
                 </View>
-                <Text style={{ color: colors.mutedFg, fontSize: 13, marginTop: 2 }}>
+                <Text style={{ color: colors.mutedFg, fontSize: ms(12), marginTop: 2 }}>
                   {fmtDMY(tx.date)}
                   {tx.partyName ? ` • ${tx.partyName}` : ''}
                   {tx.cropName ? ` • ${t(tx.cropName)}` : ''}
@@ -333,8 +340,8 @@ export function ReportsHubView() {
               <Text
                 style={{
                   color: tx.type === 'income' ? colors.primary : colors.destructive,
-                  fontWeight: '800',
-                  fontSize: 14,
+                  fontWeight: '700',
+                  fontSize: ms(15),
                   marginLeft: 10,
                 }}
               >
@@ -353,5 +360,10 @@ const styles = StyleSheet.create({
   reportTab: { paddingHorizontal: 14, paddingVertical: 8, borderWidth: 1, borderRadius: 10, marginRight: 8 },
   actionRow: { flexDirection: 'row', gap: 10 },
   exportBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingVertical: 10, borderRadius: 10 },
-  exportBtnText: { color: '#FFFFFF', fontSize: 13, fontWeight: '700' },
+  exportBtnText: { color: '#FFFFFF', fontSize: ms(13), fontWeight: '700' },
+  kpiTable: { flexDirection: 'row', marginBottom: 14, borderRadius: 12, borderWidth: 1, padding: 14, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.08, shadowRadius: 6, elevation: 3 },
+  kpiCol: { flex: 1, alignItems: 'center', justifyContent: 'space-between' },
+  kpiDivider: { width: 1, alignSelf: 'stretch', marginVertical: 2 },
+  kpiLabel: { fontSize: ms(11), fontWeight: '600', textTransform: 'uppercase', letterSpacing: 0.3, textAlign: 'center' },
+  kpiValue: { fontSize: ms(16), fontWeight: '800', marginTop: 4, textAlign: 'center' },
 });

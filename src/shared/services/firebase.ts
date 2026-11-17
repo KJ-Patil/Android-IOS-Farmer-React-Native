@@ -1,4 +1,5 @@
 import { initializeApp, FirebaseApp } from 'firebase/app';
+// eslint-disable-next-line import/no-duplicates
 import { initializeAuth, getAuth, Auth } from 'firebase/auth';
 // @ts-expect-error -- RN entry point exports this; TS resolves browser types
 // eslint-disable-next-line import/no-duplicates

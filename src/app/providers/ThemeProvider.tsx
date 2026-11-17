@@ -21,7 +21,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     initializeTheme();
-  }, []);
+  }, [initializeTheme]);
 
   const isDark = useMemo(() => {
     if (theme === 'system') return systemScheme === 'dark';

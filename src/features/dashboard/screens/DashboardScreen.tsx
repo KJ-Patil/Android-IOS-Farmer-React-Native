@@ -291,7 +291,7 @@ export function DashboardScreen({ navigation }: any) {
       loadSavedLocations();
       fetchTemperature();
     });
-  }, []);
+  }, [fetchTransactions, fetchPlots, fetchFarms, loadSavedLocations, fetchTemperature]);
 
   useEffect(() => {
     if (plots.length > 0) {

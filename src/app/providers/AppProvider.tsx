@@ -29,7 +29,7 @@ function AppContent() {
       unsubAuth();
       unsubNetwork();
     };
-  }, []);
+  }, [initAuth, initNetwork]);
 
   const navigationTheme = {
     dark: isDark,

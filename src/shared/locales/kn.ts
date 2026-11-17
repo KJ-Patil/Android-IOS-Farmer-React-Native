@@ -654,6 +654,7 @@ export default {
   gstAmount: 'GST ಮೊತ್ತ',
   items: 'ವಸ್ತುಗಳ ಪಟ್ಟಿ',
   scanAgain: 'ಮತ್ತೆ ಸ್ಕ್ಯಾನ್ ಮಾಡಿ',
+  viewRawText: 'ಸ್ಕ್ಯಾನ್ ಮಾಡಿದ ಪಠ್ಯ ನೋಡಿ',
   enterName: 'ಹೆಸರು ನಮೂದಿಸಿ',
   customLedgerPlaceholder: 'ಉದಾ. ಕೂಲಿ ಖರ್ಚು',
   createNewLedgerDesc: 'ಹೊಸ ಕಸ್ಟಮ್ ಲೆಡ್ಜರ್ ರಚಿಸಿ',

@@ -654,6 +654,7 @@ export default {
   gstAmount: 'GST మొత్తం',
   items: 'వస్తువుల జాబితా',
   scanAgain: 'మళ్ళీ స్కాన్ చేయండి',
+  viewRawText: 'స్కాన్ చేసిన టెక్స్ట్ చూడండి',
   enterName: 'పేరు నమోదు చేయండి',
   customLedgerPlaceholder: 'ఉదా. కూలీల చెల్లింపులు',
   createNewLedgerDesc: 'కొత్త కస్టమ్ లెడ్జర్ సృష్టించండి',

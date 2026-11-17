@@ -56,7 +56,7 @@ export function PlotDashboardScreen({ route, navigation }: any) {
       fetchTransactions();
     });
     return () => cancelAnimationFrame(id);
-  }, [plotId]);
+  }, [plotId, fetchCrops, fetchTransactions]);
 
   const selectedCrop = selectedCropId !== 'all'
     ? plotCrops.find((c) => c.id === selectedCropId) || null
@@ -168,26 +168,29 @@ export function PlotDashboardScreen({ route, navigation }: any) {
   return (
     <ScreenLayout>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 40 }}>
-        {/* Top Header with Back button */}
+        {/* Back button */}
         <View style={styles.topBar}>
           <TouchableOpacity
             onPress={() => navigation.goBack()}
             style={[styles.backBtn, { borderColor: colors.border, backgroundColor: colors.card }]}
             activeOpacity={0.8}
           >
-            <ArrowLeft color={colors.foreground} size={18} />
+            <ArrowLeft color={colors.foreground} size={16} />
+            <Text style={[styles.backBtnText, { color: colors.foreground }]}>{t('back')}</Text>
           </TouchableOpacity>
-          <View style={{ flex: 1, marginLeft: 12 }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-              <Text style={[styles.title, { color: colors.foreground }]}>{plot.name}</Text>
-              <View style={[styles.gatBadge, { backgroundColor: colors.primary + '15', borderColor: colors.primary + '30' }]}>
-                <Text style={[styles.gatText, { color: colors.primary }]}>{t('gatNumber')} #{toNative(plot.gatNumber)}</Text>
-              </View>
+        </View>
+
+        {/* Plot Info */}
+        <View style={styles.plotInfoSection}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+            <Text style={[styles.title, { color: colors.foreground }]}>{plot.name}</Text>
+            <View style={[styles.gatBadge, { backgroundColor: colors.primary + '15', borderColor: colors.primary + '30' }]}>
+              <Text style={[styles.gatText, { color: colors.primary }]}>{t('gatNumber')} #{toNative(plot.gatNumber)}</Text>
             </View>
-            <Text style={[styles.subtitle, { color: colors.mutedFg }]}>
-              {toNative(plot.area)} {t(plot.areaUnit || 'acre')} • {t(plot.soilType)} {t('soil')}
-            </Text>
           </View>
+          <Text style={[styles.subtitle, { color: colors.mutedFg }]}>
+            {toNative(plot.area)} {t(plot.areaUnit || 'acre')} • {t(plot.soilType)} {t('soil')}
+          </Text>
         </View>
 
         {/* Plot / Crop Financial KPI Card */}
@@ -726,8 +729,10 @@ export function PlotDashboardScreen({ route, navigation }: any) {
 }
 
 const styles = StyleSheet.create({
-  topBar: { flexDirection: 'row', alignItems: 'center', marginTop: 12, marginBottom: 12 },
-  backBtn: { width: 36, height: 36, borderRadius: 10, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
+  topBar: { flexDirection: 'row', alignItems: 'center', marginTop: 12, marginBottom: 8 },
+  plotInfoSection: { marginBottom: 12, paddingHorizontal: 2 },
+  backBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 10, borderWidth: 1 },
+  backBtnText: { fontSize: 14, fontWeight: '600' },
   title: { fontSize: 20, fontWeight: '700' },
   subtitle: { fontSize: 13, marginTop: 2 },
   gatBadge: { paddingHorizontal: 8, paddingVertical: 2, borderRadius: 6, borderWidth: 1 },

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, TouchableOpacity, Text, StyleSheet, Platform, Animated } from 'react-native';
 import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -12,7 +12,7 @@ const TAB_COLORS: Record<string, { active: string; bg: string }> = {
 };
 
 function TabItem({ route, isFocused, options, onPress, onLongPress, isDark, colors }: any) {
-  const anim = useRef(new Animated.Value(isFocused ? 1 : 0)).current;
+  const [anim] = useState(() => new Animated.Value(isFocused ? 1 : 0));
   const tabColor = TAB_COLORS[route.name] || TAB_COLORS.SettingsTab;
 
   useEffect(() => {
@@ -22,7 +22,7 @@ function TabItem({ route, isFocused, options, onPress, onLongPress, isDark, colo
       tension: 60,
       friction: 8,
     }).start();
-  }, [isFocused]);
+  }, [isFocused, anim]);
 
   const label =
     typeof options.tabBarLabel === 'string'

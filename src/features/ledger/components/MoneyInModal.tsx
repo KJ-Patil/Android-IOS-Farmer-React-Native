@@ -11,8 +11,10 @@ import { DatePickerInput } from '../../../components/ui/DatePickerInput';
 import { useLocalizedFormat } from '../../../shared/hooks/useLocalizedFormat';
 import { ArrowLeft, ChevronDown, Search, Plus, X } from 'lucide-react-native';
 import type { IncomeCategory, PaymentMode } from '../../../shared/types/ledger';
+import { getFarmIncomeCategories } from '../../../shared/config/farmCategories';
 
 const STORAGE_KEY_PARTY_NAMES = '@farmer_party_names';
+const STORAGE_KEY_CUSTOM_INCOME_CATS = '@farmer_custom_income_categories';
 
 interface MoneyInModalProps {
   visible: boolean;
@@ -47,21 +49,16 @@ export function MoneyInModal({ visible, onClose, plotId, cropId, farmId, farmNam
   const [notes, setNotes] = useState('');
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
 
+  // Custom income categories
+  const [customIncomeCategories, setCustomIncomeCategories] = useState<string[]>([]);
+  const [addCustomIncomeCatOpen, setAddCustomIncomeCatOpen] = useState(false);
+  const [newCustomIncomeCatName, setNewCustomIncomeCatName] = useState('');
+
   // Party name
   const [savedPartyNames, setSavedPartyNames] = useState<string[]>([]);
   const [partyDropdownOpen, setPartyDropdownOpen] = useState(false);
   const [addPartyModalOpen, setAddPartyModalOpen] = useState(false);
   const [newPartyName, setNewPartyName] = useState('');
-
-  const loadSavedPartyNames = async () => {
-    try {
-      const raw = await AsyncStorage.getItem(STORAGE_KEY_PARTY_NAMES);
-      if (raw) {
-        const parsed = JSON.parse(raw);
-        if (Array.isArray(parsed)) setSavedPartyNames(parsed);
-      }
-    } catch {}
-  };
 
   const addPartyNameToStorage = async (name: string) => {
     const trimmed = name.trim();
@@ -70,6 +67,26 @@ export function MoneyInModal({ visible, onClose, plotId, cropId, farmId, farmNam
     setSavedPartyNames(updated);
     try {
       await AsyncStorage.setItem(STORAGE_KEY_PARTY_NAMES, JSON.stringify(updated));
+    } catch {}
+  };
+
+  const handleAddCustomIncomeCat = async () => {
+    const trimmed = newCustomIncomeCatName.trim();
+    if (!trimmed) {
+      Alert.alert(t('error'), t('enterName') || 'Please enter category name');
+      return;
+    }
+    if (customIncomeCategories.some((c) => c.toLowerCase() === trimmed.toLowerCase())) {
+      Alert.alert(t('error'), 'This category already exists');
+      return;
+    }
+    const updated = [trimmed, ...customIncomeCategories];
+    setCustomIncomeCategories(updated);
+    setDairyProduct(trimmed);
+    setNewCustomIncomeCatName('');
+    setAddCustomIncomeCatOpen(false);
+    try {
+      await AsyncStorage.setItem(STORAGE_KEY_CUSTOM_INCOME_CATS, JSON.stringify(updated));
     } catch {}
   };
 
@@ -90,16 +107,38 @@ export function MoneyInModal({ visible, onClose, plotId, cropId, farmId, farmNam
   const [selectedPlotId, setSelectedPlotId] = useState(plotId || '');
   const [selectedCropId, setSelectedCropId] = useState(cropId || '');
 
-  useEffect(() => {
-    if (visible) {
-      loadSavedPartyNames();
-      if (plotId) setSelectedPlotId(plotId);
-      if (cropId) {
-        setSelectedCropId(cropId);
-        setCategory('crop_sale');
-      }
+  const [prevVisible, setPrevVisible] = useState(false);
+  if (visible && !prevVisible) {
+    setPrevVisible(true);
+    if (plotId) setSelectedPlotId(plotId);
+    if (cropId) {
+      setSelectedCropId(cropId);
+      setCategory('crop_sale');
     }
-  }, [visible, plotId, cropId]);
+  }
+  if (!visible && prevVisible) {
+    setPrevVisible(false);
+  }
+
+  useEffect(() => {
+    if (!visible) return;
+    AsyncStorage.getItem(STORAGE_KEY_CUSTOM_INCOME_CATS)
+      .then((raw) => {
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (Array.isArray(parsed)) setCustomIncomeCategories(parsed);
+        }
+      })
+      .catch(() => {});
+    AsyncStorage.getItem(STORAGE_KEY_PARTY_NAMES)
+      .then((raw) => {
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (Array.isArray(parsed)) setSavedPartyNames(parsed);
+        }
+      })
+      .catch(() => {});
+  }, [visible]);
 
   const [buyerName, setBuyerName] = useState('');
   const [quantity, setQuantity] = useState('');
@@ -188,10 +227,11 @@ export function MoneyInModal({ visible, onClose, plotId, cropId, farmId, farmNam
         if (!dairyProduct || dairyTotal <= 0) {
           Alert.alert(t('error'), t('fillDairyIncomeDetails')); setLoading(false); return;
         }
+        const isFarmIncome = farmType && farmType !== 'dairy';
         await postIncomeTransaction({
           incomeCategory: 'dairy',
           ledgerType: 'dairy',
-          category: 'dairyIncome',
+          category: isFarmIncome ? dairyProduct : 'dairyIncome',
           amount: dairyTotal,
           date, paymentMode, partyName, billNumber, notes,
           ...(farmId ? { farmId } : {}),
@@ -265,9 +305,10 @@ export function MoneyInModal({ visible, onClose, plotId, cropId, farmId, farmNam
     </View>
   );
 
+  const farmIncomeLabel = farmType && farmType !== 'dairy' ? `${t(farmType)} ${t('farmIncome')}` : t('dairyIncome');
   const allCategories: { key: IncomeCategory; label: string; color: string }[] = [
     { key: 'crop_sale', label: t('cropSale'), color: colors.primary },
-    { key: 'dairy', label: t('dairyIncome'), color: colors.info },
+    { key: 'dairy', label: farmIncomeLabel, color: colors.info },
     { key: 'loan', label: t('loanReceived'), color: colors.warning },
     { key: 'other', label: t('otherIncome'), color: '#8B5CF6' },
   ];
@@ -380,8 +421,23 @@ export function MoneyInModal({ visible, onClose, plotId, cropId, farmId, farmNam
 
               {category === 'dairy' && (
                 <>
-                  <Text style={[styles.sectionTitle, { color: colors.foreground }]}>{t('dairyIncome')}</Text>
-                  {renderChips(DAIRY_PRODUCTS, dairyProduct, setDairyProduct)}
+                  <View style={styles.incomeCatHeaderRow}>
+                    <Text style={[styles.sectionTitle, { color: colors.foreground, marginBottom: 0 }]}>
+                      {farmType && farmType !== 'dairy' ? t('farmIncome') : t('dairyIncome')}
+                    </Text>
+                    <TouchableOpacity
+                      onPress={() => setAddCustomIncomeCatOpen(true)}
+                      activeOpacity={0.75}
+                      style={styles.addIncomeCatBtn}
+                    >
+                      <Plus size={16} color="#FFFFFF" strokeWidth={2.5} />
+                      <Text style={styles.addIncomeCatBtnText}>{t('add')}</Text>
+                    </TouchableOpacity>
+                  </View>
+                  {farmType && farmType !== 'dairy'
+                    ? renderChips([...customIncomeCategories, ...getFarmIncomeCategories(farmType)], dairyProduct, setDairyProduct)
+                    : renderChips([...customIncomeCategories, ...DAIRY_PRODUCTS], dairyProduct, setDairyProduct)
+                  }
                   <Input label={t('quantity')} value={dairyQty} onChangeText={(v) => setDairyQty(v.replace(/[^0-9.]/g, ''))} keyboardType="decimal-pad" />
                   <Input label={t('unit')} value={dairyUnit} onChangeText={setDairyUnit} />
                   <Input label={t('rate')} value={dairyRate} onChangeText={(v) => setDairyRate(v.replace(/[^0-9.]/g, ''))} keyboardType="decimal-pad" />
@@ -540,6 +596,55 @@ export function MoneyInModal({ visible, onClose, plotId, cropId, farmId, farmNam
             </TouchableOpacity>
           )}
         </View>
+        {/* Add Custom Income Category Dialog */}
+        <Modal
+          visible={addCustomIncomeCatOpen}
+          animationType="fade"
+          transparent
+          onRequestClose={() => setAddCustomIncomeCatOpen(false)}
+        >
+          <View style={styles.customCatBackdrop}>
+            <View style={[styles.customCatCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+              <View style={styles.customCatHeader}>
+                <Text style={[styles.customCatTitle, { color: colors.foreground }]}>
+                  🏷️ {t('addCustomCategory')}
+                </Text>
+                <TouchableOpacity onPress={() => setAddCustomIncomeCatOpen(false)}>
+                  <X size={18} color={colors.mutedFg} />
+                </TouchableOpacity>
+              </View>
+
+              <TextInput
+                style={[
+                  styles.customCatInput,
+                  { color: colors.foreground, backgroundColor: colors.background, borderColor: colors.border },
+                ]}
+                placeholder={t('enterName') || 'Enter category name'}
+                placeholderTextColor={colors.mutedFg}
+                value={newCustomIncomeCatName}
+                onChangeText={setNewCustomIncomeCatName}
+                autoFocus
+                returnKeyType="done"
+                onSubmitEditing={handleAddCustomIncomeCat}
+              />
+
+              <View style={styles.customCatActions}>
+                <TouchableOpacity
+                  onPress={() => { setNewCustomIncomeCatName(''); setAddCustomIncomeCatOpen(false); }}
+                  style={[styles.customCatActionBtn, { backgroundColor: colors.destructive }]}
+                >
+                  <Text style={{ color: '#FFFFFF', fontWeight: '600' }}>{t('cancel')}</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={handleAddCustomIncomeCat}
+                  style={[styles.customCatActionBtn, { backgroundColor: '#16A34A' }]}
+                >
+                  <Text style={{ color: '#FFFFFF', fontWeight: '800' }}>+ {t('add')}</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </Modal>
       </View>
     </Modal>
   );
@@ -568,4 +673,14 @@ const styles = StyleSheet.create({
   addPartyCard: { width: '100%', maxWidth: 380, borderRadius: 20, padding: 20, borderWidth: 1, shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.15, shadowRadius: 10, elevation: 8 },
   addPartyInput: { borderWidth: 1, borderRadius: 12, paddingHorizontal: 14, paddingVertical: 12, fontSize: 16, minHeight: 48 },
   addPartyActionBtn: { flex: 1, alignItems: 'center', paddingVertical: 12, borderRadius: 12 },
+  incomeCatHeaderRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
+  addIncomeCatBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: '#16A34A', paddingHorizontal: 12, paddingVertical: 7, borderRadius: 8 },
+  addIncomeCatBtnText: { color: '#FFFFFF', fontWeight: '700', fontSize: 13 },
+  customCatBackdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center', padding: 20 },
+  customCatCard: { width: '100%', maxWidth: 380, borderRadius: 20, padding: 20, borderWidth: 1, shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.15, shadowRadius: 10, elevation: 8 },
+  customCatHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 },
+  customCatTitle: { fontSize: 16, fontWeight: '700' },
+  customCatInput: { borderWidth: 1, borderRadius: 12, paddingHorizontal: 14, paddingVertical: 12, fontSize: 16, minHeight: 48, marginBottom: 14 },
+  customCatActions: { flexDirection: 'row', gap: 10 },
+  customCatActionBtn: { flex: 1, alignItems: 'center', paddingVertical: 12, borderRadius: 12 },
 });

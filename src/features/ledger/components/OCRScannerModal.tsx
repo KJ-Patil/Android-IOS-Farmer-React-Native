@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, ScrollView, Modal, TouchableOpacity, Alert, Act
 import * as ImagePicker from 'expo-image-picker';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../../app/providers/ThemeProvider';
-import { parseBillData, SAMPLE_BILLS, ParsedBillData } from '../../../shared/services/ocrService';
+import { recognizeText, parseBillData, SAMPLE_BILLS, ParsedBillData } from '../../../shared/services/ocrService';
 import { Input } from '../../../components/ui/Input';
 import { Button } from '../../../components/ui/Button';
 import { Card } from '../../../components/ui/Card';
@@ -17,49 +17,61 @@ interface OCRScannerModalProps {
 }
 
 export function OCRScannerModal({ visible, onClose, onApply }: OCRScannerModalProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { colors } = useTheme();
   const [scanning, setScanning] = useState(false);
   const [result, setResult] = useState<ParsedBillData | null>(null);
   const [editedResult, setEditedResult] = useState<ParsedBillData | null>(null);
+  const [rawText, setRawText] = useState('');
 
   const handleCamera = async () => {
     const permission = await ImagePicker.requestCameraPermissionsAsync();
     if (!permission.granted) { Alert.alert(t('permissionNeeded'), t('cameraAccessRequired')); return; }
-    const pic = await ImagePicker.launchCameraAsync({ quality: 0.8 });
+    const pic = await ImagePicker.launchCameraAsync({
+      quality: 1,
+      allowsEditing: false,
+      exif: false,
+    });
     if (!pic.canceled && pic.assets[0]) {
       processImage(pic.assets[0].uri);
     }
   };
 
   const handleGallery = async () => {
-    const pic = await ImagePicker.launchImageLibraryAsync({ quality: 0.8 });
+    const pic = await ImagePicker.launchImageLibraryAsync({
+      quality: 1,
+      allowsEditing: false,
+      exif: false,
+    });
     if (!pic.canceled && pic.assets[0]) {
       processImage(pic.assets[0].uri);
     }
   };
 
-  const processImage = async (_uri: string) => {
+  const processImage = async (uri: string) => {
     setScanning(true);
-    // In production, use ML Kit text recognition here.
-    // For now, simulate OCR processing delay.
-    setTimeout(() => {
-      const simulated = SAMPLE_BILLS[0].text;
-      const parsed = parseBillData(simulated);
+    try {
+      const text = await recognizeText(uri, i18n.language);
+      setRawText(text);
+      const parsed = parseBillData(text);
       setResult(parsed);
       setEditedResult({ ...parsed });
+    } catch (err: any) {
+      Alert.alert(t('error'), err.message || 'OCR failed');
+    } finally {
       setScanning(false);
-    }, 1500);
+    }
   };
 
   const handleDemoBill = (text: string) => {
     setScanning(true);
     setTimeout(() => {
+      setRawText(text);
       const parsed = parseBillData(text);
       setResult(parsed);
       setEditedResult({ ...parsed });
       setScanning(false);
-    }, 500);
+    }, 300);
   };
 
   const handleApply = () => {
@@ -79,7 +91,7 @@ export function OCRScannerModal({ visible, onClose, onApply }: OCRScannerModalPr
         <View style={[styles.header, { backgroundColor: colors.card, borderBottomColor: colors.border }]}>
           <View style={{ width: 40 }} />
           <View style={{ alignItems: 'center', flex: 1 }}>
-            <Text style={[styles.title, { color: colors.foreground }]}>📷 {t('scanBill')}</Text>
+            <Text style={[styles.title, { color: colors.foreground }]}>{t('scanBill')}</Text>
           </View>
           <View style={{ width: 40 }} />
         </View>
@@ -99,9 +111,9 @@ export function OCRScannerModal({ visible, onClose, onApply }: OCRScannerModalPr
                   <Text style={{ fontSize: 28 }}>📷</Text>
                   <Text style={{ color: colors.primary, fontWeight: '600', marginTop: 8 }}>{t('camera')}</Text>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={handleGallery} style={[styles.actionCard, { backgroundColor: colors.info + '15', borderRadius: colors.radius }]}>
+                <TouchableOpacity onPress={handleGallery} style={[styles.actionCard, { backgroundColor: '#3B82F6' + '15', borderRadius: colors.radius }]}>
                   <Text style={{ fontSize: 28 }}>🖼️</Text>
-                  <Text style={{ color: colors.info, fontWeight: '600', marginTop: 8 }}>{t('gallery')}</Text>
+                  <Text style={{ color: '#3B82F6', fontWeight: '600', marginTop: 8 }}>{t('gallery')}</Text>
                 </TouchableOpacity>
               </View>
 
@@ -134,8 +146,19 @@ export function OCRScannerModal({ visible, onClose, onApply }: OCRScannerModalPr
               <Input label={t('gstAmount')} value={editedResult.gstAmount?.toString() || ''} onChangeText={(v) => updateField('gstAmount', parseFloat(v) || 0)} keyboardType="decimal-pad" />
               <Input label={t('items')} value={editedResult.items || ''} onChangeText={(v) => updateField('items', v)} multiline />
 
+              {rawText.length > 0 && (
+                <TouchableOpacity
+                  onPress={() => Alert.alert('Raw OCR Text', rawText)}
+                  style={{ marginTop: 8, marginBottom: 4 }}
+                >
+                  <Text style={{ color: colors.primary, fontSize: 12, fontWeight: '600' }}>
+                    {t('viewRawText') || 'View raw scanned text'}
+                  </Text>
+                </TouchableOpacity>
+              )}
+
               <View style={{ flexDirection: 'row', gap: 10, marginTop: 12 }}>
-                <Button title={t('scanAgain')} onPress={() => { setResult(null); setEditedResult(null); }} variant="outline" style={{ flex: 1 }} />
+                <Button title={t('scanAgain')} onPress={() => { setResult(null); setEditedResult(null); setRawText(''); }} variant="outline" style={{ flex: 1 }} />
               </View>
             </>
           )}
@@ -143,11 +166,11 @@ export function OCRScannerModal({ visible, onClose, onApply }: OCRScannerModalPr
 
         <View style={[styles.footer, { backgroundColor: colors.card, borderTopColor: colors.border }]}>
           <TouchableOpacity onPress={onClose} activeOpacity={0.7} style={[styles.cancelBtn, { backgroundColor: colors.destructive }]}>
-            <Text style={{ color: '#FFFFFF', fontWeight: '700', fontSize: 15 }}>✕ {t('cancel')}</Text>
+            <Text style={{ color: '#FFFFFF', fontWeight: '700', fontSize: 15 }}>{t('cancel')}</Text>
           </TouchableOpacity>
           {result && editedResult && (
             <TouchableOpacity onPress={handleApply} activeOpacity={0.7} style={[styles.saveBtn, { backgroundColor: '#16A34A', shadowColor: '#16A34A' }]}>
-              <Text style={{ color: '#FFFFFF', fontWeight: '800', fontSize: 16 }}>✓ {t('applyToEntry')}</Text>
+              <Text style={{ color: '#FFFFFF', fontWeight: '800', fontSize: 16 }}>{t('applyToEntry')}</Text>
             </TouchableOpacity>
           )}
         </View>

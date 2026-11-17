@@ -128,7 +128,7 @@ export function SearchableDropdown({
                     style={[styles.item, { borderBottomColor: colors.border }]}
                   >
                     <Text style={{ color: colors.primary, fontWeight: '600', fontSize: 15 }}>
-                      {t('use')} "{search.trim()}"
+                      {t('use')} {'"'}{search.trim()}{'"'}
                     </Text>
                   </TouchableOpacity>
                 ) : undefined

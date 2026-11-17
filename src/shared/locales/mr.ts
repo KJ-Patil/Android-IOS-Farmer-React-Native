@@ -620,6 +620,7 @@ export default {
   gstAmount: 'जीएसटी रक्कम',
   items: 'वस्तूंची यादी',
   scanAgain: 'पुन्हा स्कॅन करा',
+  viewRawText: 'स्कॅन केलेला मजकूर पहा',
   enterName: 'नाव टाका',
   customLedgerPlaceholder: 'उदा. मजुरी खर्च',
   createNewLedgerDesc: 'नवीन कस्टम खातेवही तयार करा',

@@ -654,6 +654,7 @@ export default {
   gstAmount: 'GST ରାଶି',
   items: 'ଜିନିଷ ତାଲିକା',
   scanAgain: 'ପୁଣି ସ୍କାନ୍ କରନ୍ତୁ',
+  viewRawText: 'ସ୍କାନ୍ ହୋଇଥିବା ଲେଖା ଦେଖନ୍ତୁ',
   enterName: 'ନାମ ଦିଅନ୍ତୁ',
   customLedgerPlaceholder: 'ଯଥା: ଶ୍ରମିକ ଖର୍ଚ୍ଚ',
   createNewLedgerDesc: 'ଏକ ନୂଆ କଷ୍ଟମ ଖାତା ତିଆରି କରନ୍ତୁ',

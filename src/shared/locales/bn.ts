@@ -600,6 +600,7 @@ export default {
   gstAmount: 'GST পরিমাণ',
   items: 'জিনিসের তালিকা',
   scanAgain: 'আবার স্ক্যান করুন',
+  viewRawText: 'স্ক্যান করা লেখা দেখুন',
   enterName: 'নাম লিখুন',
   customLedgerPlaceholder: 'যেমন শ্রমিক খরচ',
   createNewLedgerDesc: 'একটি নতুন কাস্টম খাতা তৈরি করুন',

@@ -20,7 +20,7 @@ export function PlotListScreen({ navigation }: any) {
 
   useEffect(() => {
     fetchPlots();
-  }, []);
+  }, [fetchPlots]);
 
   return (
     <ScreenLayout noPadding noTopInset>

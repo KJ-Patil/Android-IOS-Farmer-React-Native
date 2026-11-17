@@ -654,6 +654,7 @@ export default {
   gstAmount: 'GST ਰਕਮ',
   items: 'ਚੀਜ਼ਾਂ ਦੀ ਸੂਚੀ',
   scanAgain: 'ਦੁਬਾਰਾ ਸਕੈਨ ਕਰੋ',
+  viewRawText: 'ਸਕੈਨ ਕੀਤਾ ਟੈਕਸਟ ਵੇਖੋ',
   enterName: 'ਨਾਮ ਦਰਜ ਕਰੋ',
   customLedgerPlaceholder: 'ਉਦਾ. ਮਜ਼ਦੂਰੀ ਖਰਚਾ',
   createNewLedgerDesc: 'ਨਵੀਂ ਕਸਟਮ ਖਾਤਾ ਬਹੀ ਬਣਾਓ',

@@ -20,6 +20,7 @@ import { Card } from '../../../components/ui/Card';
 import { DatePickerInput } from '../../../components/ui/DatePickerInput';
 import type { PaymentMode, LedgerType } from '../../../shared/types/ledger';
 import { ArrowLeft, ChevronDown, Search, Plus, X, Check, Trash2 } from 'lucide-react-native';
+import { getFarmExpenseCategories, FARM_CATEGORY_EMOJIS } from '../../../shared/config/farmCategories';
 
 interface MoneyOutModalProps {
   visible: boolean;
@@ -189,7 +190,8 @@ export function MoneyOutModal({ visible, onClose, initialData, plotId, cropId, f
           setSection(farmType ? 'dairy' : 'agriculture');
         } else if (farmType) {
           setSection('dairy');
-          setSelectedCategory('fodder');
+          const farmCats = getFarmExpenseCategories(farmType);
+          setSelectedCategory(farmCats[0] || 'fodder');
         }
       });
     }
@@ -199,7 +201,8 @@ export function MoneyOutModal({ visible, onClose, initialData, plotId, cropId, f
   const plotCrops = selectedPlotId ? (crops[selectedPlotId] || []) : [];
   const selectedCrop = plotCrops.find((c) => c.id === selectedCropId);
 
-  const categoryList = section === 'agriculture' ? AGRI_CATEGORIES : section === 'dairy' ? DAIRY_CATEGORIES : PERSONAL_CATEGORIES;
+  const farmExpenseCategories = farmType ? getFarmExpenseCategories(farmType) : DAIRY_CATEGORIES;
+  const categoryList = section === 'agriculture' ? AGRI_CATEGORIES : section === 'dairy' ? farmExpenseCategories : PERSONAL_CATEGORIES;
   const ledgerType: LedgerType = section === 'agriculture' ? 'agriculture' : section === 'dairy' ? 'dairy' : 'personal';
 
   const fullCategoryList = useMemo(() => {
@@ -356,7 +359,7 @@ export function MoneyOutModal({ visible, onClose, initialData, plotId, cropId, f
                 >
                   <Plus size={16} color="#FFFFFF" strokeWidth={2.5} />
                   <Text style={styles.addCategoryHeaderBtnText}>
-                    + {t('add')}
+                    {t('add')}
                   </Text>
                 </TouchableOpacity>
               </View>
@@ -375,7 +378,7 @@ export function MoneyOutModal({ visible, onClose, initialData, plotId, cropId, f
               >
                 <View style={styles.dropdownLeft}>
                   <Text style={{ fontSize: 22 }}>
-                    {CATEGORY_EMOJIS[selectedCategory] || '🏷️'}
+                    {CATEGORY_EMOJIS[selectedCategory] || FARM_CATEGORY_EMOJIS[selectedCategory] || '🏷️'}
                   </Text>
                   <View style={{ flex: 1, marginLeft: 10 }}>
                     <Text style={[styles.dropdownSelectedText, { color: colors.foreground }]} numberOfLines={1}>
@@ -628,7 +631,7 @@ export function MoneyOutModal({ visible, onClose, initialData, plotId, cropId, f
                   style={[styles.addCustomInlineBtn, { backgroundColor: colors.primary }]}
                 >
                   <Plus size={16} color="#FFFFFF" />
-                  <Text style={styles.addCustomInlineBtnText}>+ {t('add')}</Text>
+                  <Text style={styles.addCustomInlineBtnText}>{t('add')}</Text>
                 </TouchableOpacity>
               </View>
 
@@ -659,7 +662,7 @@ export function MoneyOutModal({ visible, onClose, initialData, plotId, cropId, f
                       ]}
                     >
                       <Text style={{ fontSize: 20, marginRight: 12 }}>
-                        {CATEGORY_EMOJIS[item] || '🏷️'}
+                        {CATEGORY_EMOJIS[item] || FARM_CATEGORY_EMOJIS[item] || '🏷️'}
                       </Text>
                       <View style={{ flex: 1 }}>
                         <Text
