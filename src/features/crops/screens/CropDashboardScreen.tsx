@@ -14,6 +14,7 @@ import { MoneyInModal } from '../../ledger/components/MoneyInModal';
 import { MoneyOutModal } from '../../ledger/components/MoneyOutModal';
 import { ArrowLeft } from 'lucide-react-native';
 import { useLocalizedFormat } from '../../../shared/hooks/useLocalizedFormat';
+import { fontSizes } from '../../../shared/utils/typography';
 
 const STATUS_ORDER = ['sown', 'vegetative', 'flowering', 'harvested'] as const;
 
@@ -121,7 +122,7 @@ export function CropDashboardScreen({ route, navigation }: any) {
           </TouchableOpacity>
           <View style={{ flex: 1, marginLeft: 12 }}>
             <Text style={[styles.title, { color: colors.foreground }]}>{t(crop.cropType)}</Text>
-            <Text style={{ color: colors.mutedFg, fontSize: 12 }}>
+            <Text style={{ color: colors.mutedFg, fontSize: fontSizes.sm }}>
               {crop.variety} • {toNative(crop.area)} {crop.areaUnit ? t(crop.areaUnit) : t('acre')}
             </Text>
           </View>
@@ -315,18 +316,18 @@ export function CropDashboardScreen({ route, navigation }: any) {
 const styles = StyleSheet.create({
   topBar: { flexDirection: 'row', alignItems: 'center', marginTop: 12, marginBottom: 12 },
   backBtn: { width: 36, height: 36, borderRadius: 10, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
-  title: { fontSize: 20, fontWeight: '700' },
+  title: { fontSize: fontSizes.lg, fontWeight: '700' },
   banner: { padding: 12, borderRadius: 10, marginTop: 10 },
-  sectionTitle: { fontSize: 15, fontWeight: '700' },
+  sectionTitle: { fontSize: fontSizes.base, fontWeight: '700' },
   finGrid: { flexDirection: 'row', gap: 8 },
   finItem: { flex: 1, alignItems: 'center' },
   finCard: { borderRadius: 24, padding: 12, shadowColor: '#000', shadowOffset: { width: 0, height: 3 }, shadowOpacity: 0.12, shadowRadius: 8, elevation: 4 },
-  finLabel: { fontSize: 13, fontWeight: '600', textTransform: 'uppercase', letterSpacing: 0.3 },
-  finValue: { fontSize: 18, fontWeight: '800', marginTop: 4, letterSpacing: -0.5 },
+  finLabel: { fontSize: fontSizes.sm, fontWeight: '600', textTransform: 'uppercase', letterSpacing: 0.3 },
+  finValue: { fontSize: fontSizes.lg, fontWeight: '800', marginTop: 4, letterSpacing: -0.5 },
   detailRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 8, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: 'rgba(0,0,0,0.06)' },
   statusTimeline: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 6 },
   statusItem: { flex: 1, alignItems: 'center', position: 'relative' },
   statusDot: { width: 20, height: 20, borderRadius: 10, zIndex: 2 },
-  statusLabel: { fontSize: 12, marginTop: 4, textTransform: 'capitalize' },
+  statusLabel: { fontSize: fontSizes.sm, marginTop: 4, textTransform: 'capitalize' },
   statusLine: { position: 'absolute', top: 10, left: '50%', right: '-50%', height: 2, zIndex: 1 },
 });

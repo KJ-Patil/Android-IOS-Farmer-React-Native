@@ -12,6 +12,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../app/providers/ThemeProvider';
 import { ChevronDown, Search } from 'lucide-react-native';
+import { fontSizes } from '../../shared/utils/typography';
 
 interface SearchableDropdownProps {
   label: string;
@@ -81,7 +82,7 @@ export function SearchableDropdown({
           ]}
         >
           <Text
-            style={{ flex: 1, color: value ? colors.foreground : colors.mutedFg, fontSize: 15 }}
+            style={{ flex: 1, color: value ? colors.foreground : colors.mutedFg, fontSize: fontSizes.base }}
             numberOfLines={1}
           >
             {value || placeholder || label}
@@ -127,7 +128,7 @@ export function SearchableDropdown({
                     onPress={() => handleSelect(search.trim())}
                     style={[styles.item, { borderBottomColor: colors.border }]}
                   >
-                    <Text style={{ color: colors.primary, fontWeight: '600', fontSize: 15 }}>
+                    <Text style={{ color: colors.primary, fontWeight: '600', fontSize: fontSizes.base }}>
                       {t('use')} {'"'}{search.trim()}{'"'}
                     </Text>
                   </TouchableOpacity>
@@ -142,7 +143,7 @@ export function SearchableDropdown({
                     style={{
                       color: item === value ? colors.primary : colors.foreground,
                       fontWeight: item === value ? '700' : '400',
-                      fontSize: 15,
+                      fontSize: fontSizes.base,
                     }}
                   >
                     {item}
@@ -152,7 +153,7 @@ export function SearchableDropdown({
               ListEmptyComponent={
                 !showCustom ? (
                   <View style={styles.empty}>
-                    <Text style={{ color: colors.mutedFg, fontSize: 14, textAlign: 'center' }}>
+                    <Text style={{ color: colors.mutedFg, fontSize: fontSizes.base, textAlign: 'center' }}>
                       {options.length === 0 && !search
                         ? allowCustom
                           ? t('typeToSearch')
@@ -168,7 +169,7 @@ export function SearchableDropdown({
               onPress={() => setVisible(false)}
               style={[styles.cancelBtn, { borderColor: colors.border, borderRadius: colors.radius }]}
             >
-              <Text style={{ color: colors.foreground, fontWeight: '600', fontSize: 15, textAlign: 'center' }}>
+              <Text style={{ color: colors.foreground, fontWeight: '600', fontSize: fontSizes.base, textAlign: 'center' }}>
                 {t('cancel')}
               </Text>
             </TouchableOpacity>
@@ -180,7 +181,7 @@ export function SearchableDropdown({
 }
 
 const styles = StyleSheet.create({
-  label: { fontSize: 14, fontWeight: '500', marginBottom: 6 },
+  label: { fontSize: fontSizes.base, fontWeight: '500', marginBottom: 6 },
   trigger: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -190,7 +191,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     minHeight: 48,
   },
-  error: { fontSize: 12, marginTop: 4 },
+  error: { fontSize: fontSizes.sm, marginTop: 4 },
   overlay: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.5)',
@@ -210,7 +211,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.15,
     shadowRadius: 8,
   },
-  title: { fontSize: 17, fontWeight: '700', marginBottom: 14 },
+  title: { fontSize: fontSizes.md, fontWeight: '700', marginBottom: 14 },
   searchRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -220,7 +221,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     gap: 8,
   },
-  searchInput: { flex: 1, fontSize: 15, paddingVertical: 10 },
+  searchInput: { flex: 1, fontSize: fontSizes.base, paddingVertical: 10 },
   list: { flexGrow: 0, maxHeight: 280 },
   item: { paddingVertical: 13, paddingHorizontal: 4, borderBottomWidth: StyleSheet.hairlineWidth },
   empty: { paddingVertical: 32, alignItems: 'center' },

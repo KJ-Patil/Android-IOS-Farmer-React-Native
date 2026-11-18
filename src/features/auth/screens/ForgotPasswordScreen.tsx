@@ -5,6 +5,7 @@ import { useTheme } from '../../../app/providers/ThemeProvider';
 import { Input } from '../../../components/ui/Input';
 import { Button } from '../../../components/ui/Button';
 import { Card } from '../../../components/ui/Card';
+import { fontSizes } from '../../../shared/utils/typography';
 
 export function ForgotPasswordScreen({ navigation }: any) {
   const { t } = useTranslation();
@@ -62,6 +63,6 @@ export function ForgotPasswordScreen({ navigation }: any) {
 const styles = StyleSheet.create({
   container: { flex: 1 },
   scroll: { flexGrow: 1, padding: 24, paddingTop: 60 },
-  title: { fontSize: 24, fontWeight: '700' },
-  subtitle: { fontSize: 14, marginTop: 4 },
+  title: { fontSize: fontSizes.xl, fontWeight: '700' },
+  subtitle: { fontSize: fontSizes.base, marginTop: 4 },
 });

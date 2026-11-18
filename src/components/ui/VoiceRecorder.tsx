@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text } from 'react-native';
 import { useTheme } from '../../app/providers/ThemeProvider';
+import { fontSizes } from '../../shared/utils/typography';
 import { useTranslation } from 'react-i18next';
 
 interface VoiceRecorderProps {
@@ -13,7 +14,7 @@ export function VoiceRecorder({ onRecordingComplete: _ }: VoiceRecorderProps) {
 
   return (
     <View style={{ alignItems: 'center' }}>
-      <Text style={{ color: colors.mutedFg, fontSize: 12 }}>
+      <Text style={{ color: colors.mutedFg, fontSize: fontSizes.sm }}>
         {t('voiceNote')} (coming soon)
       </Text>
     </View>

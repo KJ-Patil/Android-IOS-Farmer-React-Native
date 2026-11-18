@@ -198,7 +198,6 @@ export default {
   custom: 'ఇతరం',
 
   // Ledger
-  notebook: 'నోట్‌బుక్',
   overallIncome: 'మొత్తం ఆదాయం',
   overallExpense: 'మొత్తం ఖర్చు',
   dairyFarming: 'డెయిరీ ఫార్మింగ్',
@@ -224,7 +223,6 @@ export default {
   allTransactions: 'అన్ని లావాదేవీలు',
   incomeRegister: 'ఆదాయ రిజిస్టర్',
   profitLoss: 'లాభ నష్టాలు',
-  reportsExport: 'నివేదికలు మరియు ఎగుమతి',
   partyLedgers: 'పార్టీ ఖాతా పుస్తకం',
   creditDues: 'అప్పు మరియు బకాయిలు',
   income: 'ఆదాయం',

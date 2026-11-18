@@ -35,7 +35,7 @@ import {
   X,
   IndianRupee,
 } from 'lucide-react-native';
-import { ms } from '../../../shared/utils/responsive';
+import { fontSizes } from '../../../shared/utils/typography';
 
 interface IncomeRegisterViewProps {
   onOpenMoneyInModal?: () => void;
@@ -198,7 +198,7 @@ export function IncomeRegisterView({ onOpenMoneyInModal }: IncomeRegisterViewPro
                     <View style={[styles.summaryIcon, { backgroundColor: '#DCFCE7' }]}>
                       <IndianRupee color="#16A34A" size={20} />
                     </View>
-                    <Text style={{ color: colors.foreground, fontSize: ms(16), fontWeight: '700' }}>
+                    <Text style={{ color: colors.foreground, fontSize: fontSizes.md, fontWeight: '700' }}>
                       {t('incomeRegisterTitle')}
                     </Text>
                   </View>
@@ -210,7 +210,7 @@ export function IncomeRegisterView({ onOpenMoneyInModal }: IncomeRegisterViewPro
                     style={styles.addButton}
                     activeOpacity={0.8}
                   >
-                    <Text style={{ color: '#FFFFFF', fontWeight: '800', fontSize: ms(14) }}>+ {t('add')}</Text>
+                    <Text style={{ color: '#FFFFFF', fontWeight: '800', fontSize: fontSizes.base }}>+ {t('add')}</Text>
                   </TouchableOpacity>
                 )}
               </View>
@@ -252,7 +252,7 @@ export function IncomeRegisterView({ onOpenMoneyInModal }: IncomeRegisterViewPro
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
                     <Clock color={colors.warning} size={16} />
-                    <Text style={{ color: colors.foreground, fontWeight: '700', fontSize: ms(13) }}>
+                    <Text style={{ color: colors.foreground, fontWeight: '700', fontSize: fontSizes.sm }}>
                       {t('activeLoansAndEmi')}
                     </Text>
                   </View>
@@ -273,19 +273,19 @@ export function IncomeRegisterView({ onOpenMoneyInModal }: IncomeRegisterViewPro
                     >
                       <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                         <View style={{ flex: 1 }}>
-                          <Text style={{ color: colors.foreground, fontWeight: '700', fontSize: ms(13) }}>
+                          <Text style={{ color: colors.foreground, fontWeight: '700', fontSize: fontSizes.sm }}>
                             {loan.partyName || tCategory(loan.category, t)}
                           </Text>
-                          <Text style={{ color: colors.mutedFg, fontSize: ms(12), marginTop: 2 }}>
+                          <Text style={{ color: colors.mutedFg, fontSize: fontSizes.sm, marginTop: 2 }}>
                             {loan.loanDetails?.loanType || t('bankLoan')}
                             {loan.loanDetails?.interestRate ? ` • ${toNative(loan.loanDetails.interestRate)}%` : ''}
                           </Text>
                         </View>
                         <View style={{ alignItems: 'flex-end' }}>
-                          <Text style={{ color: colors.mutedFg, fontSize: ms(12) }}>
+                          <Text style={{ color: colors.mutedFg, fontSize: fontSizes.sm }}>
                             {t('outstanding')}
                           </Text>
-                          <Text style={{ color: colors.destructive, fontWeight: '700', fontSize: ms(14) }}>
+                          <Text style={{ color: colors.destructive, fontWeight: '700', fontSize: fontSizes.base }}>
                             {fmt(pending)}
                           </Text>
                         </View>
@@ -304,7 +304,7 @@ export function IncomeRegisterView({ onOpenMoneyInModal }: IncomeRegisterViewPro
                       >
                         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
                           <Calendar color={colors.mutedFg} size={12} />
-                          <Text style={{ color: isOverdue ? colors.destructive : colors.mutedFg, fontSize: ms(12), fontWeight: '600' }}>
+                          <Text style={{ color: isOverdue ? colors.destructive : colors.mutedFg, fontSize: fontSizes.sm, fontWeight: '600' }}>
                             {fmtDMY(loan.dueDate || loan.loanDetails?.firstInstallmentDate) || '—'}
                           </Text>
                         </View>
@@ -366,7 +366,7 @@ export function IncomeRegisterView({ onOpenMoneyInModal }: IncomeRegisterViewPro
                       style={{
                         color: filterCategory === cat.key ? colors.primary : colors.mutedFg,
                         fontWeight: '700',
-                        fontSize: ms(12),
+                        fontSize: fontSizes.sm,
                       }}
                     >
                       {cat.label}
@@ -380,7 +380,7 @@ export function IncomeRegisterView({ onOpenMoneyInModal }: IncomeRegisterViewPro
         ListEmptyComponent={
           <View style={{ paddingVertical: 40, alignItems: 'center' }}>
             <TrendingUp color={colors.mutedFg} size={36} />
-            <Text style={{ color: colors.mutedFg, textAlign: 'center', marginTop: 10, fontSize: ms(13), fontWeight: '600' }}>
+            <Text style={{ color: colors.mutedFg, textAlign: 'center', marginTop: 10, fontSize: fontSizes.sm, fontWeight: '600' }}>
               {t('noIncomeFound')}
             </Text>
           </View>
@@ -406,7 +406,7 @@ export function IncomeRegisterView({ onOpenMoneyInModal }: IncomeRegisterViewPro
 
                 <View style={{ flex: 1, marginLeft: 10 }}>
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
-                    <Text style={{ color: colors.foreground, fontSize: ms(13), fontWeight: '700' }}>
+                    <Text style={{ color: colors.foreground, fontSize: fontSizes.sm, fontWeight: '700' }}>
                       {tx.cropName ? `${t(tx.cropName)} ${t('sale')}` : tCategory(tx.category, t)}
                     </Text>
                     <Badge
@@ -417,30 +417,30 @@ export function IncomeRegisterView({ onOpenMoneyInModal }: IncomeRegisterViewPro
                   </View>
 
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 4, flexWrap: 'wrap' }}>
-                    <Text style={{ color: colors.mutedFg, fontSize: ms(12) }}>{fmtDMY(tx.date)}</Text>
+                    <Text style={{ color: colors.mutedFg, fontSize: fontSizes.sm }}>{fmtDMY(tx.date)}</Text>
                     {tx.partyName && (
-                      <Text style={{ color: colors.foreground, fontSize: ms(12), fontWeight: '600' }}>
+                      <Text style={{ color: colors.foreground, fontSize: fontSizes.sm, fontWeight: '600' }}>
                         • {tx.partyName}
                       </Text>
                     )}
                     {tx.plotName && (
-                      <Text style={{ color: colors.primary, fontSize: ms(12) }}>• {tx.plotName}</Text>
+                      <Text style={{ color: colors.primary, fontSize: fontSizes.sm }}>• {tx.plotName}</Text>
                     )}
                   </View>
 
                   {tx.notes && (
-                    <Text style={{ color: colors.mutedFg, fontSize: ms(12), fontStyle: 'italic', marginTop: 2 }}>
+                    <Text style={{ color: colors.mutedFg, fontSize: fontSizes.sm, fontStyle: 'italic', marginTop: 2 }}>
                       {tx.notes}
                     </Text>
                   )}
                 </View>
 
                 <View style={{ alignItems: 'flex-end', marginLeft: 8 }}>
-                  <Text style={{ color: colors.primary, fontSize: ms(15), fontWeight: '700' }}>
+                  <Text style={{ color: colors.primary, fontSize: fontSizes.base, fontWeight: '700' }}>
                     +{fmt(tx.amount)}
                   </Text>
                   {hasDeductions && (
-                    <Text style={{ color: colors.mutedFg, fontSize: ms(10) }}>
+                    <Text style={{ color: colors.mutedFg, fontSize: fontSizes.xs }}>
                       {t('gross')}: {fmt(gross)}
                     </Text>
                   )}
@@ -472,7 +472,7 @@ export function IncomeRegisterView({ onOpenMoneyInModal }: IncomeRegisterViewPro
             </View>
 
             <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 40 }} keyboardShouldPersistTaps="handled">
-              <Text style={{ color: colors.mutedFg, fontSize: ms(12), marginBottom: 12 }}>
+              <Text style={{ color: colors.mutedFg, fontSize: fontSizes.sm, marginBottom: 12 }}>
                 {selectedLoanTx.partyName || tCategory(selectedLoanTx.category, t)} •{' '}
                 {t('outstanding')}:{' '}
                 <Text style={{ fontWeight: '700', color: colors.destructive }}>
@@ -514,7 +514,7 @@ export function IncomeRegisterView({ onOpenMoneyInModal }: IncomeRegisterViewPro
                       style={{
                         color: emiMode === mode ? colors.primary : colors.foreground,
                         fontWeight: '700',
-                        fontSize: ms(12),
+                        fontSize: fontSizes.sm,
                       }}
                     >
                       {t(mode)}
@@ -533,10 +533,10 @@ export function IncomeRegisterView({ onOpenMoneyInModal }: IncomeRegisterViewPro
 
             <View style={[styles.unifiedFooter, { backgroundColor: colors.card, borderTopColor: colors.border }]}>
               <TouchableOpacity onPress={() => setSelectedLoanTx(null)} activeOpacity={0.7} style={[styles.unifiedCancelBtn, { borderColor: colors.destructive }]}>
-                <Text style={{ color: colors.destructive, fontWeight: '700', fontSize: ms(15) }}>✕ {t('cancel')}</Text>
+                <Text style={{ color: colors.destructive, fontWeight: '700', fontSize: fontSizes.base }}>✕ {t('cancel')}</Text>
               </TouchableOpacity>
               <TouchableOpacity onPress={handleEmiSubmit} activeOpacity={0.7} disabled={emiLoading} style={[styles.unifiedSaveBtn, { backgroundColor: colors.primary, shadowColor: colors.primary, opacity: emiLoading ? 0.6 : 1 }]}>
-                <Text style={{ color: '#FFFFFF', fontWeight: '800', fontSize: ms(16) }}>{emiLoading ? '...' : `✓ ${t('submitPayment')}`}</Text>
+                <Text style={{ color: '#FFFFFF', fontWeight: '800', fontSize: fontSizes.md }}>{emiLoading ? '...' : `✓ ${t('submitPayment')}`}</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -551,26 +551,26 @@ const styles = StyleSheet.create({
   addButton: { paddingHorizontal: 18, height: 44, borderRadius: 14, backgroundColor: '#16A34A', alignItems: 'center', justifyContent: 'center', elevation: 4, shadowColor: '#16A34A', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8 },
   loanItemCard: { padding: 10, borderRadius: 12, borderWidth: 1, marginTop: 8 },
   searchBox: { flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderRadius: 12, paddingHorizontal: 10, height: 40 },
-  searchInput: { flex: 1, marginLeft: 8, fontSize: ms(13), height: '100%' },
+  searchInput: { flex: 1, marginLeft: 8, fontSize: fontSizes.sm, height: '100%' },
   filterChip: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20, borderWidth: 1, marginRight: 8 },
   txnRow: { flexDirection: 'row', alignItems: 'center' },
   iconCircle: { width: 38, height: 38, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
-  txnTitle: { fontSize: ms(13), fontWeight: '700' },
+  txnTitle: { fontSize: fontSizes.sm, fontWeight: '700' },
   modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'center', padding: 20 },
   modalCard: { borderRadius: 16, borderWidth: 1, padding: 18 },
   modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 },
-  modalTitle: { fontSize: 16, fontWeight: '700' },
-  inputLabel: { fontSize: ms(12), fontWeight: '600', marginBottom: 6, marginTop: 4 },
+  modalTitle: { fontSize: fontSizes.md, fontWeight: '700' },
+  inputLabel: { fontSize: fontSizes.sm, fontWeight: '600', marginBottom: 6, marginTop: 4 },
   modeRow: { flexDirection: 'row', gap: 8, marginBottom: 12 },
   modeChip: { flex: 1, paddingVertical: 8, borderRadius: 10, borderWidth: 1, alignItems: 'center' },
   unifiedHeader: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, paddingTop: 14, paddingBottom: 10, borderBottomWidth: 1 },
-  unifiedTitle: { fontSize: ms(18), fontWeight: '800' },
+  unifiedTitle: { fontSize: fontSizes.lg, fontWeight: '800' },
   unifiedFooter: { flexDirection: 'row', padding: 16, paddingBottom: 34, gap: 12, borderTopWidth: 1 },
   unifiedCancelBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 14, borderRadius: 14, borderWidth: 1.5 },
   unifiedSaveBtn: { flex: 1.5, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 14, borderRadius: 14, shadowOpacity: 0.35, shadowRadius: 8, shadowOffset: { width: 0, height: 4 }, elevation: 6 },
   kpiTable: { flexDirection: 'row', marginTop: 14, borderRadius: 12, borderWidth: 1, padding: 14, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.08, shadowRadius: 6, elevation: 3 },
   kpiCol: { flex: 1, alignItems: 'center', justifyContent: 'space-between' },
   kpiDivider: { width: 1, alignSelf: 'stretch', marginVertical: 2 },
-  kpiLabel: { fontSize: ms(11), fontWeight: '600', textTransform: 'uppercase', letterSpacing: 0.3, textAlign: 'center' },
-  kpiValue: { fontSize: ms(16), fontWeight: '800', marginTop: 4, textAlign: 'center' },
+  kpiLabel: { fontSize: fontSizes.xs, fontWeight: '600', textTransform: 'uppercase', letterSpacing: 0.3, textAlign: 'center' },
+  kpiValue: { fontSize: fontSizes.md, fontWeight: '800', marginTop: 4, textAlign: 'center' },
 });

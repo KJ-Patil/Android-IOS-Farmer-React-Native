@@ -14,7 +14,7 @@ import { Card } from '../../../components/ui/Card';
 import { Badge } from '../../../components/ui/Badge';
 import { useLocalizedFormat } from '../../../shared/hooks/useLocalizedFormat';
 import { TrendingUp } from 'lucide-react-native';
-import { ms } from '../../../shared/utils/responsive';
+import { fontSizes } from '../../../shared/utils/typography';
 
 const DIRECT_COST_CATEGORIES = [
   'seeds',
@@ -221,7 +221,7 @@ export function ProfitLossView() {
               style={{
                 color: period === p.key ? colors.primary : colors.foreground,
                 fontWeight: '700',
-                fontSize: ms(12),
+                fontSize: fontSizes.sm,
               }}
             >
               {p.label}
@@ -243,7 +243,7 @@ export function ProfitLossView() {
               },
             ]}
           >
-            <Text style={{ color: selectedPlotId === 'all' ? '#FFF' : colors.foreground, fontSize: ms(12), fontWeight: '700' }}>
+            <Text style={{ color: selectedPlotId === 'all' ? '#FFF' : colors.foreground, fontSize: fontSizes.sm, fontWeight: '700' }}>
               {t('allPlots')}
             </Text>
           </TouchableOpacity>
@@ -259,7 +259,7 @@ export function ProfitLossView() {
                 },
               ]}
             >
-              <Text style={{ color: selectedPlotId === pl.id ? '#FFF' : colors.foreground, fontSize: ms(12), fontWeight: '700' }}>
+              <Text style={{ color: selectedPlotId === pl.id ? '#FFF' : colors.foreground, fontSize: fontSizes.sm, fontWeight: '700' }}>
                 {pl.name} (Gat #{toNative(pl.gatNumber)})
               </Text>
             </TouchableOpacity>
@@ -280,7 +280,7 @@ export function ProfitLossView() {
               },
             ]}
           >
-            <Text style={{ color: selectedCropId === 'all' ? '#FFF' : colors.foreground, fontSize: ms(12), fontWeight: '700' }}>
+            <Text style={{ color: selectedCropId === 'all' ? '#FFF' : colors.foreground, fontSize: fontSizes.sm, fontWeight: '700' }}>
               {t('allCrops')}
             </Text>
           </TouchableOpacity>
@@ -296,7 +296,7 @@ export function ProfitLossView() {
                 },
               ]}
             >
-              <Text style={{ color: selectedCropId === cr.id ? '#FFF' : colors.foreground, fontSize: ms(12), fontWeight: '700' }}>
+              <Text style={{ color: selectedCropId === cr.id ? '#FFF' : colors.foreground, fontSize: fontSizes.sm, fontWeight: '700' }}>
                 {cr.name}
               </Text>
             </TouchableOpacity>
@@ -311,7 +311,7 @@ export function ProfitLossView() {
             <View style={[styles.headingIcon, { backgroundColor: '#F3E8FF' }]}>
               <TrendingUp color="#7C3AED" size={20} />
             </View>
-            <Text style={{ color: colors.foreground, fontSize: ms(16), fontWeight: '700' }}>
+            <Text style={{ color: colors.foreground, fontSize: fontSizes.md, fontWeight: '700' }}>
               {t('profitLoss')}
             </Text>
           </View>
@@ -351,34 +351,34 @@ export function ProfitLossView() {
           <Text style={[styles.sectionHeading, { color: colors.primary }]}>
             A. {t('totalFarmRevenue')}
           </Text>
-          <Text style={{ color: colors.primary, fontSize: ms(15), fontWeight: '700' }}>
+          <Text style={{ color: colors.primary, fontSize: fontSizes.base, fontWeight: '700' }}>
             {fmt(pnl.totalRevenue)}
           </Text>
         </View>
 
         <View style={styles.dataRow}>
-          <Text style={{ color: colors.mutedFg, fontSize: ms(13) }}>
+          <Text style={{ color: colors.mutedFg, fontSize: fontSizes.sm }}>
             {t('cropSales')}
           </Text>
-          <Text style={{ color: colors.foreground, fontWeight: '700', fontSize: ms(13) }}>
+          <Text style={{ color: colors.foreground, fontWeight: '700', fontSize: fontSizes.sm }}>
             {fmt(pnl.cropSales)}
           </Text>
         </View>
 
         <View style={styles.dataRow}>
-          <Text style={{ color: colors.mutedFg, fontSize: ms(13) }}>
+          <Text style={{ color: colors.mutedFg, fontSize: fontSizes.sm }}>
             {t('dairyIncome')}
           </Text>
-          <Text style={{ color: colors.foreground, fontWeight: '700', fontSize: ms(13) }}>
+          <Text style={{ color: colors.foreground, fontWeight: '700', fontSize: fontSizes.sm }}>
             {fmt(pnl.dairyIncome)}
           </Text>
         </View>
 
         <View style={styles.dataRow}>
-          <Text style={{ color: colors.mutedFg, fontSize: ms(13) }}>
+          <Text style={{ color: colors.mutedFg, fontSize: fontSizes.sm }}>
             {t('otherSubsidies')}
           </Text>
-          <Text style={{ color: colors.foreground, fontWeight: '700', fontSize: ms(13) }}>
+          <Text style={{ color: colors.foreground, fontWeight: '700', fontSize: fontSizes.sm }}>
             {fmt(pnl.otherIncome)}
           </Text>
         </View>
@@ -390,7 +390,7 @@ export function ProfitLossView() {
           <Text style={[styles.sectionHeading, { color: colors.destructive }]}>
             B. {t('directCosts')}
           </Text>
-          <Text style={{ color: colors.destructive, fontSize: ms(15), fontWeight: '700' }}>
+          <Text style={{ color: colors.destructive, fontSize: fontSizes.base, fontWeight: '700' }}>
             {fmt(pnl.directCosts)}
           </Text>
         </View>
@@ -398,14 +398,14 @@ export function ProfitLossView() {
         {pnl.costBreakdown.length > 0 ? (
           pnl.costBreakdown.slice(0, 8).map(([cat, amt]) => (
             <View key={cat} style={styles.dataRow}>
-              <Text style={{ color: colors.mutedFg, fontSize: ms(13) }}>{t(cat)}</Text>
-              <Text style={{ color: colors.foreground, fontWeight: '700', fontSize: ms(13) }}>
+              <Text style={{ color: colors.mutedFg, fontSize: fontSizes.sm }}>{t(cat)}</Text>
+              <Text style={{ color: colors.foreground, fontWeight: '700', fontSize: fontSizes.sm }}>
                 {fmt(amt)}
               </Text>
             </View>
           ))
         ) : (
-          <Text style={{ color: colors.mutedFg, fontSize: ms(12), fontStyle: 'italic', paddingVertical: 4 }}>
+          <Text style={{ color: colors.mutedFg, fontSize: fontSizes.sm, fontStyle: 'italic', paddingVertical: 4 }}>
             {t('noDirectExpenseEntries')}
           </Text>
         )}
@@ -427,10 +427,10 @@ export function ProfitLossView() {
       >
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
           <View>
-            <Text style={{ color: '#2563EB', fontSize: ms(13), fontWeight: '700' }}>
+            <Text style={{ color: '#2563EB', fontSize: fontSizes.sm, fontWeight: '700' }}>
               C. {t('grossProfit')}
             </Text>
-            <Text style={{ color: colors.mutedFg, fontSize: ms(12), marginTop: 2 }}>
+            <Text style={{ color: colors.mutedFg, fontSize: fontSizes.sm, marginTop: 2 }}>
               {t('revenueLessDirectCosts')}
             </Text>
           </View>
@@ -438,13 +438,13 @@ export function ProfitLossView() {
             <Text
               style={{
                 color: pnl.grossProfit >= 0 ? '#16A34A' : '#DC2626',
-                fontSize: ms(16),
+                fontSize: fontSizes.md,
                 fontWeight: '800',
               }}
             >
               {fmt(pnl.grossProfit)}
             </Text>
-            <Text style={{ color: '#2563EB', fontSize: ms(12), fontWeight: '700' }}>
+            <Text style={{ color: '#2563EB', fontSize: fontSizes.sm, fontWeight: '700' }}>
               {toNative(pnl.grossMargin.toFixed(1))}% {t('margin')}
             </Text>
           </View>
@@ -458,11 +458,11 @@ export function ProfitLossView() {
             <Text style={[styles.sectionHeading, { color: colors.warning }]}>
               D. {t('indirectCosts')}
             </Text>
-            <Text style={{ color: colors.mutedFg, fontSize: ms(12), marginTop: 2 }}>
+            <Text style={{ color: colors.mutedFg, fontSize: fontSizes.sm, marginTop: 2 }}>
               {t('indirectCostsDesc')}
             </Text>
           </View>
-          <Text style={{ color: colors.warning, fontSize: ms(15), fontWeight: '700' }}>
+          <Text style={{ color: colors.warning, fontSize: fontSizes.base, fontWeight: '700' }}>
             {fmt(pnl.indirectCosts)}
           </Text>
         </View>
@@ -475,11 +475,11 @@ const styles = StyleSheet.create({
   headingIcon: { width: 36, height: 36, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
   periodChip: { borderWidth: 1, paddingVertical: 8, paddingHorizontal: 14, marginRight: 8, borderRadius: 10 },
   subFilterChip: { borderWidth: 1, paddingVertical: 6, paddingHorizontal: 12, marginRight: 8, borderRadius: 8 },
-  sectionHeading: { fontSize: ms(13), fontWeight: '700' },
+  sectionHeading: { fontSize: fontSizes.sm, fontWeight: '700' },
   dataRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 6, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: 'rgba(0,0,0,0.06)' },
   kpiTable: { flexDirection: 'row', marginTop: 10, borderRadius: 12, borderWidth: 1, padding: 14 },
   kpiCol: { flex: 1, alignItems: 'center', justifyContent: 'space-between' },
   kpiDivider: { width: 1, alignSelf: 'stretch', marginVertical: 2 },
-  kpiLabel: { fontSize: ms(11), fontWeight: '600', textTransform: 'uppercase', letterSpacing: 0.3, textAlign: 'center' },
-  kpiValue: { fontSize: ms(16), fontWeight: '800', marginTop: 4, textAlign: 'center' },
+  kpiLabel: { fontSize: fontSizes.xs, fontWeight: '600', textTransform: 'uppercase', letterSpacing: 0.3, textAlign: 'center' },
+  kpiValue: { fontSize: fontSizes.md, fontWeight: '800', marginTop: 4, textAlign: 'center' },
 });

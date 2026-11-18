@@ -7,6 +7,7 @@ import { Input } from '../../../components/ui/Input';
 import { DatePickerInput } from '../../../components/ui/DatePickerInput';
 import { Plus } from 'lucide-react-native';
 import { useLocalizedFormat } from '../../../shared/hooks/useLocalizedFormat';
+import { fontSizes } from '../../../shared/utils/typography';
 
 interface AddCropModalProps {
   visible: boolean;
@@ -83,7 +84,7 @@ export function AddCropModal({ visible, onClose, plotId }: AddCropModalProps) {
         </View>
 
         <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
-          <Text style={{ color: colors.mutedFg, fontSize: 13, marginBottom: 16 }}>
+          <Text style={{ color: colors.mutedFg, fontSize: fontSizes.sm, marginBottom: 16 }}>
             {t('remainingArea')}: {toNative(remaining.toFixed(2))}
           </Text>
 
@@ -94,12 +95,12 @@ export function AddCropModal({ visible, onClose, plotId }: AddCropModalProps) {
               style={[styles.dropdown, { flex: 1, borderColor: colors.border, backgroundColor: colors.card, borderRadius: colors.radius }]}
               activeOpacity={0.7}
             >
-              <Text style={{ color: form.cropType ? colors.foreground : colors.mutedFg, fontSize: 16 }}>
+              <Text style={{ color: form.cropType ? colors.foreground : colors.mutedFg, fontSize: fontSizes.md }}>
                 {form.cropType === 'custom' && form.customCropType
                   ? form.customCropType
                   : form.cropType ? t(form.cropType) : t('selectCropType')}
               </Text>
-              <Text style={{ color: colors.mutedFg, fontSize: 12 }}>{cropDropdownOpen ? '▲' : '▼'}</Text>
+              <Text style={{ color: colors.mutedFg, fontSize: fontSizes.sm }}>{cropDropdownOpen ? '▲' : '▼'}</Text>
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => { setAddingCustomCrop(!addingCustomCrop); setCropDropdownOpen(false); updateForm('cropType', 'custom'); }}
@@ -107,7 +108,7 @@ export function AddCropModal({ visible, onClose, plotId }: AddCropModalProps) {
               activeOpacity={0.7}
             >
               <Plus color="#FFFFFF" size={16} />
-              <Text style={{ color: '#FFFFFF', fontSize: 13, fontWeight: '700', marginLeft: 4 }}>{t('custom')}</Text>
+              <Text style={{ color: '#FFFFFF', fontSize: fontSizes.sm, fontWeight: '700', marginLeft: 4 }}>{t('custom')}</Text>
             </TouchableOpacity>
           </View>
           {cropDropdownOpen && (
@@ -122,7 +123,7 @@ export function AddCropModal({ visible, onClose, plotId }: AddCropModalProps) {
                     form.cropType === crop && { backgroundColor: colors.primary + '15' },
                   ]}
                 >
-                  <Text style={{ color: form.cropType === crop ? colors.primary : colors.foreground, fontWeight: form.cropType === crop ? '700' : '500', fontSize: 14 }}>
+                  <Text style={{ color: form.cropType === crop ? colors.primary : colors.foreground, fontWeight: form.cropType === crop ? '700' : '500', fontSize: fontSizes.base }}>
                     {t(crop)}
                   </Text>
                 </TouchableOpacity>
@@ -145,7 +146,7 @@ export function AddCropModal({ visible, onClose, plotId }: AddCropModalProps) {
                   onPress={() => updateForm('areaUnit', u)}
                   style={[styles.unitBtn, { borderColor: form.areaUnit === u ? colors.primary : colors.border, backgroundColor: form.areaUnit === u ? colors.primary + '15' : colors.card, borderRadius: colors.radius }]}
                 >
-                  <Text style={{ color: form.areaUnit === u ? colors.primary : colors.foreground, fontSize: 13, fontWeight: '600' }}>{t(u)}</Text>
+                  <Text style={{ color: form.areaUnit === u ? colors.primary : colors.foreground, fontSize: fontSizes.sm, fontWeight: '600' }}>{t(u)}</Text>
                 </TouchableOpacity>
               ))}
             </View>
@@ -160,7 +161,7 @@ export function AddCropModal({ visible, onClose, plotId }: AddCropModalProps) {
                   onPress={() => updateForm('season', s)}
                   style={[styles.unitBtn, { borderColor: form.season === s ? colors.primary : colors.border, backgroundColor: form.season === s ? colors.primary + '15' : colors.card, borderRadius: colors.radius }]}
                 >
-                  <Text style={{ color: form.season === s ? colors.primary : colors.foreground, fontWeight: '600', fontSize: 13 }}>{t(s)}</Text>
+                  <Text style={{ color: form.season === s ? colors.primary : colors.foreground, fontWeight: '600', fontSize: fontSizes.sm }}>{t(s)}</Text>
                 </TouchableOpacity>
               ))}
             </View>
@@ -173,10 +174,10 @@ export function AddCropModal({ visible, onClose, plotId }: AddCropModalProps) {
 
         <View style={[styles.footer, { backgroundColor: colors.card, borderTopColor: colors.border }]}>
           <TouchableOpacity onPress={onClose} activeOpacity={0.7} style={[styles.cancelBtn, { backgroundColor: colors.destructive }]}>
-            <Text style={{ color: '#FFFFFF', fontWeight: '700', fontSize: 15 }}>✕ {t('cancel')}</Text>
+            <Text style={{ color: '#FFFFFF', fontWeight: '700', fontSize: fontSizes.base }}>✕ {t('cancel')}</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={handleSave} activeOpacity={0.7} disabled={loading} style={[styles.saveBtn, { backgroundColor: '#16A34A', shadowColor: '#16A34A', opacity: loading ? 0.6 : 1 }]}>
-            <Text style={{ color: '#FFFFFF', fontWeight: '800', fontSize: 16 }}>{loading ? '...' : `✓ ${t('save')}`}</Text>
+            <Text style={{ color: '#FFFFFF', fontWeight: '800', fontSize: fontSizes.md }}>{loading ? '...' : `✓ ${t('save')}`}</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -187,9 +188,9 @@ export function AddCropModal({ visible, onClose, plotId }: AddCropModalProps) {
 const styles = StyleSheet.create({
   container: { flex: 1 },
   header: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, paddingTop: 14, paddingBottom: 10, borderBottomWidth: 1 },
-  title: { fontSize: 18, fontWeight: '800' },
+  title: { fontSize: fontSizes.lg, fontWeight: '800' },
   scroll: { padding: 16, paddingBottom: 40 },
-  label: { fontSize: 14, fontWeight: '500', marginBottom: 6 },
+  label: { fontSize: fontSizes.base, fontWeight: '500', marginBottom: 6 },
   fieldSection: { marginBottom: 0 },
   unitRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: -6, marginBottom: 16 },
   dropdown: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', borderWidth: 1, paddingHorizontal: 14, paddingVertical: 12, minHeight: 48 },

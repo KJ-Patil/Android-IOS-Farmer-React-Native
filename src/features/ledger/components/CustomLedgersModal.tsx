@@ -5,6 +5,7 @@ import { useTheme } from '../../../app/providers/ThemeProvider';
 import { useLedgerStore } from '../../../shared/hooks/useLedgerStore';
 import { Input } from '../../../components/ui/Input';
 import { X, Check } from 'lucide-react-native';
+import { fontSizes } from '../../../shared/utils/typography';
 
 interface CustomLedgersModalProps {
   visible: boolean;
@@ -72,10 +73,10 @@ export function CustomLedgersModal({ visible, onClose }: CustomLedgersModalProps
         >
           {/* Hero */}
           <View style={styles.heroRow}>
-            <Text style={{ fontSize: 28 }}>📒</Text>
+            <Text style={{ fontSize: fontSizes.xxl }}>📒</Text>
             <View style={{ marginLeft: 10, flex: 1 }}>
               <Text style={[styles.heroTitle, { color: colors.foreground }]}>{t('add')} {t('customLedgers')}</Text>
-              <Text style={{ color: colors.mutedFg, fontSize: 13 }}>
+              <Text style={{ color: colors.mutedFg, fontSize: fontSizes.sm }}>
                 {t('createNewLedgerDesc') || 'Create a new custom ledger entry'}
               </Text>
             </View>
@@ -84,13 +85,13 @@ export function CustomLedgersModal({ visible, onClose }: CustomLedgersModalProps
           {/* Form Card */}
           <View style={[styles.formCard, { backgroundColor: colors.card, shadowColor: '#000' }]}>
             <View style={styles.formInputRow}>
-              <Text style={{ fontSize: 16 }}>🏷️</Text>
+              <Text style={{ fontSize: fontSizes.md }}>🏷️</Text>
               <Text style={[styles.formInputLabel, { color: colors.foreground }]}>{t('name')}</Text>
             </View>
             <Input value={name} onChangeText={setName} placeholder={t('customLedgerPlaceholder')} />
 
             <View style={styles.formInputRow}>
-              <Text style={{ fontSize: 16 }}>🔤</Text>
+              <Text style={{ fontSize: fontSizes.md }}>🔤</Text>
               <Text style={[styles.formInputLabel, { color: colors.foreground }]}>{t('name')} (मराठी)</Text>
             </View>
             <Input value={nameMr} onChangeText={setNameMr} placeholder={t('optional')} />
@@ -118,12 +119,12 @@ export function CustomLedgersModal({ visible, onClose }: CustomLedgersModalProps
                       },
                     ]}
                   >
-                    <Text style={{ fontSize: 22 }}>{TYPE_EMOJI[tp]}</Text>
+                    <Text style={{ fontSize: fontSizes.xl }}>{TYPE_EMOJI[tp]}</Text>
                     <Text
                       style={{
                         color: sel ? colors.primary : colors.foreground,
                         fontWeight: sel ? '800' : '600',
-                        fontSize: 13,
+                        fontSize: fontSizes.sm,
                         marginTop: 4,
                       }}
                     >
@@ -140,7 +141,7 @@ export function CustomLedgersModal({ visible, onClose }: CustomLedgersModalProps
             </View>
 
             <View style={styles.formInputRow}>
-              <Text style={{ fontSize: 16 }}>📋</Text>
+              <Text style={{ fontSize: fontSizes.md }}>📋</Text>
               <Text style={[styles.formInputLabel, { color: colors.foreground }]}>{t('description')}</Text>
             </View>
             <Input value={description} onChangeText={setDescription} placeholder={t('optional')} />
@@ -155,7 +156,7 @@ export function CustomLedgersModal({ visible, onClose }: CustomLedgersModalProps
             style={[styles.cancelBtn, { backgroundColor: colors.destructive }]}
           >
             <X color="#FFFFFF" size={18} />
-            <Text style={{ color: '#FFFFFF', fontWeight: '700', fontSize: 15 }}>{t('cancel')}</Text>
+            <Text style={{ color: '#FFFFFF', fontWeight: '700', fontSize: fontSizes.base }}>{t('cancel')}</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -165,7 +166,7 @@ export function CustomLedgersModal({ visible, onClose }: CustomLedgersModalProps
             style={[styles.saveBtn, { backgroundColor: '#16A34A', shadowColor: '#16A34A', opacity: loading ? 0.6 : 1 }]}
           >
             <Check color="#FFFFFF" size={20} strokeWidth={3} />
-            <Text style={{ color: '#FFFFFF', fontWeight: '800', fontSize: 16 }}>
+            <Text style={{ color: '#FFFFFF', fontWeight: '800', fontSize: fontSizes.md }}>
               {loading ? '...' : t('save')}
             </Text>
           </TouchableOpacity>
@@ -185,7 +186,7 @@ const styles = StyleSheet.create({
     paddingBottom: 10,
     borderBottomWidth: 1,
   },
-  headerTitle: { fontSize: 18, fontWeight: '800' },
+  headerTitle: { fontSize: fontSizes.lg, fontWeight: '800' },
   scroll: { padding: 16, paddingBottom: 30 },
 
   heroRow: {
@@ -193,7 +194,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 18,
   },
-  heroTitle: { fontSize: 20, fontWeight: '800' },
+  heroTitle: { fontSize: fontSizes.lg, fontWeight: '800' },
 
   formCard: {
     borderRadius: 16,
@@ -209,9 +210,9 @@ const styles = StyleSheet.create({
     gap: 8,
     marginBottom: 6,
   },
-  formInputLabel: { fontSize: 14, fontWeight: '700' },
+  formInputLabel: { fontSize: fontSizes.base, fontWeight: '700' },
 
-  typeLabel: { fontSize: 14, fontWeight: '700', marginBottom: 10 },
+  typeLabel: { fontSize: fontSizes.base, fontWeight: '700', marginBottom: 10 },
   typeGrid: { flexDirection: 'row', gap: 10, marginBottom: 16 },
   typeCard: {
     flex: 1,

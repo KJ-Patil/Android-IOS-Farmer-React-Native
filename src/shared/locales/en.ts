@@ -201,7 +201,6 @@ export default {
   custom: 'Custom',
 
   // Ledger
-  notebook: 'Notebook',
   overallIncome: 'Overall Income',
   overallExpense: 'Overall Expense',
   dairyFarming: 'Dairy Farming',
@@ -239,7 +238,6 @@ export default {
   profit: 'Profit',
   loss: 'Loss',
   profitLoss: 'Profit & Loss',
-  reportsExport: 'Reports & Export',
   partyLedgers: 'Party Ledgers',
   creditDues: 'Credit & Dues',
   income: 'Income',
@@ -275,6 +273,8 @@ export default {
   otherIncome: 'Other Income',
   buyer: 'Buyer',
   quantity: 'Quantity',
+  unit: 'Unit',
+  rate: 'Rate',
   ratePerUnit: 'Rate per Unit',
   grossAmount: 'Gross Amount',
   deductions: 'Deductions',

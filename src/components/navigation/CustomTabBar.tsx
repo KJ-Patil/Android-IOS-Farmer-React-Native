@@ -3,6 +3,7 @@ import { View, TouchableOpacity, Text, StyleSheet, Platform, Animated } from 're
 import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '../../app/providers/ThemeProvider';
+import { fontSizes } from '../../shared/utils/typography';
 
 const TAB_COLORS: Record<string, { active: string; bg: string }> = {
   DashboardTab: { active: '#16A34A', bg: '#DCFCE7' },
@@ -161,7 +162,7 @@ const styles = StyleSheet.create({
     width: 26,
   },
   label: {
-    fontSize: 12,
+    fontSize: fontSizes.sm,
     marginTop: 4,
     letterSpacing: 0.1,
   },

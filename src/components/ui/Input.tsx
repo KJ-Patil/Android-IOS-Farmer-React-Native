@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, TextInput, Text, StyleSheet, TextInputProps, ViewStyle } from 'react-native';
 import { useTheme } from '../../app/providers/ThemeProvider';
+import { fontSizes } from '../../shared/utils/typography';
 
 interface InputProps extends TextInputProps {
   label?: string;
@@ -38,13 +39,13 @@ export function Input({ label, error, containerStyle, style, ...props }: InputPr
 
 const styles = StyleSheet.create({
   container: { marginBottom: 16 },
-  label: { fontSize: 14, fontWeight: '500', marginBottom: 6 },
+  label: { fontSize: fontSizes.base, fontWeight: '500', marginBottom: 6 },
   input: {
     borderWidth: 1,
     paddingHorizontal: 14,
     paddingVertical: 12,
-    fontSize: 16,
+    fontSize: fontSizes.md,
     minHeight: 48,
   },
-  error: { fontSize: 12, marginTop: 4 },
+  error: { fontSize: fontSizes.sm, marginTop: 4 },
 });

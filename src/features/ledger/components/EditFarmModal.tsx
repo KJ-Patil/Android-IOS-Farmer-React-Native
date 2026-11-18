@@ -13,6 +13,7 @@ import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../../app/providers/ThemeProvider';
 import { useNotebookFarmStore, FarmType, NotebookFarm } from '../../../shared/hooks/useNotebookFarmStore';
 import { useLedgerStore } from '../../../shared/hooks/useLedgerStore';
+import { fontSizes } from '../../../shared/utils/typography';
 import { useLocalizedFormat } from '../../../shared/hooks/useLocalizedFormat';
 import { tCategory, tPaymentMode } from '../../../shared/utils/helpers';
 import { Card } from '../../../components/ui/Card';
@@ -152,7 +153,7 @@ export function EditFarmModal({ farm, onClose }: EditFarmModalProps) {
             </TouchableOpacity>
             <View style={{ flex: 1 }} />
             <TouchableOpacity onPress={() => setEditing(!editing)} style={[styles.editBtn, { backgroundColor: editing ? colors.primary : colors.muted }]}>
-              <Text style={{ color: editing ? '#FFFFFF' : colors.mutedFg, fontWeight: '700', fontSize: 13 }}>{t('edit')}</Text>
+              <Text style={{ color: editing ? '#FFFFFF' : colors.mutedFg, fontWeight: '700', fontSize: fontSizes.sm }}>{t('edit')}</Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={handleDelete} style={[styles.headerIconBtn, { backgroundColor: '#FEE2E2', marginLeft: 10 }]}>
               <Trash2 size={16} color="#DC2626" />
@@ -168,9 +169,9 @@ export function EditFarmModal({ farm, onClose }: EditFarmModalProps) {
                 {/* Hero: Emoji + Name + Animal Count */}
                 <Card style={{ marginTop: 12, borderRadius: 20 }} padding={20}>
                   <View style={styles.heroCenter}>
-                    <Text style={{ fontSize: 52 }}>{emoji}</Text>
+                    <Text style={{ fontSize: fontSizes.xxxl }}>{emoji}</Text>
                     <Text style={[styles.heroName, { color: colors.foreground }]}>{displayName}</Text>
-                    <Text style={{ color: colors.mutedFg, fontSize: 13 }}>{t(farm.type)}</Text>
+                    <Text style={{ color: colors.mutedFg, fontSize: fontSizes.sm }}>{t(farm.type)}</Text>
 
                     {displayCount > 0 ? (
                       <View style={styles.animalBadge}>
@@ -190,7 +191,7 @@ export function EditFarmModal({ farm, onClose }: EditFarmModalProps) {
                         onChangeText={setName}
                         placeholder={t(farm.type)}
                       />
-                      <Text style={{ color: colors.mutedFg, fontSize: 12, marginTop: 10, marginBottom: 4 }}>
+                      <Text style={{ color: colors.mutedFg, fontSize: fontSizes.sm, marginTop: 10, marginBottom: 4 }}>
                         {t('howMany')} {t(ANIMAL_LABEL[farm.type])}?
                       </Text>
                       <View style={styles.counterRow}>
@@ -201,7 +202,7 @@ export function EditFarmModal({ farm, onClose }: EditFarmModalProps) {
                           <Minus size={16} color={colors.foreground} />
                         </TouchableOpacity>
                         <View style={[styles.counterDisplay, { backgroundColor: colors.background, borderColor: colors.border }]}>
-                          <Text style={{ color: colors.foreground, fontWeight: '900', fontSize: 18 }}>{count}</Text>
+                          <Text style={{ color: colors.foreground, fontWeight: '900', fontSize: fontSizes.lg }}>{count}</Text>
                         </View>
                         <TouchableOpacity
                           onPress={() => setCount((c) => c + 1)}
@@ -210,9 +211,9 @@ export function EditFarmModal({ farm, onClose }: EditFarmModalProps) {
                           <Plus size={16} color="#FFFFFF" />
                         </TouchableOpacity>
                       </View>
-                      {error ? <Text style={{ color: '#DC2626', fontSize: 12, marginTop: 4 }}>{error}</Text> : null}
+                      {error ? <Text style={{ color: '#DC2626', fontSize: fontSizes.sm, marginTop: 4 }}>{error}</Text> : null}
                       <TouchableOpacity onPress={handleSave} disabled={loading} activeOpacity={0.8} style={[styles.saveBtn, { backgroundColor: colors.primary, opacity: loading ? 0.6 : 1 }]}>
-                        <Text style={{ color: '#FFFFFF', fontWeight: '700', fontSize: 14 }}>{loading ? '...' : `✓ ${t('save')}`}</Text>
+                        <Text style={{ color: '#FFFFFF', fontWeight: '700', fontSize: fontSizes.base }}>{loading ? '...' : `✓ ${t('save')}`}</Text>
                       </TouchableOpacity>
                     </View>
                   )}
@@ -220,18 +221,18 @@ export function EditFarmModal({ farm, onClose }: EditFarmModalProps) {
                   {/* Income / Expense summary */}
                   <View style={[styles.summaryRow, { backgroundColor: colors.background, borderColor: colors.border }]}>
                     <View style={{ alignItems: 'center', flex: 1 }}>
-                      <Text style={{ color: colors.mutedFg, fontSize: 11 }}>{t('income')}</Text>
-                      <Text style={{ color: '#16A34A', fontSize: 16, fontWeight: '800' }}>{fmt(farmIncome)}</Text>
+                      <Text style={{ color: colors.mutedFg, fontSize: fontSizes.xs }}>{t('income')}</Text>
+                      <Text style={{ color: '#16A34A', fontSize: fontSizes.md, fontWeight: '800' }}>{fmt(farmIncome)}</Text>
                     </View>
                     <View style={{ width: 1, height: 28, backgroundColor: colors.border }} />
                     <View style={{ alignItems: 'center', flex: 1 }}>
-                      <Text style={{ color: colors.mutedFg, fontSize: 11 }}>{t('expense')}</Text>
-                      <Text style={{ color: '#DC2626', fontSize: 16, fontWeight: '800' }}>{fmt(farmExpense)}</Text>
+                      <Text style={{ color: colors.mutedFg, fontSize: fontSizes.xs }}>{t('expense')}</Text>
+                      <Text style={{ color: '#DC2626', fontSize: fontSizes.md, fontWeight: '800' }}>{fmt(farmExpense)}</Text>
                     </View>
                     <View style={{ width: 1, height: 28, backgroundColor: colors.border }} />
                     <View style={{ alignItems: 'center', flex: 1 }}>
-                      <Text style={{ color: colors.mutedFg, fontSize: 11 }}>{t('netBalance')}</Text>
-                      <Text style={{ color: farmIncome - farmExpense >= 0 ? '#16A34A' : '#DC2626', fontSize: 16, fontWeight: '800' }}>
+                      <Text style={{ color: colors.mutedFg, fontSize: fontSizes.xs }}>{t('netBalance')}</Text>
+                      <Text style={{ color: farmIncome - farmExpense >= 0 ? '#16A34A' : '#DC2626', fontSize: fontSizes.md, fontWeight: '800' }}>
                         {fmt(Math.abs(farmIncome - farmExpense))}
                       </Text>
                     </View>
@@ -246,7 +247,7 @@ export function EditFarmModal({ farm, onClose }: EditFarmModalProps) {
                     style={[styles.quickBtn, { backgroundColor: '#DCFCE7' }]}
                   >
                     <ArrowDownLeft color="#16A34A" size={20} />
-                    <Text style={{ color: '#16A34A', fontWeight: '700', fontSize: 14, marginLeft: 8 }}>{t('moneyIn')}</Text>
+                    <Text style={{ color: '#16A34A', fontWeight: '700', fontSize: fontSizes.base, marginLeft: 8 }}>{t('moneyIn')}</Text>
                   </TouchableOpacity>
                   <TouchableOpacity
                     onPress={() => setMoneyOutVisible(true)}
@@ -254,7 +255,7 @@ export function EditFarmModal({ farm, onClose }: EditFarmModalProps) {
                     style={[styles.quickBtn, { backgroundColor: '#FEE2E2' }]}
                   >
                     <ArrowUpRight color="#DC2626" size={20} />
-                    <Text style={{ color: '#DC2626', fontWeight: '700', fontSize: 14, marginLeft: 8 }}>{t('moneyOut')}</Text>
+                    <Text style={{ color: '#DC2626', fontWeight: '700', fontSize: fontSizes.base, marginLeft: 8 }}>{t('moneyOut')}</Text>
                   </TouchableOpacity>
                 </View>
 
@@ -266,23 +267,23 @@ export function EditFarmModal({ farm, onClose }: EditFarmModalProps) {
             }
             ListEmptyComponent={
               <View style={{ paddingVertical: 40, alignItems: 'center' }}>
-                <Text style={{ fontSize: 32, marginBottom: 8 }}>📝</Text>
-                <Text style={{ color: colors.mutedFg, fontSize: 13, fontWeight: '600' }}>{t('noData')}</Text>
+                <Text style={{ fontSize: fontSizes.xxxl, marginBottom: 8 }}>📝</Text>
+                <Text style={{ color: colors.mutedFg, fontSize: fontSizes.sm, fontWeight: '600' }}>{t('noData')}</Text>
               </View>
             }
             renderItem={({ item: txn }) => (
               <Card style={{ marginTop: 8 }} padding={12}>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                   <View style={{ flex: 1 }}>
-                    <Text style={{ color: colors.foreground, fontWeight: '600', fontSize: 14 }}>
+                    <Text style={{ color: colors.foreground, fontWeight: '600', fontSize: fontSizes.base }}>
                       {tCategory(txn.category, t)}
                     </Text>
-                    <Text style={{ color: colors.mutedFg, fontSize: 12, marginTop: 2 }}>
+                    <Text style={{ color: colors.mutedFg, fontSize: fontSizes.sm, marginTop: 2 }}>
                       {fmtDMY(txn.date)}{txn.partyName ? ` • ${txn.partyName}` : ''}
                     </Text>
                   </View>
                   <View style={{ alignItems: 'flex-end' }}>
-                    <Text style={{ color: txn.type === 'income' ? '#16A34A' : '#DC2626', fontWeight: '700', fontSize: 15 }}>
+                    <Text style={{ color: txn.type === 'income' ? '#16A34A' : '#DC2626', fontWeight: '700', fontSize: fontSizes.base }}>
                       {txn.type === 'income' ? '+' : '-'}{fmtCurrency(txn.amount)}
                     </Text>
                     <Badge text={tPaymentMode(txn.paymentMode, t)} />
@@ -341,7 +342,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   heroName: {
-    fontSize: 22,
+    fontSize: fontSizes.xl,
     fontWeight: '900',
     marginTop: 6,
   },
@@ -355,12 +356,12 @@ const styles = StyleSheet.create({
   },
   animalBigCount: {
     color: '#7C3AED',
-    fontSize: 32,
+    fontSize: fontSizes.xxxl,
     fontWeight: '900',
   },
   animalBigLabel: {
     color: '#7C3AED',
-    fontSize: 14,
+    fontSize: fontSizes.base,
     fontWeight: '700',
     marginTop: 2,
   },
@@ -370,7 +371,7 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
   },
   editSectionTitle: {
-    fontSize: 15,
+    fontSize: fontSizes.base,
     fontWeight: '800',
     marginBottom: 10,
   },
@@ -379,7 +380,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     paddingHorizontal: 12,
     paddingVertical: 10,
-    fontSize: 14,
+    fontSize: fontSizes.base,
     fontWeight: '500',
   },
   counterRow: {
@@ -433,7 +434,7 @@ const styles = StyleSheet.create({
     borderRadius: 14,
   },
   txnHeader: {
-    fontSize: 14,
+    fontSize: fontSizes.base,
     fontWeight: '800',
     marginTop: 18,
     marginBottom: 6,

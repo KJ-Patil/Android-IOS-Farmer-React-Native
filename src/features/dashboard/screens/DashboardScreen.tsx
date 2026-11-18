@@ -40,6 +40,7 @@ import {
   Navigation,
   Search as SearchIcon,
 } from 'lucide-react-native';
+import { fontSizes } from '../../../shared/utils/typography';
 
 const STATUS_BAR_HEIGHT = StatusBar.currentHeight || 44;
 
@@ -482,7 +483,7 @@ export function DashboardScreen({ navigation }: any) {
               style={[styles.sectionActionBtn, { backgroundColor: colors.primary }]}
               activeOpacity={0.7}
             >
-              <Text style={{ color: '#FFFFFF', fontWeight: '700', fontSize: 13 }}>+ {t('add')}</Text>
+              <Text style={{ color: '#FFFFFF', fontWeight: '700', fontSize: fontSizes.sm }}>+ {t('add')}</Text>
             </TouchableOpacity>
           </View>
 
@@ -492,11 +493,11 @@ export function DashboardScreen({ navigation }: any) {
               style={[styles.emptyCard, { backgroundColor: colors.card, borderColor: colors.border }]}
               activeOpacity={0.7}
             >
-              <Text style={{ fontSize: 26, marginBottom: 4 }}>🐄</Text>
-              <Text style={{ color: colors.foreground, fontWeight: '700', fontSize: 14 }}>
+              <Text style={{ fontSize: fontSizes.xxl, marginBottom: 4 }}>🐄</Text>
+              <Text style={{ color: colors.foreground, fontWeight: '700', fontSize: fontSizes.base }}>
                 + {t('addFarm')}
               </Text>
-              <Text style={{ color: colors.mutedFg, fontSize: 12, marginTop: 2 }}>
+              <Text style={{ color: colors.mutedFg, fontSize: fontSizes.sm, marginTop: 2 }}>
                 Dairy, Goat, Poultry, etc.
               </Text>
             </TouchableOpacity>
@@ -545,11 +546,11 @@ export function DashboardScreen({ navigation }: any) {
             <View
               style={[styles.emptyCard, { backgroundColor: colors.card, borderColor: colors.border }]}
             >
-              <Text style={{ fontSize: 26, marginBottom: 4 }}>🌱</Text>
-              <Text style={{ color: colors.foreground, fontWeight: '700', fontSize: 14 }}>
+              <Text style={{ fontSize: fontSizes.xxl, marginBottom: 4 }}>🌱</Text>
+              <Text style={{ color: colors.foreground, fontWeight: '700', fontSize: fontSizes.base }}>
                 {t('plots')}
               </Text>
-              <Text style={{ color: colors.mutedFg, fontSize: 12, marginTop: 2 }}>
+              <Text style={{ color: colors.mutedFg, fontSize: fontSizes.sm, marginTop: 2 }}>
                 {t('noPlotsFound') || 'No land plots recorded yet'}
               </Text>
             </View>
@@ -571,7 +572,7 @@ export function DashboardScreen({ navigation }: any) {
                     <View style={styles.plotHeaderRow}>
                       <View style={{ flex: 1 }}>
                         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                          <Text style={{ fontSize: 18 }}>🌱</Text>
+                          <Text style={{ fontSize: fontSizes.lg }}>🌱</Text>
                           <Text style={[styles.plotTitleText, { color: colors.foreground }]} numberOfLines={1}>
                             {ps.name}
                           </Text>
@@ -669,7 +670,7 @@ export function DashboardScreen({ navigation }: any) {
                             ? `🌾 ${t(selectedCrop.cropType) || selectedCrop.cropType} ${selectedCrop.variety ? '(' + selectedCrop.variety + ')' : ''}`
                             : `🌱 ${ps.name} (${t('allCrops')})`}
                         </Text>
-                        <Text style={{ fontSize: 11, color: colors.mutedFg, marginTop: 1 }}>
+                        <Text style={{ fontSize: fontSizes.xs, color: colors.mutedFg, marginTop: 1 }}>
                           {selectedCrop
                             ? (selectedCrop.area ? `${toNative(selectedCrop.area)} ${t(selectedCrop.areaUnit || 'acre')}` : '')
                             : `${toNative(ps.crops.length)} ${t('crops')}`}
@@ -769,7 +770,7 @@ export function DashboardScreen({ navigation }: any) {
                   style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 4 }}
                 >
                   <MapPin size={14} color={colors.primary} />
-                  <Text style={{ fontSize: 13, color: colors.primary, fontWeight: '600' }}>
+                  <Text style={{ fontSize: fontSizes.sm, color: colors.primary, fontWeight: '600' }}>
                     {weatherLocation?.name || 'Select Location'}
                   </Text>
                 </TouchableOpacity>
@@ -788,7 +789,7 @@ export function DashboardScreen({ navigation }: any) {
                     placeholderTextColor={colors.mutedFg}
                     value={locationSearch}
                     onChangeText={(q) => { setLocationSearch(q); searchCity(q); }}
-                    style={{ flex: 1, fontSize: 14, color: colors.foreground }}
+                    style={{ flex: 1, fontSize: fontSizes.base, color: colors.foreground }}
                   />
                   {locationSearch.length > 0 && (
                     <TouchableOpacity onPress={() => { setLocationSearch(''); setLocationResults([]); }}>
@@ -802,7 +803,7 @@ export function DashboardScreen({ navigation }: any) {
                   style={[styles.locationOption, { borderBottomColor: colors.border }]}
                 >
                   <Navigation size={16} color={colors.primary} />
-                  <Text style={{ fontSize: 13, color: colors.primary, fontWeight: '600' }}>Use GPS Current Location</Text>
+                  <Text style={{ fontSize: fontSizes.sm, color: colors.primary, fontWeight: '600' }}>Use GPS Current Location</Text>
                 </TouchableOpacity>
 
                 {locationResults.map((loc) => (
@@ -818,13 +819,13 @@ export function DashboardScreen({ navigation }: any) {
                     style={[styles.locationOption, { borderBottomColor: colors.border }]}
                   >
                     <MapPin size={14} color={colors.mutedFg} />
-                    <Text style={{ fontSize: 13, color: colors.foreground }}>{loc.name}, {loc.admin1} ({loc.country})</Text>
+                    <Text style={{ fontSize: fontSizes.sm, color: colors.foreground }}>{loc.name}, {loc.admin1} ({loc.country})</Text>
                   </TouchableOpacity>
                 ))}
 
                 {savedLocations.length > 0 && locationResults.length === 0 && (
                   <View style={{ marginTop: 6 }}>
-                    <Text style={{ fontSize: 11, fontWeight: '700', color: colors.mutedFg, marginBottom: 4 }}>SAVED LOCATIONS</Text>
+                    <Text style={{ fontSize: fontSizes.xs, fontWeight: '700', color: colors.mutedFg, marginBottom: 4 }}>SAVED LOCATIONS</Text>
                     {savedLocations.map((loc) => (
                       <View key={loc.name} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
                         <TouchableOpacity
@@ -836,7 +837,7 @@ export function DashboardScreen({ navigation }: any) {
                           style={[styles.locationOption, { borderBottomColor: colors.border, flex: 1 }]}
                         >
                           <MapPin size={14} color={colors.mutedFg} />
-                          <Text style={{ fontSize: 13, color: colors.foreground }}>{loc.name}</Text>
+                          <Text style={{ fontSize: fontSizes.sm, color: colors.foreground }}>{loc.name}</Text>
                         </TouchableOpacity>
                         <TouchableOpacity
                           onPress={() => removeSavedLocation(loc.name)}
@@ -856,10 +857,10 @@ export function DashboardScreen({ navigation }: any) {
                 <View style={[styles.weatherCurrentCard, { backgroundColor: colors.primary + '12' }]}>
                   <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
                     <View>
-                      <Text style={{ fontSize: 36, fontWeight: '900', color: colors.foreground }}>
+                      <Text style={{ fontSize: fontSizes.xxxl, fontWeight: '900', color: colors.foreground }}>
                         {Math.round(tempC)}°C
                       </Text>
-                      <Text style={{ fontSize: 14, color: colors.mutedFg, marginTop: 2 }}>
+                      <Text style={{ fontSize: fontSizes.base, color: colors.mutedFg, marginTop: 2 }}>
                         {getWeatherInfo(weatherCode).label}
                       </Text>
                     </View>
@@ -877,16 +878,16 @@ export function DashboardScreen({ navigation }: any) {
                     const dayName = dayDate.toLocaleDateString(langLocaleMap[i18n.language] || 'en-IN', { weekday: 'short', day: 'numeric' });
                     return (
                       <View key={day.date} style={[styles.weatherDayRow, { borderBottomColor: colors.border }]}>
-                        <Text style={{ width: 80, fontSize: 13, color: colors.mutedFg }}>{toNative(dayName)}</Text>
+                        <Text style={{ width: 80, fontSize: fontSizes.sm, color: colors.mutedFg }}>{toNative(dayName)}</Text>
                         <info.Icon size={16} color={info.color} />
-                        <Text style={{ flex: 1, fontSize: 12, color: colors.foreground, marginLeft: 4 }} numberOfLines={1}>{info.label}</Text>
-                        <Text style={{ fontSize: 12, color: colors.foreground, fontWeight: '600' }}>
+                        <Text style={{ flex: 1, fontSize: fontSizes.sm, color: colors.foreground, marginLeft: 4 }} numberOfLines={1}>{info.label}</Text>
+                        <Text style={{ fontSize: fontSizes.sm, color: colors.foreground, fontWeight: '600' }}>
                           {toNative(Math.round(day.minTemp))}° - {toNative(Math.round(day.maxTemp))}°
                         </Text>
                         {day.rain > 0 && (
                           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 2, marginLeft: 6 }}>
                             <Droplets size={11} color="#3B82F6" />
-                            <Text style={{ fontSize: 11, color: '#3B82F6' }}>{toNative(day.rain.toFixed(1))}</Text>
+                            <Text style={{ fontSize: fontSizes.xs, color: '#3B82F6' }}>{toNative(day.rain.toFixed(1))}</Text>
                           </View>
                         )}
                       </View>
@@ -897,10 +898,10 @@ export function DashboardScreen({ navigation }: any) {
                     const info = getWeatherInfo(day.code);
                     return (
                       <View key={day.date} style={[styles.weatherTodayRow, { backgroundColor: colors.primary + '10', borderColor: colors.primary + '30' }]}>
-                        <Text style={{ width: 80, fontSize: 13, fontWeight: '800', color: colors.primary }}>{t('today')}</Text>
+                        <Text style={{ width: 80, fontSize: fontSizes.sm, fontWeight: '800', color: colors.primary }}>{t('today')}</Text>
                         <info.Icon size={18} color={info.color} />
-                        <Text style={{ flex: 1, fontSize: 13, fontWeight: '700', color: colors.primary, marginLeft: 4 }}>{info.label}</Text>
-                        <Text style={{ fontSize: 13, fontWeight: '800', color: colors.primary }}>
+                        <Text style={{ flex: 1, fontSize: fontSizes.sm, fontWeight: '700', color: colors.primary, marginLeft: 4 }}>{info.label}</Text>
+                        <Text style={{ fontSize: fontSizes.sm, fontWeight: '800', color: colors.primary }}>
                           {toNative(Math.round(day.minTemp))}° - {toNative(Math.round(day.maxTemp))}°
                         </Text>
                       </View>
@@ -914,16 +915,16 @@ export function DashboardScreen({ navigation }: any) {
                     const dayName = dayDate.toLocaleDateString(langLocaleMap[i18n.language] || 'en-IN', { weekday: 'short', day: 'numeric' });
                     return (
                       <View key={day.date} style={[styles.weatherDayRow, { borderBottomColor: colors.border }]}>
-                        <Text style={{ width: 80, fontSize: 13, color: colors.mutedFg }}>{toNative(dayName)}</Text>
+                        <Text style={{ width: 80, fontSize: fontSizes.sm, color: colors.mutedFg }}>{toNative(dayName)}</Text>
                         <info.Icon size={16} color={info.color} />
-                        <Text style={{ flex: 1, fontSize: 12, color: colors.foreground, marginLeft: 4 }} numberOfLines={1}>{info.label}</Text>
-                        <Text style={{ fontSize: 12, color: colors.foreground, fontWeight: '600' }}>
+                        <Text style={{ flex: 1, fontSize: fontSizes.sm, color: colors.foreground, marginLeft: 4 }} numberOfLines={1}>{info.label}</Text>
+                        <Text style={{ fontSize: fontSizes.sm, color: colors.foreground, fontWeight: '600' }}>
                           {toNative(Math.round(day.minTemp))}° - {toNative(Math.round(day.maxTemp))}°
                         </Text>
                         {day.rain > 0 && (
                           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 2, marginLeft: 6 }}>
                             <Droplets size={11} color="#3B82F6" />
-                            <Text style={{ fontSize: 11, color: '#3B82F6' }}>{toNative(day.rain.toFixed(1))}</Text>
+                            <Text style={{ fontSize: fontSizes.xs, color: '#3B82F6' }}>{toNative(day.rain.toFixed(1))}</Text>
                           </View>
                         )}
                       </View>
@@ -957,43 +958,43 @@ const styles = StyleSheet.create({
   headerContainer: { width: '100%', paddingHorizontal: 20, paddingBottom: 22, borderBottomLeftRadius: 28, borderBottomRightRadius: 28, overflow: 'hidden' },
   greetingRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 },
   greetingLeft: { flexDirection: 'row', alignItems: 'center', gap: 8, flex: 1, flexShrink: 1, minWidth: 0 },
-  greetingText: { fontSize: 18, fontWeight: '700', color: '#FFFFFF', letterSpacing: -0.3, flexShrink: 1 },
+  greetingText: { fontSize: fontSizes.lg, fontWeight: '700', color: '#FFFFFF', letterSpacing: -0.3, flexShrink: 1 },
   tempBadge: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: 'rgba(0,0,0,0.3)', paddingHorizontal: 11, paddingVertical: 7, borderRadius: 13 },
-  tempValue: { fontSize: 17, fontWeight: '800', color: '#FFFFFF', letterSpacing: -0.3, lineHeight: 20 },
-  tempSub: { fontSize: 10, fontWeight: '600', color: 'rgba(255,255,255,0.75)', letterSpacing: 0.2, lineHeight: 13 },
+  tempValue: { fontSize: fontSizes.md, fontWeight: '800', color: '#FFFFFF', letterSpacing: -0.3, lineHeight: 20 },
+  tempSub: { fontSize: fontSizes.xs, fontWeight: '600', color: 'rgba(255,255,255,0.75)', letterSpacing: 0.2, lineHeight: 13 },
   weatherModal: { width: '100%', maxWidth: 440, alignSelf: 'center', borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 20, maxHeight: '85%' },
   weatherModalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 },
-  weatherModalTitle: { fontSize: 20, fontWeight: '800', letterSpacing: -0.3 },
+  weatherModalTitle: { fontSize: fontSizes.lg, fontWeight: '800', letterSpacing: -0.3 },
   weatherCurrentCard: { borderRadius: 16, padding: 16, marginBottom: 16 },
-  weatherSectionLabel: { fontSize: 11, fontWeight: '700', letterSpacing: 1, marginBottom: 8 },
+  weatherSectionLabel: { fontSize: fontSizes.xs, fontWeight: '700', letterSpacing: 1, marginBottom: 8 },
   weatherDayRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 10, borderBottomWidth: StyleSheet.hairlineWidth },
   weatherTodayRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 12, paddingHorizontal: 12, borderRadius: 12, borderWidth: 1, marginBottom: 4 },
   locationPickerBox: { borderRadius: 14, borderWidth: 1, padding: 12, marginBottom: 14 },
   locationSearchRow: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, height: 42, borderRadius: 10, borderWidth: 1, marginBottom: 8 },
   locationOption: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 10, borderBottomWidth: StyleSheet.hairlineWidth },
-  waveDate: { fontSize: 13, color: 'rgba(255,255,255,0.8)', marginTop: 3, fontWeight: '500' },
+  waveDate: { fontSize: fontSizes.sm, color: 'rgba(255,255,255,0.8)', marginTop: 3, fontWeight: '500' },
   contentPadding: { paddingHorizontal: 16, marginTop: 16 },
   kpiGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', marginBottom: 6 },
   kpiCard: { width: '48.5%' as any, marginBottom: 10, minHeight: 96, borderRadius: 20, padding: 14, shadowColor: '#000', shadowOffset: { width: 0, height: 3 }, shadowOpacity: 0.08, shadowRadius: 6, elevation: 3 },
-  kpiLabel: { fontSize: 12, fontWeight: '600', letterSpacing: 0.3, textTransform: 'uppercase' },
-  kpiValue: { fontSize: 22, fontWeight: '800', marginVertical: 4, letterSpacing: -0.5 },
-  kpiSub: { fontSize: 13, fontWeight: '600' },
+  kpiLabel: { fontSize: fontSizes.sm, fontWeight: '600', letterSpacing: 0.3, textTransform: 'uppercase' },
+  kpiValue: { fontSize: fontSizes.xl, fontWeight: '800', marginVertical: 4, letterSpacing: -0.5 },
+  kpiSub: { fontSize: fontSizes.sm, fontWeight: '600' },
   sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 16, marginBottom: 10 },
-  sectionTitle: { fontSize: 16, fontWeight: '800' },
+  sectionTitle: { fontSize: fontSizes.md, fontWeight: '800' },
   sectionActionBtn: { paddingHorizontal: 12, height: 32, borderRadius: 8, alignItems: 'center', justifyContent: 'center' },
   emptyCard: { width: '100%', alignItems: 'center', paddingVertical: 20, paddingHorizontal: 16, borderRadius: 16, borderWidth: 1, borderStyle: 'dashed', marginBottom: 12 },
   farmCard: { width: '48.5%' as any, paddingVertical: 14, paddingHorizontal: 12, borderRadius: 16, marginBottom: 10, borderWidth: 1.5, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 4, elevation: 2 },
-  kpiEmoji: { fontSize: 26 },
-  kpiName: { fontSize: 14, fontWeight: '700', marginTop: 6 },
+  kpiEmoji: { fontSize: fontSizes.xxl },
+  kpiName: { fontSize: fontSizes.base, fontWeight: '700', marginTop: 6 },
   animalRow: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 8, paddingVertical: 3, borderRadius: 8, marginTop: 6, alignSelf: 'flex-start' },
-  animalCount: { color: '#7C3AED', fontSize: 15, fontWeight: '900' },
-  animalLabel: { color: '#7C3AED', fontSize: 11, fontWeight: '600' },
+  animalCount: { color: '#7C3AED', fontSize: fontSizes.base, fontWeight: '900' },
+  animalLabel: { color: '#7C3AED', fontSize: fontSizes.xs, fontWeight: '600' },
   kpiAmounts: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 10 },
-  kpiIncome: { color: '#16A34A', fontSize: 12, fontWeight: '700' },
-  kpiExpense: { color: '#DC2626', fontSize: 12, fontWeight: '700' },
+  kpiIncome: { color: '#16A34A', fontSize: fontSizes.sm, fontWeight: '700' },
+  kpiExpense: { color: '#DC2626', fontSize: fontSizes.sm, fontWeight: '700' },
   modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', padding: 20 },
   plotCountBadge: { paddingHorizontal: 7, paddingVertical: 2, borderRadius: 10 },
-  plotCountText: { fontSize: 12, fontWeight: '800' },
+  plotCountText: { fontSize: fontSizes.sm, fontWeight: '800' },
   plotListContainer: { width: '100%', marginBottom: 6 },
   plotCardDetailed: {
     width: '100%',
@@ -1013,7 +1014,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   plotTitleText: {
-    fontSize: 16,
+    fontSize: fontSizes.md,
     fontWeight: '700',
     letterSpacing: -0.2,
   },
@@ -1024,11 +1025,11 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   gatPillText: {
-    fontSize: 11,
+    fontSize: fontSizes.xs,
     fontWeight: '700',
   },
   plotSubtitleText: {
-    fontSize: 12,
+    fontSize: fontSizes.sm,
     marginTop: 4,
   },
   plotIncomeExpenseBar: {
@@ -1051,14 +1052,14 @@ const styles = StyleSheet.create({
     height: 24,
   },
   plotBarLabel: {
-    fontSize: 11,
+    fontSize: fontSizes.xs,
     fontWeight: '600',
     textTransform: 'uppercase',
     letterSpacing: 0.3,
     marginBottom: 2,
   },
   plotBarValue: {
-    fontSize: 14,
+    fontSize: fontSizes.base,
     fontWeight: '800',
   },
   plotCropsSection: {
@@ -1073,7 +1074,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   plotCropsHeading: {
-    fontSize: 12,
+    fontSize: fontSizes.sm,
     fontWeight: '700',
     textTransform: 'uppercase',
     letterSpacing: 0.4,
@@ -1085,7 +1086,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   noCropText: {
-    fontSize: 12,
+    fontSize: fontSizes.sm,
     fontStyle: 'italic',
   },
   cropSelectorWrapper: {
@@ -1093,7 +1094,7 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   cropSelectorLabel: {
-    fontSize: 11,
+    fontSize: fontSizes.xs,
     fontWeight: '700',
     textTransform: 'uppercase',
     letterSpacing: 0.3,
@@ -1115,7 +1116,7 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   cropPillBtnText: {
-    fontSize: 12,
+    fontSize: fontSizes.sm,
     fontWeight: '700',
   },
   miniStatusDot: {
@@ -1134,7 +1135,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   selectedScopeTitle: {
-    fontSize: 13,
+    fontSize: fontSizes.sm,
     fontWeight: '700',
   },
   cropStatusBadge: {
@@ -1144,7 +1145,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   cropStatusBadgeText: {
-    fontSize: 11,
+    fontSize: fontSizes.xs,
     fontWeight: '800',
     letterSpacing: 0.2,
   },

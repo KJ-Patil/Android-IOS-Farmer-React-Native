@@ -198,7 +198,6 @@ export default {
   custom: 'മറ്റുള്ളവ',
 
   // Ledger
-  notebook: 'നോട്ട്ബുക്ക്',
   overallIncome: 'ആകെ വരുമാനം',
   overallExpense: 'ആകെ ചെലവ്',
   dairyFarming: 'ക്ഷീര കൃഷി',
@@ -224,7 +223,6 @@ export default {
   allTransactions: 'എല്ലാ ഇടപാടുകളും',
   incomeRegister: 'വരുമാന രജിസ്റ്റർ',
   profitLoss: 'ലാഭ നഷ്ടം',
-  reportsExport: 'റിപ്പോർട്ടുകളും കയറ്റുമതിയും',
   partyLedgers: 'പാർട്ടി കണക്കുപുസ്തകം',
   creditDues: 'കടവും ബാക്കിയും',
   income: 'വരുമാനം',

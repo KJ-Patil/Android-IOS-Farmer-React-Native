@@ -28,7 +28,7 @@ import {
   ChevronDown,
   ChevronUp,
 } from 'lucide-react-native';
-import { ms } from '../../../shared/utils/responsive';
+import { fontSizes } from '../../../shared/utils/typography';
 
 interface CreditTrackerViewProps {
   onOpenAddModal?: () => void;
@@ -146,7 +146,7 @@ export function CreditTrackerView({ onOpenAddModal }: CreditTrackerViewProps) {
               </View>
             </View>
 
-            <Text style={{ color: colors.foreground, fontSize: ms(14), fontWeight: '700', marginTop: 12, marginBottom: 6 }}>
+            <Text style={{ color: colors.foreground, fontSize: fontSizes.base, fontWeight: '700', marginTop: 12, marginBottom: 6 }}>
               {t('creditBills')} ({toNative(creditPurchases.length)})
             </Text>
           </View>
@@ -154,7 +154,7 @@ export function CreditTrackerView({ onOpenAddModal }: CreditTrackerViewProps) {
         ListEmptyComponent={
           <View style={{ paddingVertical: 40, alignItems: 'center' }}>
             <CheckCircle2 color={colors.primary} size={36} />
-            <Text style={{ color: colors.mutedFg, marginTop: 10, fontSize: ms(13), fontWeight: '600' }}>
+            <Text style={{ color: colors.mutedFg, marginTop: 10, fontSize: fontSizes.sm, fontWeight: '600' }}>
               {t('noPendingCreditDues')}
             </Text>
           </View>
@@ -174,13 +174,13 @@ export function CreditTrackerView({ onOpenAddModal }: CreditTrackerViewProps) {
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, flex: 1 }}>
                   <View style={[styles.partyIcon, { backgroundColor: overdue ? '#FEE2E2' : isSettled ? '#DCFCE7' : '#FEF3C7' }]}>
-                    <Text style={{ fontSize: 16 }}>{overdue ? '⚠️' : isSettled ? '✅' : '🧾'}</Text>
+                    <Text style={{ fontSize: fontSizes.md }}>{overdue ? '⚠️' : isSettled ? '✅' : '🧾'}</Text>
                   </View>
                   <View style={{ flex: 1 }}>
-                    <Text style={{ color: colors.foreground, fontWeight: '700', fontSize: ms(14) }} numberOfLines={1}>
+                    <Text style={{ color: colors.foreground, fontWeight: '700', fontSize: fontSizes.base }} numberOfLines={1}>
                       {tx.partyName || tCategory(tx.category, t)}
                     </Text>
-                    <Text style={{ color: colors.mutedFg, fontSize: ms(12), marginTop: 1 }}>
+                    <Text style={{ color: colors.mutedFg, fontSize: fontSizes.sm, marginTop: 1 }}>
                       {tCategory(tx.category, t)} • {fmtDMY(tx.date)}
                     </Text>
                   </View>
@@ -197,18 +197,18 @@ export function CreditTrackerView({ onOpenAddModal }: CreditTrackerViewProps) {
               {/* Amount row */}
               <View style={[styles.amountRow, { backgroundColor: colors.background, borderColor: colors.border }]}>
                 <View style={{ alignItems: 'center', flex: 1 }}>
-                  <Text style={{ color: colors.mutedFg, fontSize: ms(11) }}>{t('total')}</Text>
-                  <Text style={{ color: colors.foreground, fontSize: ms(15), fontWeight: '700' }}>{fmt(tx.amount)}</Text>
+                  <Text style={{ color: colors.mutedFg, fontSize: fontSizes.xs }}>{t('total')}</Text>
+                  <Text style={{ color: colors.foreground, fontSize: fontSizes.base, fontWeight: '700' }}>{fmt(tx.amount)}</Text>
                 </View>
                 <View style={{ width: 1, height: 28, backgroundColor: colors.border }} />
                 <View style={{ alignItems: 'center', flex: 1 }}>
-                  <Text style={{ color: colors.mutedFg, fontSize: ms(11) }}>{t('paid')}</Text>
-                  <Text style={{ color: '#16A34A', fontSize: ms(15), fontWeight: '700' }}>{fmt(paidAmount)}</Text>
+                  <Text style={{ color: colors.mutedFg, fontSize: fontSizes.xs }}>{t('paid')}</Text>
+                  <Text style={{ color: '#16A34A', fontSize: fontSizes.base, fontWeight: '700' }}>{fmt(paidAmount)}</Text>
                 </View>
                 <View style={{ width: 1, height: 28, backgroundColor: colors.border }} />
                 <View style={{ alignItems: 'center', flex: 1 }}>
-                  <Text style={{ color: colors.mutedFg, fontSize: ms(11) }}>{t('due')}</Text>
-                  <Text style={{ color: '#DC2626', fontSize: ms(15), fontWeight: '700' }}>{fmt(pending)}</Text>
+                  <Text style={{ color: colors.mutedFg, fontSize: fontSizes.xs }}>{t('due')}</Text>
+                  <Text style={{ color: '#DC2626', fontSize: fontSizes.base, fontWeight: '700' }}>{fmt(pending)}</Text>
                 </View>
               </View>
 
@@ -221,7 +221,7 @@ export function CreditTrackerView({ onOpenAddModal }: CreditTrackerViewProps) {
               {tx.dueDate && !isSettled && (
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 8 }}>
                   <Calendar color={overdue ? colors.destructive : colors.mutedFg} size={13} />
-                  <Text style={{ color: overdue ? colors.destructive : colors.mutedFg, fontSize: ms(12), fontWeight: overdue ? '700' : '500' }}>
+                  <Text style={{ color: overdue ? colors.destructive : colors.mutedFg, fontSize: fontSizes.sm, fontWeight: overdue ? '700' : '500' }}>
                     {t('due')}: {fmtDMY(tx.dueDate)}
                   </Text>
                 </View>
@@ -233,7 +233,7 @@ export function CreditTrackerView({ onOpenAddModal }: CreditTrackerViewProps) {
                   onPress={() => setExpandedTxId(isExpanded ? null : tx.id)}
                   style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}
                 >
-                  <Text style={{ color: colors.primary, fontSize: ms(12), fontWeight: '600' }}>
+                  <Text style={{ color: colors.primary, fontSize: fontSizes.sm, fontWeight: '600' }}>
                     {toNative(payments.length)} {t('installments')}
                   </Text>
                   {isExpanded ? <ChevronUp color={colors.primary} size={14} /> : <ChevronDown color={colors.primary} size={14} />}
@@ -246,7 +246,7 @@ export function CreditTrackerView({ onOpenAddModal }: CreditTrackerViewProps) {
                     style={[styles.payBtn, { backgroundColor: overdue ? '#DC2626' : colors.primary }]}
                   >
                     <Wallet size={14} color="#FFFFFF" />
-                    <Text style={{ color: '#FFFFFF', fontWeight: '700', fontSize: ms(13) }}>{t('payInstallment')}</Text>
+                    <Text style={{ color: '#FFFFFF', fontWeight: '700', fontSize: fontSizes.sm }}>{t('payInstallment')}</Text>
                   </TouchableOpacity>
                 )}
               </View>
@@ -254,18 +254,18 @@ export function CreditTrackerView({ onOpenAddModal }: CreditTrackerViewProps) {
               {/* Payment history */}
               {isExpanded && (
                 <View style={{ marginTop: 10, paddingTop: 8, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.border }}>
-                  <Text style={{ color: colors.foreground, fontSize: ms(13), fontWeight: '700', marginBottom: 6 }}>
+                  <Text style={{ color: colors.foreground, fontSize: fontSizes.sm, fontWeight: '700', marginBottom: 6 }}>
                     {t('paymentHistory')}:
                   </Text>
                   {payments.length === 0 ? (
-                    <Text style={{ color: colors.mutedFg, fontSize: ms(13) }}>{t('noPartialPayments')}</Text>
+                    <Text style={{ color: colors.mutedFg, fontSize: fontSizes.sm }}>{t('noPartialPayments')}</Text>
                   ) : (
                     payments.map((p, idx) => (
                       <View key={p.id || idx} style={{ flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 5, borderBottomWidth: idx < payments.length - 1 ? StyleSheet.hairlineWidth : 0, borderBottomColor: colors.border }}>
-                        <Text style={{ color: colors.foreground, fontSize: ms(12) }}>
+                        <Text style={{ color: colors.foreground, fontSize: fontSizes.sm }}>
                           {fmtDMY(p.date)} • {tPaymentMode(p.paymentMode, t)}
                         </Text>
-                        <Text style={{ color: '#16A34A', fontSize: ms(13), fontWeight: '700' }}>+{fmt(p.amount)}</Text>
+                        <Text style={{ color: '#16A34A', fontSize: fontSizes.sm, fontWeight: '700' }}>+{fmt(p.amount)}</Text>
                       </View>
                     ))
                   )}
@@ -289,7 +289,7 @@ export function CreditTrackerView({ onOpenAddModal }: CreditTrackerViewProps) {
             </View>
 
             <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 40 }} keyboardShouldPersistTaps="handled">
-              <Text style={{ color: colors.mutedFg, fontSize: ms(12), marginBottom: 12 }}>
+              <Text style={{ color: colors.mutedFg, fontSize: fontSizes.sm, marginBottom: 12 }}>
                 {selectedTx.partyName || tCategory(selectedTx.category, t)} • {t('pending')}:{' '}
                 <Text style={{ fontWeight: '700', color: colors.destructive }}>
                   {fmt(selectedTx.pendingAmount ?? selectedTx.amount)}
@@ -330,7 +330,7 @@ export function CreditTrackerView({ onOpenAddModal }: CreditTrackerViewProps) {
                       style={{
                         color: payMode === mode ? colors.primary : colors.foreground,
                         fontWeight: '700',
-                        fontSize: ms(12),
+                        fontSize: fontSizes.sm,
                       }}
                     >
                       {t(mode)}
@@ -349,10 +349,10 @@ export function CreditTrackerView({ onOpenAddModal }: CreditTrackerViewProps) {
 
             <View style={[styles.unifiedFooter, { backgroundColor: colors.card, borderTopColor: colors.border }]}>
               <TouchableOpacity onPress={() => setSelectedTx(null)} activeOpacity={0.7} style={[styles.unifiedCancelBtn, { borderColor: colors.destructive }]}>
-                <Text style={{ color: colors.destructive, fontWeight: '700', fontSize: ms(15) }}>✕ {t('cancel')}</Text>
+                <Text style={{ color: colors.destructive, fontWeight: '700', fontSize: fontSizes.base }}>✕ {t('cancel')}</Text>
               </TouchableOpacity>
               <TouchableOpacity onPress={handleSettleSubmit} activeOpacity={0.7} disabled={loading} style={[styles.unifiedSaveBtn, { backgroundColor: colors.primary, shadowColor: colors.primary, opacity: loading ? 0.6 : 1 }]}>
-                <Text style={{ color: '#FFFFFF', fontWeight: '800', fontSize: ms(16) }}>{loading ? '...' : `✓ ${t('recordPayment')}`}</Text>
+                <Text style={{ color: '#FFFFFF', fontWeight: '800', fontSize: fontSizes.md }}>{loading ? '...' : `✓ ${t('recordPayment')}`}</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -365,17 +365,17 @@ export function CreditTrackerView({ onOpenAddModal }: CreditTrackerViewProps) {
 const styles = StyleSheet.create({
   headingIcon: { width: 36, height: 36, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
   headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  mainTitle: { fontSize: ms(16), fontWeight: '700' },
+  mainTitle: { fontSize: fontSizes.md, fontWeight: '700' },
   kpiTable: { flexDirection: 'row', marginVertical: 12, borderRadius: 12, borderWidth: 1, padding: 14, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.08, shadowRadius: 6, elevation: 3 },
   kpiCol: { flex: 1, alignItems: 'center', justifyContent: 'space-between' },
   kpiDivider: { width: 1, alignSelf: 'stretch', marginVertical: 2 },
-  kpiLabel: { fontSize: ms(11), fontWeight: '600', textTransform: 'uppercase', letterSpacing: 0.3, textAlign: 'center' },
-  kpiValue: { fontSize: ms(16), fontWeight: '800', marginTop: 4, textAlign: 'center' },
+  kpiLabel: { fontSize: fontSizes.xs, fontWeight: '600', textTransform: 'uppercase', letterSpacing: 0.3, textAlign: 'center' },
+  kpiValue: { fontSize: fontSizes.md, fontWeight: '800', marginTop: 4, textAlign: 'center' },
   modalOverlay: { flexGrow: 1, justifyContent: 'center', padding: 20 },
   modalCard: { borderRadius: 16, borderWidth: 1, padding: 18 },
   modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 },
-  modalTitle: { fontSize: ms(16), fontWeight: '700' },
-  inputLabel: { fontSize: ms(12), fontWeight: '600', marginBottom: 6, marginTop: 4 },
+  modalTitle: { fontSize: fontSizes.md, fontWeight: '700' },
+  inputLabel: { fontSize: fontSizes.sm, fontWeight: '600', marginBottom: 6, marginTop: 4 },
   modeRow: { flexDirection: 'row', gap: 8, marginBottom: 12 },
   modeChip: { flex: 1, paddingVertical: 8, borderRadius: 10, borderWidth: 1, alignItems: 'center' },
   partyIcon: {
@@ -423,7 +423,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   unifiedHeader: { flexDirection: 'row' as const, alignItems: 'center' as const, paddingHorizontal: 12, paddingTop: 14, paddingBottom: 10, borderBottomWidth: 1 },
-  unifiedTitle: { fontSize: ms(18), fontWeight: '800' as const },
+  unifiedTitle: { fontSize: fontSizes.lg, fontWeight: '800' as const },
   unifiedFooter: { flexDirection: 'row' as const, padding: 16, paddingBottom: 34, gap: 12, borderTopWidth: 1 },
   unifiedCancelBtn: { flex: 1, flexDirection: 'row' as const, alignItems: 'center' as const, justifyContent: 'center' as const, paddingVertical: 14, borderRadius: 14, borderWidth: 1.5 },
   unifiedSaveBtn: { flex: 1.5, flexDirection: 'row' as const, alignItems: 'center' as const, justifyContent: 'center' as const, paddingVertical: 14, borderRadius: 14, shadowOpacity: 0.35, shadowRadius: 8, shadowOffset: { width: 0, height: 4 }, elevation: 6 },

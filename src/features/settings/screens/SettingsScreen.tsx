@@ -23,6 +23,7 @@ import { Sparkles, Edit3, Check, Crown, Star, Zap } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { SUPPORTED_LANGUAGES } from '../../../shared/locales/i18n';
 import { useLocalizedFormat } from '../../../shared/hooks/useLocalizedFormat';
+import { fontSizes } from '../../../shared/utils/typography';
 
 export function SettingsScreen() {
   const { t, i18n } = useTranslation();
@@ -180,7 +181,7 @@ export function SettingsScreen() {
             </View>
           ))}
           {user?.geoLocation && (
-            <Text style={{ color: colors.primary, fontSize: 13, marginTop: 6 }}>
+            <Text style={{ color: colors.primary, fontSize: fontSizes.sm, marginTop: 6 }}>
               📍 GPS: {toNative((user.geoLocation as any).latitude || user.geoLocation.lat)},{' '}
               {toNative((user.geoLocation as any).longitude || user.geoLocation.lng)}
             </Text>
@@ -208,7 +209,7 @@ export function SettingsScreen() {
                   style={{
                     color: i18n.language === lang.code ? colors.primary : colors.foreground,
                     fontWeight: '700',
-                    fontSize: 14,
+                    fontSize: fontSizes.base,
                   }}
                 >
                   {lang.nativeLabel}
@@ -239,7 +240,7 @@ export function SettingsScreen() {
                   style={{
                     color: theme === mode ? colors.primary : colors.foreground,
                     fontWeight: '600',
-                    fontSize: 13,
+                    fontSize: fontSizes.sm,
                     textTransform: 'capitalize',
                   }}
                 >
@@ -255,7 +256,7 @@ export function SettingsScreen() {
           <Text style={[styles.sectionTitle, { color: colors.foreground }]}>
             {t('subscriptionPlan') || 'Subscription Plan'}
           </Text>
-          <Text style={{ color: colors.mutedFg, fontSize: 13, marginBottom: 14 }}>
+          <Text style={{ color: colors.mutedFg, fontSize: fontSizes.sm, marginBottom: 14 }}>
             {t('choosePlanDesc') || 'Choose a plan that suits your farming needs'}
           </Text>
 
@@ -278,21 +279,21 @@ export function SettingsScreen() {
               <Star color="#64748B" size={20} />
             </View>
             <View style={{ flex: 1 }}>
-              <Text style={{ color: colors.foreground, fontSize: 15, fontWeight: '700' }}>
+              <Text style={{ color: colors.foreground, fontSize: fontSizes.base, fontWeight: '700' }}>
                 {t('free')}
               </Text>
-              <Text style={{ color: colors.mutedFg, fontSize: 13, marginTop: 2 }}>
+              <Text style={{ color: colors.mutedFg, fontSize: fontSizes.sm, marginTop: 2 }}>
                 {t('freeFeatures') || 'Basic features, limited reports'}
               </Text>
             </View>
             <View style={{ alignItems: 'flex-end' }}>
-              <Text style={{ color: colors.primary, fontSize: 16, fontWeight: '800' }}>
+              <Text style={{ color: colors.primary, fontSize: fontSizes.md, fontWeight: '800' }}>
                 {t('free') || 'Free'}
               </Text>
               {(user?.membershipType === 'free' || !user?.membershipType) && (
                 <View style={[styles.activeBadge, { backgroundColor: colors.primary }]}>
                   <Check color="#FFF" size={10} />
-                  <Text style={{ color: '#FFF', fontSize: 10, fontWeight: '700', marginLeft: 2 }}>{t('active') || 'Active'}</Text>
+                  <Text style={{ color: '#FFF', fontSize: fontSizes.xs, fontWeight: '700', marginLeft: 2 }}>{t('active') || 'Active'}</Text>
                 </View>
               )}
             </View>
@@ -326,20 +327,20 @@ export function SettingsScreen() {
               <Crown color="#D97706" size={20} />
             </View>
             <View style={{ flex: 1 }}>
-              <Text style={{ color: colors.foreground, fontSize: 15, fontWeight: '700' }}>
+              <Text style={{ color: colors.foreground, fontSize: fontSizes.base, fontWeight: '700' }}>
                 {t('gold')}
               </Text>
-              <Text style={{ color: colors.mutedFg, fontSize: 13, marginTop: 2 }}>
+              <Text style={{ color: colors.mutedFg, fontSize: fontSizes.sm, marginTop: 2 }}>
                 {t('goldFeatures') || 'Full reports, WhatsApp share, party ledger'}
               </Text>
             </View>
             <View style={{ alignItems: 'flex-end' }}>
-              <Text style={{ color: '#D97706', fontSize: 16, fontWeight: '800' }}>{fmtCurrency(50)}</Text>
-              <Text style={{ color: colors.mutedFg, fontSize: 12 }}>/{t('month') || 'month'}</Text>
+              <Text style={{ color: '#D97706', fontSize: fontSizes.md, fontWeight: '800' }}>{fmtCurrency(50)}</Text>
+              <Text style={{ color: colors.mutedFg, fontSize: fontSizes.sm }}>/{t('month') || 'month'}</Text>
               {user?.membershipType === 'gold' && (
                 <View style={[styles.activeBadge, { backgroundColor: '#D97706' }]}>
                   <Check color="#FFF" size={10} />
-                  <Text style={{ color: '#FFF', fontSize: 10, fontWeight: '700', marginLeft: 2 }}>{t('active') || 'Active'}</Text>
+                  <Text style={{ color: '#FFF', fontSize: fontSizes.xs, fontWeight: '700', marginLeft: 2 }}>{t('active') || 'Active'}</Text>
                 </View>
               )}
             </View>
@@ -373,20 +374,20 @@ export function SettingsScreen() {
               <Zap color="#7C3AED" size={20} />
             </View>
             <View style={{ flex: 1 }}>
-              <Text style={{ color: colors.foreground, fontSize: 15, fontWeight: '700' }}>
+              <Text style={{ color: colors.foreground, fontSize: fontSizes.base, fontWeight: '700' }}>
                 {t('premium')}
               </Text>
-              <Text style={{ color: colors.mutedFg, fontSize: 13, marginTop: 2 }}>
+              <Text style={{ color: colors.mutedFg, fontSize: fontSizes.sm, marginTop: 2 }}>
                 {t('premiumFeatures') || 'AI insights, priority support, all features'}
               </Text>
             </View>
             <View style={{ alignItems: 'flex-end' }}>
-              <Text style={{ color: '#7C3AED', fontSize: 16, fontWeight: '800' }}>{fmtCurrency(90)}</Text>
-              <Text style={{ color: colors.mutedFg, fontSize: 12 }}>/{t('month') || 'month'}</Text>
+              <Text style={{ color: '#7C3AED', fontSize: fontSizes.md, fontWeight: '800' }}>{fmtCurrency(90)}</Text>
+              <Text style={{ color: colors.mutedFg, fontSize: fontSizes.sm }}>/{t('month') || 'month'}</Text>
               {user?.membershipType === 'premium' && (
                 <View style={[styles.activeBadge, { backgroundColor: '#7C3AED' }]}>
                   <Check color="#FFF" size={10} />
-                  <Text style={{ color: '#FFF', fontSize: 10, fontWeight: '700', marginLeft: 2 }}>{t('active') || 'Active'}</Text>
+                  <Text style={{ color: '#FFF', fontSize: fontSizes.xs, fontWeight: '700', marginLeft: 2 }}>{t('active') || 'Active'}</Text>
                 </View>
               )}
             </View>
@@ -427,10 +428,10 @@ export function SettingsScreen() {
 
           <View style={[styles.unifiedFooter, { backgroundColor: colors.card, borderTopColor: colors.border }]}>
             <TouchableOpacity onPress={() => setEditOpen(false)} activeOpacity={0.7} style={[styles.unifiedCancelBtn, { borderColor: colors.destructive }]}>
-              <Text style={{ color: colors.destructive, fontWeight: '700', fontSize: 15 }}>✕ {t('cancel')}</Text>
+              <Text style={{ color: colors.destructive, fontWeight: '700', fontSize: fontSizes.base }}>✕ {t('cancel')}</Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={handleSaveProfile} activeOpacity={0.7} disabled={saving} style={[styles.unifiedSaveBtn, { backgroundColor: colors.primary, shadowColor: colors.primary, opacity: saving ? 0.6 : 1 }]}>
-              <Text style={{ color: '#FFFFFF', fontWeight: '800', fontSize: 16 }}>{saving ? '...' : `✓ ${t('save')}`}</Text>
+              <Text style={{ color: '#FFFFFF', fontWeight: '800', fontSize: fontSizes.md }}>{saving ? '...' : `✓ ${t('save')}`}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -443,18 +444,18 @@ const styles = StyleSheet.create({
   profileHeader: { width: '100%', borderBottomLeftRadius: 24, borderBottomRightRadius: 24, overflow: 'hidden' },
   profileHeaderContent: { paddingHorizontal: 20, paddingBottom: 20 },
   profileTopRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 },
-  headerTitle: { fontSize: 20, fontWeight: '700', color: '#FFFFFF', letterSpacing: -0.3 },
+  headerTitle: { fontSize: fontSizes.lg, fontWeight: '700', color: '#FFFFFF', letterSpacing: -0.3 },
   editBtn: { flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: 'rgba(255,255,255,0.2)', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20 },
-  editBtnText: { color: '#FFFFFF', fontSize: 13, fontWeight: '600' },
+  editBtnText: { color: '#FFFFFF', fontSize: fontSizes.sm, fontWeight: '600' },
   profileRow: { flexDirection: 'row', alignItems: 'center' },
   avatarImg: { width: 56, height: 56, borderRadius: 28, borderWidth: 2, borderColor: 'rgba(255,255,255,0.4)' },
   avatar: { width: 56, height: 56, borderRadius: 28, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.2)', borderWidth: 2, borderColor: 'rgba(255,255,255,0.3)' },
-  avatarText: { color: '#FFF', fontSize: 22, fontWeight: '700' },
-  profileName: { fontSize: 17, fontWeight: '700', color: '#FFFFFF' },
-  profileInfo: { fontSize: 13, color: 'rgba(255,255,255,0.8)', marginTop: 2 },
+  avatarText: { color: '#FFF', fontSize: fontSizes.xl, fontWeight: '700' },
+  profileName: { fontSize: fontSizes.md, fontWeight: '700', color: '#FFFFFF' },
+  profileInfo: { fontSize: fontSizes.sm, color: 'rgba(255,255,255,0.8)', marginTop: 2 },
   membershipBadge: { flexDirection: 'row', alignItems: 'center', gap: 4, alignSelf: 'flex-start', paddingHorizontal: 10, paddingVertical: 3, borderRadius: 12, backgroundColor: 'rgba(255,255,255,0.18)', marginTop: 6 },
-  membershipText: { fontSize: 12, fontWeight: '700', textTransform: 'uppercase', color: '#FDE047' },
-  sectionTitle: { fontSize: 15, fontWeight: '700', marginBottom: 10 },
+  membershipText: { fontSize: fontSizes.sm, fontWeight: '700', textTransform: 'uppercase', color: '#FDE047' },
+  sectionTitle: { fontSize: fontSizes.base, fontWeight: '700', marginBottom: 10 },
   detailRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 8, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: 'rgba(0,0,0,0.06)' },
   optionRow: { flexDirection: 'row', gap: 10 },
   optionBtn: { flex: 1, paddingVertical: 12, alignItems: 'center', borderWidth: 1 },
@@ -463,13 +464,13 @@ const styles = StyleSheet.create({
   modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', padding: 20 },
   modalCard: { width: '100%', maxWidth: 440, alignSelf: 'center' },
   modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 },
-  modalTitle: { fontSize: 17, fontWeight: '700' },
+  modalTitle: { fontSize: fontSizes.md, fontWeight: '700' },
   modalActions: { flexDirection: 'row', gap: 10, marginTop: 16 },
   planCard: { flexDirection: 'row', alignItems: 'center', padding: 14, borderRadius: 12, borderWidth: 1.5, marginBottom: 10, gap: 12 },
   planIcon: { width: 40, height: 40, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
   activeBadge: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 8, marginTop: 4 },
   unifiedHeader: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, paddingTop: 14, paddingBottom: 10, borderBottomWidth: 1 },
-  unifiedTitle: { fontSize: 18, fontWeight: '800' },
+  unifiedTitle: { fontSize: fontSizes.lg, fontWeight: '800' },
   unifiedFooter: { flexDirection: 'row', padding: 16, paddingBottom: 34, gap: 12, borderTopWidth: 1 },
   unifiedCancelBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 14, borderRadius: 14, borderWidth: 1.5 },
   unifiedSaveBtn: { flex: 1.5, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 14, borderRadius: 14, shadowOpacity: 0.35, shadowRadius: 8, shadowOffset: { width: 0, height: 4 }, elevation: 6 },

@@ -28,7 +28,7 @@ import {
   Phone,
   X,
 } from 'lucide-react-native';
-import { ms } from '../../../shared/utils/responsive';
+import { fontSizes } from '../../../shared/utils/typography';
 
 interface PartySummary {
   name: string;
@@ -226,7 +226,7 @@ export function PartyLedgerView() {
                 activeOpacity={0.7}
               >
                 <ArrowLeft color={colors.primary} size={18} />
-                <Text style={{ color: colors.primary, fontWeight: '700', fontSize: ms(13), marginLeft: 6 }}>
+                <Text style={{ color: colors.primary, fontWeight: '700', fontSize: fontSizes.sm, marginLeft: 6 }}>
                   {t('allParties')}
                 </Text>
               </TouchableOpacity>
@@ -234,30 +234,30 @@ export function PartyLedgerView() {
               <Card style={{ marginTop: 10 }} padding={16}>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                   <View style={{ flex: 1 }}>
-                    <Text style={{ color: colors.foreground, fontSize: ms(16), fontWeight: '700' }}>
+                    <Text style={{ color: colors.foreground, fontSize: fontSizes.md, fontWeight: '700' }}>
                       {activeParty.name}
                     </Text>
                     {activeParty.phone && (
                       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 4 }}>
                         <Phone color={colors.mutedFg} size={12} />
-                        <Text style={{ color: colors.mutedFg, fontSize: ms(12) }}>{activeParty.phone}</Text>
+                        <Text style={{ color: colors.mutedFg, fontSize: fontSizes.sm }}>{activeParty.phone}</Text>
                       </View>
                     )}
                     {activeParty.partyType && (
-                      <Text style={{ color: colors.primary, fontSize: ms(12), fontWeight: '600', marginTop: 2 }}>
+                      <Text style={{ color: colors.primary, fontSize: fontSizes.sm, fontWeight: '600', marginTop: 2 }}>
                         {activeParty.partyType}
                       </Text>
                     )}
                   </View>
 
                   <View style={{ alignItems: 'flex-end' }}>
-                    <Text style={{ color: colors.mutedFg, fontSize: ms(12) }}>
+                    <Text style={{ color: colors.mutedFg, fontSize: fontSizes.sm }}>
                       {t('currentBalance')}
                     </Text>
                     <Text
                       style={{
                         color: netBal > 0 ? colors.destructive : colors.primary,
-                        fontSize: ms(16),
+                        fontSize: fontSizes.md,
                         fontWeight: '800',
                       }}
                     >
@@ -273,17 +273,17 @@ export function PartyLedgerView() {
                 {/* Dues summary row */}
                 <View style={[styles.duesRow, { borderTopColor: colors.border }]}>
                   <View>
-                    <Text style={{ color: colors.mutedFg, fontSize: ms(12) }}>{t('totalPurchases')}</Text>
-                    <Text style={{ color: colors.destructive, fontWeight: '700', fontSize: ms(13) }}>{fmt(activeParty.totalDebit)}</Text>
+                    <Text style={{ color: colors.mutedFg, fontSize: fontSizes.sm }}>{t('totalPurchases')}</Text>
+                    <Text style={{ color: colors.destructive, fontWeight: '700', fontSize: fontSizes.sm }}>{fmt(activeParty.totalDebit)}</Text>
                   </View>
                   <View>
-                    <Text style={{ color: colors.mutedFg, fontSize: ms(12) }}>{t('totalPaid')}</Text>
-                    <Text style={{ color: colors.primary, fontWeight: '700', fontSize: ms(13) }}>{fmt(activeParty.totalCredit)}</Text>
+                    <Text style={{ color: colors.mutedFg, fontSize: fontSizes.sm }}>{t('totalPaid')}</Text>
+                    <Text style={{ color: colors.primary, fontWeight: '700', fontSize: fontSizes.sm }}>{fmt(activeParty.totalCredit)}</Text>
                   </View>
                   {activeParty.pendingCreditDue > 0 && (
                     <View>
-                      <Text style={{ color: colors.mutedFg, fontSize: ms(12) }}>{t('pendingBills')}</Text>
-                      <Text style={{ color: colors.warning, fontWeight: '700', fontSize: ms(13) }}>{fmt(activeParty.pendingCreditDue)}</Text>
+                      <Text style={{ color: colors.mutedFg, fontSize: fontSizes.sm }}>{t('pendingBills')}</Text>
+                      <Text style={{ color: colors.warning, fontWeight: '700', fontSize: fontSizes.sm }}>{fmt(activeParty.pendingCreditDue)}</Text>
                     </View>
                   )}
                 </View>
@@ -297,7 +297,7 @@ export function PartyLedgerView() {
                 />
               </Card>
 
-              <Text style={{ color: colors.foreground, fontSize: ms(14), fontWeight: '700', marginTop: 16, marginBottom: 8 }}>
+              <Text style={{ color: colors.foreground, fontSize: fontSizes.base, fontWeight: '700', marginTop: 16, marginBottom: 8 }}>
                 {t('transactionsStatement')} ({toNative(partyTransactions.length)})
               </Text>
             </View>
@@ -311,15 +311,15 @@ export function PartyLedgerView() {
             <Card style={{ marginTop: 6 }} padding={12}>
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                 <View style={{ flex: 1 }}>
-                  <Text style={{ color: colors.foreground, fontWeight: '700', fontSize: ms(13) }}>
+                  <Text style={{ color: colors.foreground, fontWeight: '700', fontSize: fontSizes.sm }}>
                     {tx.category ? tCategory(tx.category, t) : (tx.type === 'expense' ? t('purchase') : t('payment'))}
                   </Text>
-                  <Text style={{ color: colors.mutedFg, fontSize: ms(12), marginTop: 2 }}>
+                  <Text style={{ color: colors.mutedFg, fontSize: fontSizes.sm, marginTop: 2 }}>
                     {fmtDMY(tx.date)} • {tPaymentMode(tx.paymentMode, t)}
                     {tx.billNumber ? ` • #${tx.billNumber}` : ''}
                   </Text>
                   {tx.notes && (
-                    <Text style={{ color: colors.mutedFg, fontSize: ms(12), fontStyle: 'italic', marginTop: 2 }}>
+                    <Text style={{ color: colors.mutedFg, fontSize: fontSizes.sm, fontStyle: 'italic', marginTop: 2 }}>
                       {tx.notes}
                     </Text>
                   )}
@@ -330,12 +330,12 @@ export function PartyLedgerView() {
                     style={{
                       color: tx.type === 'expense' ? colors.destructive : colors.primary,
                       fontWeight: '700',
-                      fontSize: ms(15),
+                      fontSize: fontSizes.base,
                     }}
                   >
                     {tx.type === 'expense' ? '-' : '+'}{fmt(tx.amount)}
                   </Text>
-                  <Text style={{ color: colors.mutedFg, fontSize: ms(12), marginTop: 2 }}>
+                  <Text style={{ color: colors.mutedFg, fontSize: fontSizes.sm, marginTop: 2 }}>
                     {t('balance')}: {fmt(Math.abs(tx.runningBalance))}
                   </Text>
                 </View>
@@ -379,7 +379,7 @@ export function PartyLedgerView() {
                   style={{
                     color: paymentType === 'pay_to_party' ? '#FFF' : colors.foreground,
                     fontWeight: '700',
-                    fontSize: ms(13),
+                    fontSize: fontSizes.sm,
                   }}
                 >
                   {t('paidToParty')}
@@ -399,7 +399,7 @@ export function PartyLedgerView() {
                   style={{
                     color: paymentType === 'receive_from_party' ? '#FFF' : colors.foreground,
                     fontWeight: '700',
-                    fontSize: ms(13),
+                    fontSize: fontSizes.sm,
                   }}
                 >
                   {t('receivedFromParty')}
@@ -441,7 +441,7 @@ export function PartyLedgerView() {
                     style={{
                       color: paymentMode === mode ? colors.primary : colors.foreground,
                       fontWeight: '700',
-                      fontSize: ms(12),
+                      fontSize: fontSizes.sm,
                     }}
                   >
                     {t(mode)}
@@ -460,10 +460,10 @@ export function PartyLedgerView() {
 
           <View style={[styles.unifiedFooter, { backgroundColor: colors.card, borderTopColor: colors.border }]}>
             <TouchableOpacity onPress={() => setIsPaymentModalOpen(false)} activeOpacity={0.7} style={[styles.unifiedCancelBtn, { borderColor: colors.destructive }]}>
-              <Text style={{ color: colors.destructive, fontWeight: '700', fontSize: ms(15) }}>✕ {t('cancel')}</Text>
+              <Text style={{ color: colors.destructive, fontWeight: '700', fontSize: fontSizes.base }}>✕ {t('cancel')}</Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={handlePaymentSubmit} activeOpacity={0.7} disabled={submitting} style={[styles.unifiedSaveBtn, { backgroundColor: colors.primary, shadowColor: colors.primary, opacity: submitting ? 0.6 : 1 }]}>
-              <Text style={{ color: '#FFFFFF', fontWeight: '800', fontSize: ms(16) }}>{submitting ? '...' : `✓ ${t('save')}`}</Text>
+              <Text style={{ color: '#FFFFFF', fontWeight: '800', fontSize: fontSizes.md }}>{submitting ? '...' : `✓ ${t('save')}`}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -487,7 +487,7 @@ export function PartyLedgerView() {
               <View style={[styles.headingIcon, { backgroundColor: '#E0E7FF' }]}>
                 <Users color="#4F46E5" size={20} />
               </View>
-              <Text style={{ color: colors.foreground, fontSize: ms(16), fontWeight: '700' }}>
+              <Text style={{ color: colors.foreground, fontSize: fontSizes.md, fontWeight: '700' }}>
                 {t('partyLedgersTitle')}
               </Text>
             </View>
@@ -531,7 +531,7 @@ export function PartyLedgerView() {
         ListEmptyComponent={
           <View style={{ paddingVertical: 40, alignItems: 'center' }}>
             <Users color={colors.mutedFg} size={36} />
-            <Text style={{ color: colors.mutedFg, marginTop: 10, fontSize: ms(13), fontWeight: '600' }}>
+            <Text style={{ color: colors.mutedFg, marginTop: 10, fontSize: fontSizes.sm, fontWeight: '600' }}>
               {t('noPartiesFound')}
             </Text>
           </View>
@@ -546,16 +546,16 @@ export function PartyLedgerView() {
               <Card style={{ marginTop: 8 }} padding={12}>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                   <View style={{ flex: 1 }}>
-                    <Text style={{ color: colors.foreground, fontWeight: '700', fontSize: ms(14) }}>
+                    <Text style={{ color: colors.foreground, fontWeight: '700', fontSize: fontSizes.base }}>
                       {party.name}
                     </Text>
-                    <Text style={{ color: colors.mutedFg, fontSize: ms(12), marginTop: 2 }}>
+                    <Text style={{ color: colors.mutedFg, fontSize: fontSizes.sm, marginTop: 2 }}>
                       {toNative(party.txCount)} {t('transactionsCount')}
                       {party.phone ? ` • 📞 ${party.phone}` : ''}
                       {party.lastDate ? ` • ${fmtDMY(party.lastDate)}` : ''}
                     </Text>
                     {party.pendingCreditDue > 0 && (
-                      <Text style={{ color: colors.warning, fontSize: ms(12), fontWeight: '700', marginTop: 2 }}>
+                      <Text style={{ color: colors.warning, fontSize: fontSizes.sm, fontWeight: '700', marginTop: 2 }}>
                         {t('pendingCreditLabel')} {fmt(party.pendingCreditDue)}
                       </Text>
                     )}
@@ -566,7 +566,7 @@ export function PartyLedgerView() {
                       style={{
                         color: netBal > 0 ? colors.destructive : colors.primary,
                         fontWeight: '700',
-                        fontSize: ms(15),
+                        fontSize: fontSizes.base,
                       }}
                     >
                       {fmt(Math.abs(netBal))}
@@ -593,21 +593,21 @@ const styles = StyleSheet.create({
   kpiTable: { flexDirection: 'row', marginVertical: 12, borderRadius: 12, borderWidth: 1, padding: 14, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.08, shadowRadius: 6, elevation: 3 },
   kpiCol: { flex: 1, alignItems: 'center', justifyContent: 'space-between' },
   kpiDivider: { width: 1, alignSelf: 'stretch', marginVertical: 2 },
-  kpiLabel: { fontSize: ms(11), fontWeight: '600', textTransform: 'uppercase', letterSpacing: 0.3, textAlign: 'center' },
-  kpiVal: { fontSize: ms(16), fontWeight: '800', marginTop: 4, textAlign: 'center' },
+  kpiLabel: { fontSize: fontSizes.xs, fontWeight: '600', textTransform: 'uppercase', letterSpacing: 0.3, textAlign: 'center' },
+  kpiVal: { fontSize: fontSizes.md, fontWeight: '800', marginTop: 4, textAlign: 'center' },
   searchBox: { flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderRadius: 12, paddingHorizontal: 10, height: 40, marginBottom: 8 },
-  searchInput: { flex: 1, marginLeft: 8, fontSize: ms(13), height: '100%' },
+  searchInput: { flex: 1, marginLeft: 8, fontSize: fontSizes.sm, height: '100%' },
   modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'center', padding: 20 },
   modalCard: { borderRadius: 16, borderWidth: 1, padding: 18 },
   modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
-  modalTitle: { fontSize: ms(15), fontWeight: '700' },
+  modalTitle: { fontSize: fontSizes.base, fontWeight: '700' },
   typeSwitcher: { flexDirection: 'row', gap: 8, marginBottom: 12 },
   typeBtn: { flex: 1, paddingVertical: 8, borderRadius: 10, alignItems: 'center' },
-  inputLabel: { fontSize: ms(12), fontWeight: '600', marginBottom: 6, marginTop: 4 },
+  inputLabel: { fontSize: fontSizes.sm, fontWeight: '600', marginBottom: 6, marginTop: 4 },
   modeRow: { flexDirection: 'row', gap: 8, marginBottom: 12 },
   modeChip: { flex: 1, paddingVertical: 8, borderRadius: 10, borderWidth: 1, alignItems: 'center' },
   unifiedHeader: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, paddingTop: 14, paddingBottom: 10, borderBottomWidth: 1 },
-  unifiedTitle: { fontSize: ms(18), fontWeight: '800' },
+  unifiedTitle: { fontSize: fontSizes.lg, fontWeight: '800' },
   unifiedFooter: { flexDirection: 'row', padding: 16, paddingBottom: 34, gap: 12, borderTopWidth: 1 },
   unifiedCancelBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 14, borderRadius: 14, borderWidth: 1.5 },
   unifiedSaveBtn: { flex: 1.5, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 14, borderRadius: 14, shadowOpacity: 0.35, shadowRadius: 8, shadowOffset: { width: 0, height: 4 }, elevation: 6 },

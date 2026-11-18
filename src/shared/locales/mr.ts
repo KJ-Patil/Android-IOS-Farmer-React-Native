@@ -199,7 +199,6 @@ export default {
   custom: 'इतर',
 
   // Ledger
-  notebook: 'नोटबुक',
   overallIncome: 'एकूण उत्पन्न',
   overallExpense: 'एकूण खर्च',
   dairyFarming: 'दुग्ध व्यवसाय',
@@ -227,7 +226,6 @@ export default {
   profit: 'नफा',
   loss: 'तोटा',
   profitLoss: 'नफा व तोटा',
-  reportsExport: 'अहवाल व निर्यात',
   partyLedgers: 'पार्टी खातेवही',
   creditDues: 'उधारी व देणी',
   income: 'उत्पन्न',
@@ -263,6 +261,8 @@ export default {
   otherIncome: 'इतर उत्पन्न',
   buyer: 'खरेदीदार',
   quantity: 'प्रमाण',
+  unit: 'एकक',
+  rate: 'दर',
   ratePerUnit: 'दर प्रति युनिट',
   grossAmount: 'एकूण रक्कम',
   deductions: 'कपात',

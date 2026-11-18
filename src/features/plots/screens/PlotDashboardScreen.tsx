@@ -11,11 +11,12 @@ import { Badge } from '../../../components/ui/Badge';
 import { AddCropModal } from '../../crops/components/AddCropModal';
 import { MoneyInModal } from '../../ledger/components/MoneyInModal';
 import { MoneyOutModal } from '../../ledger/components/MoneyOutModal';
-import { ArrowLeft, ArrowDownLeft, ArrowUpRight, Trash2, BookOpen, Wallet, TrendingUp } from 'lucide-react-native';
+import { ArrowLeft, ArrowDownLeft, ArrowUpRight, Trash2, Wallet, TrendingUp } from 'lucide-react-native';
 import { useLocalizedFormat } from '../../../shared/hooks/useLocalizedFormat';
 import { tCategory, tPaymentMode } from '../../../shared/utils/helpers';
+import { fontSizes } from '../../../shared/utils/typography';
 
-type LedgerTab = 'notebook' | 'income' | 'pnl';
+type LedgerTab = 'income' | 'pnl';
 
 const DIRECT_COST_CATEGORIES = [
   'seeds', 'fertilizers', 'pesticides', 'labor', 'weeding', 'tractor',
@@ -42,7 +43,7 @@ export function PlotDashboardScreen({ route, navigation }: any) {
   const [addCropVisible, setAddCropVisible] = useState(false);
   const [moneyInOpen, setMoneyInOpen] = useState(false);
   const [moneyOutOpen, setMoneyOutOpen] = useState(false);
-  const [ledgerTab, setLedgerTab] = useState<LedgerTab>('notebook');
+  const [ledgerTab, setLedgerTab] = useState<LedgerTab>('income');
 
   const plot = plots.find((p) => p.id === plotId);
   const plotCrops = useMemo(() => crops[plotId] || [], [crops, plotId]);
@@ -200,7 +201,7 @@ export function PlotDashboardScreen({ route, navigation }: any) {
               <Text style={[styles.financialCardTitle, { color: colors.foreground }]} numberOfLines={1}>
                 {selectedCrop ? `${t(selectedCrop.cropType)} ${t('ledger')}` : `${plot.name} ${t('ledger')}`}
               </Text>
-              <Text style={{ fontSize: 12, color: colors.mutedFg, marginTop: 2 }}>
+              <Text style={{ fontSize: fontSizes.sm, color: colors.mutedFg, marginTop: 2 }}>
                 {selectedCrop ? `${t('crop')} ${t('profitLoss')}` : `${t('plot')} ${t('profitLoss')}`}
               </Text>
             </View>
@@ -215,7 +216,7 @@ export function PlotDashboardScreen({ route, navigation }: any) {
             >
               <Text
                 style={{
-                  fontSize: 11,
+                  fontSize: fontSizes.xs,
                   fontWeight: '700',
                   color: financials.profit >= 0 ? '#16A34A' : '#DC2626',
                 }}
@@ -293,7 +294,7 @@ export function PlotDashboardScreen({ route, navigation }: any) {
               },
             ]}
           >
-            <Text style={{ fontSize: 13, fontWeight: '700', color: remaining > 0 ? '#FFFFFF' : colors.mutedFg }}>
+            <Text style={{ fontSize: fontSizes.sm, fontWeight: '700', color: remaining > 0 ? '#FFFFFF' : colors.mutedFg }}>
               + {t('addCrop')}
             </Text>
           </TouchableOpacity>
@@ -361,7 +362,7 @@ export function PlotDashboardScreen({ route, navigation }: any) {
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
               <View style={{ flex: 1, paddingRight: 8 }}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
-                  <Text style={{ fontSize: 15, fontWeight: '700', color: colors.foreground }}>
+                  <Text style={{ fontSize: fontSizes.base, fontWeight: '700', color: colors.foreground }}>
                     {t(selectedCrop.cropType)} {selectedCrop.variety ? `— ${selectedCrop.variety}` : ''}
                   </Text>
                   <Badge
@@ -375,7 +376,7 @@ export function PlotDashboardScreen({ route, navigation }: any) {
                     }
                   />
                 </View>
-                <Text style={{ fontSize: 12, color: colors.mutedFg, marginTop: 4 }}>
+                <Text style={{ fontSize: fontSizes.sm, color: colors.mutedFg, marginTop: 4 }}>
                   {toNative(selectedCrop.area)} {t(selectedCrop.areaUnit || 'acre')} • {t(selectedCrop.season.toLowerCase()) || selectedCrop.season} • {fmtDMY(selectedCrop.sowingDate)}
                 </Text>
               </View>
@@ -384,7 +385,7 @@ export function PlotDashboardScreen({ route, navigation }: any) {
                 style={[styles.manageCropBtn, { borderColor: colors.border, backgroundColor: colors.background }]}
                 activeOpacity={0.7}
               >
-                <Text style={{ fontSize: 12, fontWeight: '700', color: colors.primary }}>{t('details')} ›</Text>
+                <Text style={{ fontSize: fontSizes.sm, fontWeight: '700', color: colors.primary }}>{t('details')} ›</Text>
               </TouchableOpacity>
             </View>
           </Card>
@@ -393,7 +394,6 @@ export function PlotDashboardScreen({ route, navigation }: any) {
         {/* Mini-Ledger Tabs */}
         <View style={styles.ledgerTabBar}>
           {([
-            { key: 'notebook' as LedgerTab, label: t('notebook'), Icon: BookOpen },
             { key: 'income' as LedgerTab, label: t('incomeRegister'), Icon: Wallet },
             { key: 'pnl' as LedgerTab, label: t('profitLoss'), Icon: TrendingUp },
           ]).map((tab) => {
@@ -412,78 +412,13 @@ export function PlotDashboardScreen({ route, navigation }: any) {
                 ]}
               >
                 <tab.Icon size={14} color={isActive ? '#FFFFFF' : colors.mutedFg} />
-                <Text style={{ fontSize: 12, fontWeight: '700', color: isActive ? '#FFFFFF' : colors.mutedFg, marginLeft: 4 }} numberOfLines={1}>
+                <Text style={{ fontSize: fontSizes.sm, fontWeight: '700', color: isActive ? '#FFFFFF' : colors.mutedFg, marginLeft: 4 }} numberOfLines={1}>
                   {tab.label}
                 </Text>
               </TouchableOpacity>
             );
           })}
         </View>
-
-        {/* Notebook Tab — All Transactions */}
-        {ledgerTab === 'notebook' && (
-          <View>
-            <View style={styles.txHeaderRow}>
-              <Text style={[styles.sectionLabel, { color: colors.foreground }]}>
-                {selectedCrop
-                  ? `${t(selectedCrop.cropType)} ${t('ledger')} (${toNative(displayedTxns.length)})`
-                  : `${t('allTransactions')} (${toNative(displayedTxns.length)})`}
-              </Text>
-            </View>
-
-            {displayedTxns.length === 0 ? (
-              <Card style={{ padding: 24, alignItems: 'center', marginTop: 4 }}>
-                <Text style={{ color: colors.mutedFg, textAlign: 'center', fontSize: 13, fontWeight: '500' }}>
-                  {t('noData')}
-                </Text>
-                <Text style={{ color: colors.mutedFg, textAlign: 'center', fontSize: 11, marginTop: 4 }}>
-                  {t('moneyIn')} / {t('moneyOut')}
-                </Text>
-              </Card>
-            ) : (
-              displayedTxns.map((txn, index) => (
-                <Card key={txn.id || index} style={{ marginBottom: 8 }} padding={12}>
-                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <View style={{ flex: 1, paddingRight: 8 }}>
-                      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
-                        <Text style={{ color: colors.foreground, fontWeight: '700', fontSize: 14 }}>
-                          {tCategory(txn.category, t)}
-                        </Text>
-                        {txn.cropName && (
-                          <View style={[styles.miniCropTag, { backgroundColor: colors.primary + '12' }]}>
-                            <Text style={{ fontSize: 10, fontWeight: '600', color: colors.primary }}>
-                              {t(txn.cropName) || txn.cropName}
-                            </Text>
-                          </View>
-                        )}
-                      </View>
-                      <Text style={{ color: colors.mutedFg, fontSize: 12, marginTop: 3 }}>
-                        {fmtDMY(txn.date)} {txn.partyName ? `• ${txn.partyName}` : ''}{txn.billNumber ? ` • #${txn.billNumber}` : ''}
-                      </Text>
-                      {txn.notes ? (
-                        <Text style={{ color: colors.mutedFg, fontSize: 11, marginTop: 2 }} numberOfLines={1}>
-                          {txn.notes}
-                        </Text>
-                      ) : null}
-                    </View>
-                    <View style={{ alignItems: 'flex-end' }}>
-                      <Text
-                        style={{
-                          color: txn.type === 'income' ? '#16A34A' : colors.destructive,
-                          fontWeight: '800',
-                          fontSize: 15,
-                        }}
-                      >
-                        {txn.type === 'income' ? '+' : '-'}{fmtCurrency(txn.amount)}
-                      </Text>
-                      <Badge text={tPaymentMode(txn.paymentMode, t)} />
-                    </View>
-                  </View>
-                </Card>
-              ))
-            )}
-          </View>
-        )}
 
         {/* Income Tab — Income Transactions Only */}
         {ledgerTab === 'income' && (
@@ -496,7 +431,7 @@ export function PlotDashboardScreen({ route, navigation }: any) {
 
             {incomeTxns.length === 0 ? (
               <Card style={{ padding: 24, alignItems: 'center', marginTop: 4 }}>
-                <Text style={{ color: colors.mutedFg, textAlign: 'center', fontSize: 13, fontWeight: '500' }}>
+                <Text style={{ color: colors.mutedFg, textAlign: 'center', fontSize: fontSizes.sm, fontWeight: '500' }}>
                   {t('noData')}
                 </Text>
               </Card>
@@ -506,19 +441,19 @@ export function PlotDashboardScreen({ route, navigation }: any) {
                   <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                     <View style={{ flex: 1, paddingRight: 8 }}>
                       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
-                        <Text style={{ color: colors.foreground, fontWeight: '700', fontSize: 14 }}>
+                        <Text style={{ color: colors.foreground, fontWeight: '700', fontSize: fontSizes.base }}>
                           {tCategory(txn.category, t)}
                         </Text>
                         {txn.incomeCategory && (
                           <Badge text={t(txn.incomeCategory)} variant="success" />
                         )}
                       </View>
-                      <Text style={{ color: colors.mutedFg, fontSize: 12, marginTop: 3 }}>
+                      <Text style={{ color: colors.mutedFg, fontSize: fontSizes.sm, marginTop: 3 }}>
                         {fmtDMY(txn.date)} {txn.partyName ? `• ${txn.partyName}` : ''}
                       </Text>
                     </View>
                     <View style={{ alignItems: 'flex-end' }}>
-                      <Text style={{ color: '#16A34A', fontWeight: '800', fontSize: 15 }}>
+                      <Text style={{ color: '#16A34A', fontWeight: '800', fontSize: fontSizes.base }}>
                         +{fmtCurrency(txn.amount)}
                       </Text>
                       <Badge text={tPaymentMode(txn.paymentMode, t)} />
@@ -536,7 +471,7 @@ export function PlotDashboardScreen({ route, navigation }: any) {
             {/* Net Profit Hero */}
             <View style={[styles.pnlHeroCard, { backgroundColor: colors.card }]}>
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                <Text style={{ color: colors.mutedFg, fontSize: 12, fontWeight: '700', textTransform: 'uppercase' }}>
+                <Text style={{ color: colors.mutedFg, fontSize: fontSizes.sm, fontWeight: '700', textTransform: 'uppercase' }}>
                   {t('netProfit')}
                 </Text>
                 <Badge
@@ -544,14 +479,14 @@ export function PlotDashboardScreen({ route, navigation }: any) {
                   variant={pnl.netProfit >= 0 ? 'success' : 'destructive'}
                 />
               </View>
-              <Text style={{ color: pnl.netProfit >= 0 ? '#16A34A' : '#DC2626', fontSize: 26, fontWeight: '900', marginTop: 6 }}>
+              <Text style={{ color: pnl.netProfit >= 0 ? '#16A34A' : '#DC2626', fontSize: fontSizes.xxl, fontWeight: '900', marginTop: 6 }}>
                 {pnl.netProfit < 0 ? '-' : ''}{fmtCurrency(Math.abs(pnl.netProfit))}
               </Text>
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 10, paddingTop: 10, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.border }}>
-                <Text style={{ color: colors.mutedFg, fontSize: 13 }}>
+                <Text style={{ color: colors.mutedFg, fontSize: fontSizes.sm }}>
                   {t('revenue')}: <Text style={{ color: '#16A34A', fontWeight: '700' }}>{fmtCurrency(pnl.totalRevenue)}</Text>
                 </Text>
-                <Text style={{ color: colors.mutedFg, fontSize: 13 }}>
+                <Text style={{ color: colors.mutedFg, fontSize: fontSizes.sm }}>
                   {t('expenses')}: <Text style={{ color: '#DC2626', fontWeight: '700' }}>{fmtCurrency(pnl.directCosts + pnl.indirectCosts)}</Text>
                 </Text>
               </View>
@@ -560,38 +495,38 @@ export function PlotDashboardScreen({ route, navigation }: any) {
             {/* Revenue Breakdown */}
             <Card style={{ marginBottom: 10 }} padding={14}>
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                <Text style={{ color: colors.primary, fontSize: 13, fontWeight: '700' }}>A. {t('totalFarmRevenue')}</Text>
-                <Text style={{ color: colors.primary, fontSize: 15, fontWeight: '800' }}>{fmtCurrency(pnl.totalRevenue)}</Text>
+                <Text style={{ color: colors.primary, fontSize: fontSizes.sm, fontWeight: '700' }}>A. {t('totalFarmRevenue')}</Text>
+                <Text style={{ color: colors.primary, fontSize: fontSizes.base, fontWeight: '800' }}>{fmtCurrency(pnl.totalRevenue)}</Text>
               </View>
               <View style={styles.pnlDataRow}>
-                <Text style={{ color: colors.mutedFg, fontSize: 13 }}>{t('cropSales')}</Text>
-                <Text style={{ color: colors.foreground, fontWeight: '700', fontSize: 13 }}>{fmtCurrency(pnl.cropSales)}</Text>
+                <Text style={{ color: colors.mutedFg, fontSize: fontSizes.sm }}>{t('cropSales')}</Text>
+                <Text style={{ color: colors.foreground, fontWeight: '700', fontSize: fontSizes.sm }}>{fmtCurrency(pnl.cropSales)}</Text>
               </View>
               <View style={styles.pnlDataRow}>
-                <Text style={{ color: colors.mutedFg, fontSize: 13 }}>{t('dairyIncome')}</Text>
-                <Text style={{ color: colors.foreground, fontWeight: '700', fontSize: 13 }}>{fmtCurrency(pnl.dairyIncome)}</Text>
+                <Text style={{ color: colors.mutedFg, fontSize: fontSizes.sm }}>{t('dairyIncome')}</Text>
+                <Text style={{ color: colors.foreground, fontWeight: '700', fontSize: fontSizes.sm }}>{fmtCurrency(pnl.dairyIncome)}</Text>
               </View>
               <View style={styles.pnlDataRow}>
-                <Text style={{ color: colors.mutedFg, fontSize: 13 }}>{t('otherSubsidies')}</Text>
-                <Text style={{ color: colors.foreground, fontWeight: '700', fontSize: 13 }}>{fmtCurrency(pnl.otherIncome)}</Text>
+                <Text style={{ color: colors.mutedFg, fontSize: fontSizes.sm }}>{t('otherSubsidies')}</Text>
+                <Text style={{ color: colors.foreground, fontWeight: '700', fontSize: fontSizes.sm }}>{fmtCurrency(pnl.otherIncome)}</Text>
               </View>
             </Card>
 
             {/* Direct Costs */}
             <Card style={{ marginBottom: 10 }} padding={14}>
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                <Text style={{ color: colors.destructive, fontSize: 13, fontWeight: '700' }}>B. {t('directCosts')}</Text>
-                <Text style={{ color: colors.destructive, fontSize: 15, fontWeight: '800' }}>{fmtCurrency(pnl.directCosts)}</Text>
+                <Text style={{ color: colors.destructive, fontSize: fontSizes.sm, fontWeight: '700' }}>B. {t('directCosts')}</Text>
+                <Text style={{ color: colors.destructive, fontSize: fontSizes.base, fontWeight: '800' }}>{fmtCurrency(pnl.directCosts)}</Text>
               </View>
               {pnl.costBreakdown.length > 0 ? (
                 pnl.costBreakdown.slice(0, 8).map(([cat, amt]) => (
                   <View key={cat} style={styles.pnlDataRow}>
-                    <Text style={{ color: colors.mutedFg, fontSize: 13 }}>{t(cat)}</Text>
-                    <Text style={{ color: colors.foreground, fontWeight: '600', fontSize: 13 }}>{fmtCurrency(amt)}</Text>
+                    <Text style={{ color: colors.mutedFg, fontSize: fontSizes.sm }}>{t(cat)}</Text>
+                    <Text style={{ color: colors.foreground, fontWeight: '600', fontSize: fontSizes.sm }}>{fmtCurrency(amt)}</Text>
                   </View>
                 ))
               ) : (
-                <Text style={{ color: colors.mutedFg, fontSize: 12, fontStyle: 'italic', paddingVertical: 4 }}>
+                <Text style={{ color: colors.mutedFg, fontSize: fontSizes.sm, fontStyle: 'italic', paddingVertical: 4 }}>
                   {t('noData')}
                 </Text>
               )}
@@ -601,13 +536,13 @@ export function PlotDashboardScreen({ route, navigation }: any) {
             <View style={[styles.pnlHeroCard, { backgroundColor: colors.card, marginBottom: 10 }]}>
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                 <View>
-                  <Text style={{ color: '#2563EB', fontSize: 13, fontWeight: '700' }}>C. {t('grossProfit')}</Text>
+                  <Text style={{ color: '#2563EB', fontSize: fontSizes.sm, fontWeight: '700' }}>C. {t('grossProfit')}</Text>
                 </View>
                 <View style={{ alignItems: 'flex-end' }}>
-                  <Text style={{ color: pnl.grossProfit >= 0 ? '#16A34A' : '#DC2626', fontSize: 16, fontWeight: '800' }}>
+                  <Text style={{ color: pnl.grossProfit >= 0 ? '#16A34A' : '#DC2626', fontSize: fontSizes.md, fontWeight: '800' }}>
                     {fmtCurrency(pnl.grossProfit)}
                   </Text>
-                  <Text style={{ color: '#2563EB', fontSize: 13, fontWeight: '700' }}>
+                  <Text style={{ color: '#2563EB', fontSize: fontSizes.sm, fontWeight: '700' }}>
                     {toNative(pnl.grossMargin.toFixed(1))}% {t('margin')}
                   </Text>
                 </View>
@@ -617,8 +552,8 @@ export function PlotDashboardScreen({ route, navigation }: any) {
             {/* Indirect Costs */}
             <Card style={{ marginBottom: 10 }} padding={14}>
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                <Text style={{ color: '#D97706', fontSize: 13, fontWeight: '700' }}>D. {t('indirectCosts')}</Text>
-                <Text style={{ color: '#D97706', fontSize: 15, fontWeight: '800' }}>{fmtCurrency(pnl.indirectCosts)}</Text>
+                <Text style={{ color: '#D97706', fontSize: fontSizes.sm, fontWeight: '700' }}>D. {t('indirectCosts')}</Text>
+                <Text style={{ color: '#D97706', fontSize: fontSizes.base, fontWeight: '800' }}>{fmtCurrency(pnl.indirectCosts)}</Text>
               </View>
             </Card>
           </View>
@@ -641,10 +576,10 @@ export function PlotDashboardScreen({ route, navigation }: any) {
             />
           </View>
           <View style={styles.areaStats}>
-            <Text style={{ color: colors.mutedFg, fontSize: 12 }}>
+            <Text style={{ color: colors.mutedFg, fontSize: fontSizes.sm }}>
               {t('usedArea')}: <Text style={{ fontWeight: '700', color: colors.foreground }}>{toNative(usedArea.toFixed(2))}</Text>
             </Text>
-            <Text style={{ color: colors.mutedFg, fontSize: 12 }}>
+            <Text style={{ color: colors.mutedFg, fontSize: fontSizes.sm }}>
               {t('remainingArea')}: <Text style={{ fontWeight: '700', color: colors.primary }}>{toNative(remaining.toFixed(2))}</Text>
             </Text>
           </View>
@@ -652,28 +587,28 @@ export function PlotDashboardScreen({ route, navigation }: any) {
           <View style={[styles.divider, { backgroundColor: colors.border }]} />
 
           <View style={styles.detailRow}>
-            <Text style={{ color: colors.mutedFg, fontSize: 13 }}>{t('gatNumber')}</Text>
-            <Text style={{ color: colors.foreground, fontWeight: '700', fontSize: 13 }}>{toNative(plot.gatNumber)}</Text>
+            <Text style={{ color: colors.mutedFg, fontSize: fontSizes.sm }}>{t('gatNumber')}</Text>
+            <Text style={{ color: colors.foreground, fontWeight: '700', fontSize: fontSizes.sm }}>{toNative(plot.gatNumber)}</Text>
           </View>
           <View style={styles.detailRow}>
-            <Text style={{ color: colors.mutedFg, fontSize: 13 }}>{t('area')}</Text>
-            <Text style={{ color: colors.foreground, fontWeight: '700', fontSize: 13 }}>
+            <Text style={{ color: colors.mutedFg, fontSize: fontSizes.sm }}>{t('area')}</Text>
+            <Text style={{ color: colors.foreground, fontWeight: '700', fontSize: fontSizes.sm }}>
               {toNative(plot.area)} {t(plot.areaUnit || 'acre')}
             </Text>
           </View>
           <View style={styles.detailRow}>
-            <Text style={{ color: colors.mutedFg, fontSize: 13 }}>{t('soilType')}</Text>
-            <Text style={{ color: colors.foreground, fontWeight: '700', fontSize: 13 }}>
+            <Text style={{ color: colors.mutedFg, fontSize: fontSizes.sm }}>{t('soilType')}</Text>
+            <Text style={{ color: colors.foreground, fontWeight: '700', fontSize: fontSizes.sm }}>
               {t(plot.soilType) || plot.soilType}
             </Text>
           </View>
           <View style={styles.detailRow}>
-            <Text style={{ color: colors.mutedFg, fontSize: 13 }}>{t('irrigationType')}</Text>
-            <Text style={{ color: colors.foreground, fontWeight: '700', fontSize: 13 }}>{t(plot.irrigationType) || plot.irrigationType}</Text>
+            <Text style={{ color: colors.mutedFg, fontSize: fontSizes.sm }}>{t('irrigationType')}</Text>
+            <Text style={{ color: colors.foreground, fontWeight: '700', fontSize: fontSizes.sm }}>{t(plot.irrigationType) || plot.irrigationType}</Text>
           </View>
           <View style={[styles.detailRow, { borderBottomWidth: 0 }]}>
-            <Text style={{ color: colors.mutedFg, fontSize: 13 }}>{t('waterAvailability')}</Text>
-            <Text style={{ color: colors.foreground, fontWeight: '700', fontSize: 13 }}>
+            <Text style={{ color: colors.mutedFg, fontSize: fontSizes.sm }}>{t('waterAvailability')}</Text>
+            <Text style={{ color: colors.foreground, fontWeight: '700', fontSize: fontSizes.sm }}>
               {t(plot.waterAvailability) || plot.waterAvailability}
             </Text>
           </View>
@@ -732,33 +667,33 @@ const styles = StyleSheet.create({
   topBar: { flexDirection: 'row', alignItems: 'center', marginTop: 12, marginBottom: 8 },
   plotInfoSection: { marginBottom: 12, paddingHorizontal: 2 },
   backBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 10, borderWidth: 1 },
-  backBtnText: { fontSize: 14, fontWeight: '600' },
-  title: { fontSize: 20, fontWeight: '700' },
-  subtitle: { fontSize: 13, marginTop: 2 },
+  backBtnText: { fontSize: fontSizes.base, fontWeight: '600' },
+  title: { fontSize: fontSizes.lg, fontWeight: '700' },
+  subtitle: { fontSize: fontSizes.sm, marginTop: 2 },
   gatBadge: { paddingHorizontal: 8, paddingVertical: 2, borderRadius: 6, borderWidth: 1 },
-  gatText: { fontSize: 13, fontWeight: '700' },
+  gatText: { fontSize: fontSizes.sm, fontWeight: '700' },
 
   financialCard: { marginTop: 4, borderRadius: 18 },
   financialHeaderRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  financialCardTitle: { fontSize: 17, fontWeight: '800' },
+  financialCardTitle: { fontSize: fontSizes.md, fontWeight: '800' },
   profitBadge: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6, borderWidth: 1 },
 
   kpiCard: { flexDirection: 'row', marginTop: 14, borderRadius: 12, borderWidth: 1, padding: 14, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.08, shadowRadius: 6, elevation: 3 },
   kpiCol: { flex: 1, alignItems: 'center' },
   kpiDivider: { width: 1, alignSelf: 'stretch', marginVertical: 2 },
-  kpiLabel: { fontSize: 11, fontWeight: '600', textTransform: 'uppercase', letterSpacing: 0.3 },
-  kpiValue: { fontSize: 16, fontWeight: '800', marginTop: 4 },
+  kpiLabel: { fontSize: fontSizes.xs, fontWeight: '600', textTransform: 'uppercase', letterSpacing: 0.3 },
+  kpiValue: { fontSize: fontSizes.md, fontWeight: '800', marginTop: 4 },
 
   actionBtnRow: { flexDirection: 'row', gap: 10, marginTop: 14 },
   actionBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingVertical: 10, borderRadius: 10 },
-  actionBtnText: { color: '#FFFFFF', fontSize: 13, fontWeight: '700' },
+  actionBtnText: { color: '#FFFFFF', fontSize: fontSizes.sm, fontWeight: '700' },
 
   cropSelectorHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 18, marginBottom: 8 },
-  sectionLabel: { fontSize: 15, fontWeight: '800' },
+  sectionLabel: { fontSize: fontSizes.base, fontWeight: '800' },
   addCropChipBtn: { paddingHorizontal: 14, paddingVertical: 8, borderRadius: 10, borderWidth: 1.5 },
   cropChipsScroll: { flexDirection: 'row', gap: 8, paddingBottom: 6 },
   cropChip: { paddingHorizontal: 14, paddingVertical: 8, borderRadius: 10, borderWidth: 1.5 },
-  cropChipText: { fontSize: 13, fontWeight: '700' },
+  cropChipText: { fontSize: fontSizes.sm, fontWeight: '700' },
 
   selectedCropCard: { marginTop: 10, borderRadius: 12 },
   manageCropBtn: { paddingHorizontal: 10, paddingVertical: 6, borderRadius: 8, borderWidth: 1 },
@@ -770,7 +705,7 @@ const styles = StyleSheet.create({
   pnlHeroCard: { borderRadius: 16, padding: 16, marginBottom: 12, shadowColor: '#000', shadowOffset: { width: 0, height: 3 }, shadowOpacity: 0.1, shadowRadius: 8, elevation: 4 },
   pnlDataRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 6, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: 'rgba(0,0,0,0.06)' },
 
-  sectionTitle: { fontSize: 15, fontWeight: '700' },
+  sectionTitle: { fontSize: fontSizes.base, fontWeight: '700' },
   progressBar: { height: 8, borderRadius: 4, overflow: 'hidden', marginTop: 10, marginBottom: 8 },
   progressFill: { height: '100%', borderRadius: 4 },
   areaStats: { flexDirection: 'row', justifyContent: 'space-between' },

@@ -198,7 +198,6 @@ export default {
   custom: 'ਹੋਰ',
 
   // Ledger
-  notebook: 'ਨੋਟਬੁੱਕ',
   overallIncome: 'ਕੁੱਲ ਆਮਦਨ',
   overallExpense: 'ਕੁੱਲ ਖਰਚ',
   dairyFarming: 'ਡੇਅਰੀ ਫਾਰਮਿੰਗ',
@@ -224,7 +223,6 @@ export default {
   allTransactions: 'ਸਾਰੇ ਲੈਣ-ਦੇਣ',
   incomeRegister: 'ਆਮਦਨ ਰਜਿਸਟਰ',
   profitLoss: 'ਲਾਭ ਤੇ ਘਾਟਾ',
-  reportsExport: 'ਰਿਪੋਰਟਾਂ ਤੇ ਨਿਰਯਾਤ',
   partyLedgers: 'ਪਾਰਟੀ ਖਾਤਾ ਵਹੀ',
   creditDues: 'ਉਧਾਰ ਤੇ ਬਕਾਇਆ',
   income: 'ਆਮਦਨ',

@@ -198,7 +198,6 @@ export default {
   custom: 'ಇತರೆ',
 
   // Ledger
-  notebook: 'ನೋಟ್‌ಬುಕ್',
   overallIncome: 'ಒಟ್ಟು ಆದಾಯ',
   overallExpense: 'ಒಟ್ಟು ವೆಚ್ಚ',
   dairyFarming: 'ಡೈರಿ ಫಾರ್ಮಿಂಗ್',
@@ -224,7 +223,6 @@ export default {
   allTransactions: 'ಎಲ್ಲಾ ವಹಿವಾಟುಗಳು',
   incomeRegister: 'ಆದಾಯ ನೋಂದಣಿ',
   profitLoss: 'ಲಾಭ ಮತ್ತು ನಷ್ಟ',
-  reportsExport: 'ವರದಿಗಳು ಮತ್ತು ರಫ್ತು',
   partyLedgers: 'ಪಾರ್ಟಿ ಖಾತೆ ಪುಸ್ತಕ',
   creditDues: 'ಸಾಲ ಮತ್ತು ಬಾಕಿ',
   income: 'ಆದಾಯ',

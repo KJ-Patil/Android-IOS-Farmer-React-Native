@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet, Modal } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../app/providers/ThemeProvider';
 import { Button } from './Button';
+import { fontSizes } from '../../shared/utils/typography';
 
 interface DatePickerInputProps {
   label: string;
@@ -86,7 +87,7 @@ export function DatePickerInput({ label, value, onChange }: DatePickerInputProps
           onPress={handleOpen}
           style={[styles.input, { borderColor: colors.border, backgroundColor: colors.card, borderRadius: colors.radius }]}
         >
-          <Text style={{ color: value ? colors.foreground : colors.mutedFg, fontSize: 16 }}>{displayValue}</Text>
+          <Text style={{ color: value ? colors.foreground : colors.mutedFg, fontSize: fontSizes.md }}>{displayValue}</Text>
         </TouchableOpacity>
       </View>
 
@@ -94,9 +95,9 @@ export function DatePickerInput({ label, value, onChange }: DatePickerInputProps
         <View style={styles.overlay}>
           <View style={[styles.sheet, { backgroundColor: colors.card }]}>
             <View style={styles.monthNav}>
-              <TouchableOpacity onPress={prevMonth}><Text style={{ color: colors.primary, fontSize: 22, fontWeight: '600' }}>‹</Text></TouchableOpacity>
-              <Text style={{ color: colors.foreground, fontSize: 16, fontWeight: '600' }}>{MONTHS[month]} {year}</Text>
-              <TouchableOpacity onPress={nextMonth}><Text style={{ color: colors.primary, fontSize: 22, fontWeight: '600' }}>›</Text></TouchableOpacity>
+              <TouchableOpacity onPress={prevMonth}><Text style={{ color: colors.primary, fontSize: fontSizes.xl, fontWeight: '600' }}>‹</Text></TouchableOpacity>
+              <Text style={{ color: colors.foreground, fontSize: fontSizes.md, fontWeight: '600' }}>{MONTHS[month]} {year}</Text>
+              <TouchableOpacity onPress={nextMonth}><Text style={{ color: colors.primary, fontSize: fontSizes.xl, fontWeight: '600' }}>›</Text></TouchableOpacity>
             </View>
 
             <View style={styles.weekHeader}>
@@ -117,7 +118,7 @@ export function DatePickerInput({ label, value, onChange }: DatePickerInputProps
                       d === day ? { backgroundColor: colors.primary, borderRadius: 18 } : undefined,
                     ]}
                   >
-                    <Text style={{ color: d === null ? 'transparent' : d === day ? colors.primaryFg : colors.foreground, fontSize: 14, fontWeight: d === day ? '700' : '400' }}>
+                    <Text style={{ color: d === null ? 'transparent' : d === day ? colors.primaryFg : colors.foreground, fontSize: fontSizes.base, fontWeight: d === day ? '700' : '400' }}>
                       {d ?? ''}
                     </Text>
                   </TouchableOpacity>
@@ -137,13 +138,13 @@ export function DatePickerInput({ label, value, onChange }: DatePickerInputProps
 }
 
 const styles = StyleSheet.create({
-  label: { fontSize: 14, fontWeight: '500', marginBottom: 6 },
+  label: { fontSize: fontSizes.base, fontWeight: '500', marginBottom: 6 },
   input: { borderWidth: 1, paddingHorizontal: 14, paddingVertical: 12, minHeight: 48 },
   overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center', padding: 24 },
   sheet: { width: '100%', maxWidth: 360, borderRadius: 16, padding: 20, elevation: 5, shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.15, shadowRadius: 8 },
   monthNav: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 },
   weekHeader: { flexDirection: 'row', marginBottom: 4 },
-  weekDay: { flex: 1, textAlign: 'center', fontSize: 12, fontWeight: '600' },
+  weekDay: { flex: 1, textAlign: 'center', fontSize: fontSizes.sm, fontWeight: '600' },
   weekRow: { flexDirection: 'row' },
   dayCell: { flex: 1, height: 36, alignItems: 'center', justifyContent: 'center' },
 });

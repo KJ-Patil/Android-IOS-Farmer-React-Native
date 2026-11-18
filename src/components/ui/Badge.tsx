@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { useTheme } from '../../app/providers/ThemeProvider';
+import { fontSizes } from '../../shared/utils/typography';
 
 interface BadgeProps {
   text: string;
@@ -35,5 +36,5 @@ export function Badge({ text, variant = 'default' }: BadgeProps) {
 
 const styles = StyleSheet.create({
   badge: { paddingHorizontal: 8, paddingVertical: 3, alignSelf: 'flex-start' },
-  text: { fontSize: 12, fontWeight: '600' },
+  text: { fontSize: fontSizes.sm, fontWeight: '600' },
 });

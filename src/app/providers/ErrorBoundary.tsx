@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, ScrollView, StyleSheet } from 'react-native';
+import { fontSizes } from '../../shared/utils/typography';
 
 interface State {
   hasError: boolean;
@@ -32,9 +33,9 @@ export class ErrorBoundary extends React.Component<{ children: React.ReactNode }
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#1a1a2e', padding: 24, paddingTop: 60 },
-  title: { fontSize: 24, fontWeight: 'bold', color: '#e94560', marginBottom: 8 },
-  subtitle: { fontSize: 16, color: '#eee', marginBottom: 16 },
+  title: { fontSize: fontSizes.xl, fontWeight: 'bold', color: '#e94560', marginBottom: 8 },
+  subtitle: { fontSize: fontSizes.md, color: '#eee', marginBottom: 16 },
   scroll: { flex: 1, backgroundColor: '#16213e', borderRadius: 8, padding: 12 },
-  error: { fontSize: 14, color: '#e94560', marginBottom: 12, fontWeight: '600' },
-  stack: { fontSize: 11, color: '#a8a8a8', lineHeight: 18 },
+  error: { fontSize: fontSizes.base, color: '#e94560', marginBottom: 12, fontWeight: '600' },
+  stack: { fontSize: fontSizes.xs, color: '#a8a8a8', lineHeight: 18 },
 });

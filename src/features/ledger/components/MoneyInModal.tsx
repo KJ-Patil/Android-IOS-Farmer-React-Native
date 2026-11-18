@@ -12,6 +12,7 @@ import { useLocalizedFormat } from '../../../shared/hooks/useLocalizedFormat';
 import { ArrowLeft, ChevronDown, Search, Plus, X } from 'lucide-react-native';
 import type { IncomeCategory, PaymentMode } from '../../../shared/types/ledger';
 import { getFarmIncomeCategories } from '../../../shared/config/farmCategories';
+import { fontSizes } from '../../../shared/utils/typography';
 
 const STORAGE_KEY_PARTY_NAMES = '@farmer_party_names';
 const STORAGE_KEY_CUSTOM_INCOME_CATS = '@farmer_custom_income_categories';
@@ -40,7 +41,7 @@ export function MoneyInModal({ visible, onClose, plotId, cropId, farmId, farmNam
   const { fmtCurrency } = useLocalizedFormat();
 
   const [loading, setLoading] = useState(false);
-  const [category, setCategory] = useState<IncomeCategory | ''>(cropId ? 'crop_sale' : '');
+  const [category, setCategory] = useState<IncomeCategory | ''>(cropId ? 'crop_sale' : farmType ? 'dairy' : '');
 
   // Common fields
   const [paymentMode, setPaymentMode] = useState<PaymentMode>('cash');
@@ -151,7 +152,7 @@ export function MoneyInModal({ visible, onClose, plotId, cropId, farmId, farmNam
   // Dairy
   const [dairyProduct, setDairyProduct] = useState('');
   const [dairyQty, setDairyQty] = useState('');
-  const [dairyUnit, setDairyUnit] = useState('Ltr');
+  const [dairyUnit, setDairyUnit] = useState('');
   const [dairyRate, setDairyRate] = useState('');
 
   // Loan
@@ -299,7 +300,7 @@ export function MoneyInModal({ visible, onClose, plotId, cropId, farmId, farmNam
           onPress={() => onSelect(opt)}
           style={[styles.chip, { borderColor: selected === opt ? colors.primary : colors.border, backgroundColor: selected === opt ? colors.primary + '15' : colors.card, borderRadius: 8 }]}
         >
-          <Text style={{ color: selected === opt ? colors.primary : colors.foreground, fontWeight: '600', fontSize: 12 }}>{t(opt)}</Text>
+          <Text style={{ color: selected === opt ? colors.primary : colors.foreground, fontWeight: '600', fontSize: fontSizes.sm }}>{t(opt)}</Text>
         </TouchableOpacity>
       ))}
     </View>
@@ -336,21 +337,23 @@ export function MoneyInModal({ visible, onClose, plotId, cropId, farmId, farmNam
               {categories.map((cat) => (
                 <TouchableOpacity key={cat.key} onPress={() => setCategory(cat.key)}>
                   <Card style={{ marginBottom: 10, borderLeftWidth: 4, borderLeftColor: cat.color }}>
-                    <Text style={{ color: colors.foreground, fontWeight: '600', fontSize: 16 }}>{cat.label}</Text>
+                    <Text style={{ color: colors.foreground, fontWeight: '600', fontSize: fontSizes.md }}>{cat.label}</Text>
                   </Card>
                 </TouchableOpacity>
               ))}
             </>
           ) : (
             <>
-              <TouchableOpacity
-                onPress={() => setCategory('')}
-                activeOpacity={0.7}
-                style={[styles.backBtn, { borderColor: colors.border, backgroundColor: colors.card }]}
-              >
-                <ArrowLeft size={16} color={colors.foreground} />
-                <Text style={{ color: colors.foreground, fontWeight: '700', fontSize: 14, marginLeft: 6 }}>{t('back')}</Text>
-              </TouchableOpacity>
+              {!farmType && (
+                <TouchableOpacity
+                  onPress={() => setCategory('')}
+                  activeOpacity={0.7}
+                  style={[styles.backBtn, { borderColor: colors.border, backgroundColor: colors.card }]}
+                >
+                  <ArrowLeft size={16} color={colors.foreground} />
+                  <Text style={{ color: colors.foreground, fontWeight: '700', fontSize: fontSizes.base, marginLeft: 6 }}>{t('back')}</Text>
+                </TouchableOpacity>
+              )}
 
               {category === 'crop_sale' && (
                 <>
@@ -359,7 +362,7 @@ export function MoneyInModal({ visible, onClose, plotId, cropId, farmId, farmNam
                     <>
                       <Text style={[styles.label, { color: colors.foreground }]}>{t('plot')}</Text>
                       <View style={[styles.chip, { borderColor: colors.primary, backgroundColor: colors.primary + '15', borderRadius: 8, alignSelf: 'flex-start', marginBottom: 12 }]}>
-                        <Text style={{ color: colors.primary, fontWeight: '700', fontSize: 12 }}>{selectedPlot?.name}</Text>
+                        <Text style={{ color: colors.primary, fontWeight: '700', fontSize: fontSizes.sm }}>{selectedPlot?.name}</Text>
                       </View>
                     </>
                   ) : (
@@ -387,7 +390,7 @@ export function MoneyInModal({ visible, onClose, plotId, cropId, farmId, farmNam
                                 opacity: isDone ? 0.55 : 1,
                               }]}
                             >
-                              <Text style={{ color: isSelected ? colors.primary : isDone ? colors.mutedFg : colors.foreground, fontWeight: '600', fontSize: 12 }}>
+                              <Text style={{ color: isSelected ? colors.primary : isDone ? colors.mutedFg : colors.foreground, fontWeight: '600', fontSize: fontSizes.sm }}>
                                 {t(c.cropType)} {isDone ? `(${t(c.status)})` : ''}
                               </Text>
                             </TouchableOpacity>
@@ -413,36 +416,42 @@ export function MoneyInModal({ visible, onClose, plotId, cropId, farmId, farmNam
                   <Input label={t('otherDeduction')} value={otherDed} onChangeText={(v) => setOtherDed(v.replace(/[^0-9.]/g, ''))} keyboardType="decimal-pad" placeholder="0" />
 
                   <Card style={{ marginVertical: 10, borderLeftWidth: 4, borderLeftColor: colors.primary }} padding={12}>
-                    <Text style={{ color: colors.mutedFg, fontSize: 12 }}>{t('deductions')}: {fmtCurrency(totalDeductions)}</Text>
-                    <Text style={{ color: colors.primary, fontWeight: '700', fontSize: 18 }}>{t('netAmount')}: {fmtCurrency(netAmount)}</Text>
+                    <Text style={{ color: colors.mutedFg, fontSize: fontSizes.sm }}>{t('deductions')}: {fmtCurrency(totalDeductions)}</Text>
+                    <Text style={{ color: colors.primary, fontWeight: '700', fontSize: fontSizes.lg }}>{t('netAmount')}: {fmtCurrency(netAmount)}</Text>
                   </Card>
                 </>
               )}
 
               {category === 'dairy' && (
                 <>
-                  <View style={styles.incomeCatHeaderRow}>
-                    <Text style={[styles.sectionTitle, { color: colors.foreground, marginBottom: 0 }]}>
-                      {farmType && farmType !== 'dairy' ? t('farmIncome') : t('dairyIncome')}
-                    </Text>
-                    <TouchableOpacity
-                      onPress={() => setAddCustomIncomeCatOpen(true)}
-                      activeOpacity={0.75}
-                      style={styles.addIncomeCatBtn}
-                    >
-                      <Plus size={16} color="#FFFFFF" strokeWidth={2.5} />
-                      <Text style={styles.addIncomeCatBtnText}>{t('add')}</Text>
-                    </TouchableOpacity>
-                  </View>
-                  {farmType && farmType !== 'dairy'
-                    ? renderChips([...customIncomeCategories, ...getFarmIncomeCategories(farmType)], dairyProduct, setDairyProduct)
-                    : renderChips([...customIncomeCategories, ...DAIRY_PRODUCTS], dairyProduct, setDairyProduct)
-                  }
+                  {farmType ? (
+                    <>
+                      <Text style={[styles.sectionTitle, { color: colors.foreground }]}>{t('income')}</Text>
+                      <Input label={t('income')} value={dairyProduct} onChangeText={setDairyProduct} placeholder={t('enterName')} autoFocus />
+                    </>
+                  ) : (
+                    <>
+                      <View style={styles.incomeCatHeaderRow}>
+                        <Text style={[styles.sectionTitle, { color: colors.foreground, marginBottom: 0 }]}>
+                          {t('dairyIncome')}
+                        </Text>
+                        <TouchableOpacity
+                          onPress={() => setAddCustomIncomeCatOpen(true)}
+                          activeOpacity={0.75}
+                          style={styles.addIncomeCatBtn}
+                        >
+                          <Plus size={16} color="#FFFFFF" strokeWidth={2.5} />
+                          <Text style={styles.addIncomeCatBtnText}>{t('add')}</Text>
+                        </TouchableOpacity>
+                      </View>
+                      {renderChips([...customIncomeCategories, ...DAIRY_PRODUCTS], dairyProduct, setDairyProduct)}
+                    </>
+                  )}
                   <Input label={t('quantity')} value={dairyQty} onChangeText={(v) => setDairyQty(v.replace(/[^0-9.]/g, ''))} keyboardType="decimal-pad" />
                   <Input label={t('unit')} value={dairyUnit} onChangeText={setDairyUnit} />
                   <Input label={t('rate')} value={dairyRate} onChangeText={(v) => setDairyRate(v.replace(/[^0-9.]/g, ''))} keyboardType="decimal-pad" />
                   <Card style={{ marginVertical: 10 }} padding={12}>
-                    <Text style={{ color: colors.primary, fontWeight: '700', fontSize: 18 }}>{t('amount')}: {fmtCurrency(dairyTotal)}</Text>
+                    <Text style={{ color: colors.primary, fontWeight: '700', fontSize: fontSizes.lg }}>{t('amount')}: {fmtCurrency(dairyTotal)}</Text>
                   </Card>
                 </>
               )}
@@ -460,7 +469,7 @@ export function MoneyInModal({ visible, onClose, plotId, cropId, farmId, farmNam
                   <DatePickerInput label={t('firstInstallmentDate')} value={firstInstallment} onChange={setFirstInstallment} />
                   <DatePickerInput label={t('dueDate')} value={loanDueDate} onChange={setLoanDueDate} />
                   <Card style={{ marginVertical: 10, borderLeftWidth: 4, borderLeftColor: colors.warning }} padding={12}>
-                    <Text style={{ color: colors.warning, fontWeight: '700', fontSize: 18 }}>{t('netReceived')}: {fmtCurrency(loanNet)}</Text>
+                    <Text style={{ color: colors.warning, fontWeight: '700', fontSize: fontSizes.lg }}>{t('netReceived')}: {fmtCurrency(loanNet)}</Text>
                   </Card>
                 </>
               )}
@@ -486,7 +495,7 @@ export function MoneyInModal({ visible, onClose, plotId, cropId, farmId, farmNam
                     style={[styles.partyDropdown, { borderColor: colors.border, backgroundColor: colors.card, borderRadius: colors.radius }]}
                     activeOpacity={0.7}
                   >
-                    <Text style={{ color: partyName ? colors.foreground : colors.mutedFg, fontSize: 15, flex: 1 }} numberOfLines={1}>
+                    <Text style={{ color: partyName ? colors.foreground : colors.mutedFg, fontSize: fontSizes.base, flex: 1 }} numberOfLines={1}>
                       {partyName || t('optional')}
                     </Text>
                     <ChevronDown size={16} color={colors.mutedFg} />
@@ -500,7 +509,7 @@ export function MoneyInModal({ visible, onClose, plotId, cropId, farmId, farmNam
                           onChangeText={setPartyName}
                           placeholder={t('searchOrType')}
                           placeholderTextColor={colors.mutedFg}
-                          style={{ flex: 1, color: colors.foreground, fontSize: 14, padding: 0, marginLeft: 8 }}
+                          style={{ flex: 1, color: colors.foreground, fontSize: fontSizes.base, padding: 0, marginLeft: 8 }}
                           autoFocus
                         />
                         {partyName ? (
@@ -516,7 +525,7 @@ export function MoneyInModal({ visible, onClose, plotId, cropId, farmId, farmNam
                             onPress={() => { setPartyName(name); setPartyDropdownOpen(false); }}
                             style={[styles.partyItem, { borderBottomColor: colors.border }]}
                           >
-                            <Text style={{ color: colors.foreground, fontSize: 14 }}>{name}</Text>
+                            <Text style={{ color: colors.foreground, fontSize: fontSizes.base }}>{name}</Text>
                           </TouchableOpacity>
                         ))}
                         {filteredPartyNames.length === 0 && partyName.trim() ? (
@@ -525,7 +534,7 @@ export function MoneyInModal({ visible, onClose, plotId, cropId, farmId, farmNam
                             style={[styles.partyItem, { borderBottomColor: colors.border }]}
                           >
                             <Plus size={14} color={colors.primary} />
-                            <Text style={{ color: colors.primary, fontSize: 14, fontWeight: '600', marginLeft: 6 }}>
+                            <Text style={{ color: colors.primary, fontSize: fontSizes.base, fontWeight: '600', marginLeft: 6 }}>
                               {t('add')} {`"${partyName.trim()}"`}
                             </Text>
                           </TouchableOpacity>
@@ -546,7 +555,7 @@ export function MoneyInModal({ visible, onClose, plotId, cropId, farmId, farmNam
               <Modal visible={addPartyModalOpen} transparent animationType="fade">
                 <View style={styles.addPartyOverlay}>
                   <View style={[styles.addPartyCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
-                    <Text style={{ color: colors.foreground, fontSize: 16, fontWeight: '700', marginBottom: 12 }}>
+                    <Text style={{ color: colors.foreground, fontSize: fontSizes.md, fontWeight: '700', marginBottom: 12 }}>
                       {t('addPartyName')}
                     </Text>
                     <TextInput
@@ -588,11 +597,11 @@ export function MoneyInModal({ visible, onClose, plotId, cropId, farmId, farmNam
 
         <View style={[styles.footer, { backgroundColor: colors.card, borderTopColor: colors.border }]}>
           <TouchableOpacity onPress={onClose} activeOpacity={0.7} style={[styles.cancelBtn, { backgroundColor: colors.destructive }]}>
-            <Text style={{ color: '#FFFFFF', fontWeight: '700', fontSize: 15 }}>✕ {t('cancel')}</Text>
+            <Text style={{ color: '#FFFFFF', fontWeight: '700', fontSize: fontSizes.base }}>✕ {t('cancel')}</Text>
           </TouchableOpacity>
           {category && (
             <TouchableOpacity onPress={handleSave} activeOpacity={0.7} disabled={loading} style={[styles.saveBtn, { backgroundColor: '#16A34A', shadowColor: '#16A34A', opacity: loading ? 0.6 : 1 }]}>
-              <Text style={{ color: '#FFFFFF', fontWeight: '800', fontSize: 16 }}>{loading ? '...' : `✓ ${t('save')}`}</Text>
+              <Text style={{ color: '#FFFFFF', fontWeight: '800', fontSize: fontSizes.md }}>{loading ? '...' : `✓ ${t('save')}`}</Text>
             </TouchableOpacity>
           )}
         </View>
@@ -653,10 +662,10 @@ export function MoneyInModal({ visible, onClose, plotId, cropId, farmId, farmNam
 const styles = StyleSheet.create({
   container: { flex: 1 },
   header: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, paddingTop: 14, paddingBottom: 10, borderBottomWidth: 1 },
-  title: { fontSize: 18, fontWeight: '800' },
+  title: { fontSize: fontSizes.lg, fontWeight: '800' },
   scroll: { padding: 16, paddingBottom: 60 },
-  sectionTitle: { fontSize: 16, fontWeight: '600', marginBottom: 12 },
-  label: { fontSize: 14, fontWeight: '500', marginBottom: 8 },
+  sectionTitle: { fontSize: fontSizes.md, fontWeight: '600', marginBottom: 12 },
+  label: { fontSize: fontSizes.base, fontWeight: '500', marginBottom: 8 },
   chipGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 16 },
   chip: { borderWidth: 1.5, paddingVertical: 8, paddingHorizontal: 12 },
   divider: { height: 1, marginVertical: 20 },
@@ -671,16 +680,16 @@ const styles = StyleSheet.create({
   addPartyBtn: { width: 48, height: 48, alignItems: 'center', justifyContent: 'center' },
   addPartyOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center', padding: 20 },
   addPartyCard: { width: '100%', maxWidth: 380, borderRadius: 20, padding: 20, borderWidth: 1, shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.15, shadowRadius: 10, elevation: 8 },
-  addPartyInput: { borderWidth: 1, borderRadius: 12, paddingHorizontal: 14, paddingVertical: 12, fontSize: 16, minHeight: 48 },
+  addPartyInput: { borderWidth: 1, borderRadius: 12, paddingHorizontal: 14, paddingVertical: 12, fontSize: fontSizes.md, minHeight: 48 },
   addPartyActionBtn: { flex: 1, alignItems: 'center', paddingVertical: 12, borderRadius: 12 },
   incomeCatHeaderRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
   addIncomeCatBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: '#16A34A', paddingHorizontal: 12, paddingVertical: 7, borderRadius: 8 },
-  addIncomeCatBtnText: { color: '#FFFFFF', fontWeight: '700', fontSize: 13 },
+  addIncomeCatBtnText: { color: '#FFFFFF', fontWeight: '700', fontSize: fontSizes.sm },
   customCatBackdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center', padding: 20 },
   customCatCard: { width: '100%', maxWidth: 380, borderRadius: 20, padding: 20, borderWidth: 1, shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.15, shadowRadius: 10, elevation: 8 },
   customCatHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 },
-  customCatTitle: { fontSize: 16, fontWeight: '700' },
-  customCatInput: { borderWidth: 1, borderRadius: 12, paddingHorizontal: 14, paddingVertical: 12, fontSize: 16, minHeight: 48, marginBottom: 14 },
+  customCatTitle: { fontSize: fontSizes.md, fontWeight: '700' },
+  customCatInput: { borderWidth: 1, borderRadius: 12, paddingHorizontal: 14, paddingVertical: 12, fontSize: fontSizes.md, minHeight: 48, marginBottom: 14 },
   customCatActions: { flexDirection: 'row', gap: 10 },
   customCatActionBtn: { flex: 1, alignItems: 'center', paddingVertical: 12, borderRadius: 12 },
 });

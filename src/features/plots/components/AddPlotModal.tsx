@@ -5,6 +5,7 @@ import { useTheme } from '../../../app/providers/ThemeProvider';
 import { usePlotStore } from '../../../shared/hooks/usePlotStore';
 import { Input } from '../../../components/ui/Input';
 import { X, ChevronRight, Check, MapPin, Layers, Droplets, Sparkles } from 'lucide-react-native';
+import { fontSizes } from '../../../shared/utils/typography';
 
 interface AddPlotModalProps {
   visible: boolean;
@@ -116,7 +117,7 @@ export function AddPlotModal({ visible, onClose }: AddPlotModalProps) {
             {s < step ? (
               <Check size={16} color="#FFFFFF" strokeWidth={3} />
             ) : (
-              <Text style={{ fontSize: 16 }}>{STEP_ICONS[idx]}</Text>
+              <Text style={{ fontSize: fontSizes.md }}>{STEP_ICONS[idx]}</Text>
             )}
           </TouchableOpacity>
           {idx < 2 && (
@@ -189,7 +190,7 @@ export function AddPlotModal({ visible, onClose }: AddPlotModalProps) {
           <View style={{ width: 40 }} />
           <View style={{ alignItems: 'center', flex: 1 }}>
             <Text style={[styles.headerTitle, { color: colors.foreground }]}>{t('addPlot')}</Text>
-            <Text style={{ color: colors.mutedFg, fontSize: 12, marginTop: 2 }}>
+            <Text style={{ color: colors.mutedFg, fontSize: fontSizes.sm, marginTop: 2 }}>
               {t(STEP_LABELS_KEYS[step - 1])}
             </Text>
           </View>
@@ -215,10 +216,10 @@ export function AddPlotModal({ visible, onClose }: AddPlotModalProps) {
           {step === 1 && (
             <View>
               <View style={styles.stepHeaderRow}>
-                <Text style={{ fontSize: 28 }}>🌾</Text>
+                <Text style={{ fontSize: fontSizes.xxl }}>🌾</Text>
                 <View style={{ marginLeft: 10, flex: 1 }}>
                   <Text style={[styles.stepTitle, { color: colors.foreground }]}>{t('plotDetails')}</Text>
-                  <Text style={{ color: colors.mutedFg, fontSize: 13 }}>{t('enterPlotBasicInfo') || 'Enter your plot basic information'}</Text>
+                  <Text style={{ color: colors.mutedFg, fontSize: fontSizes.sm }}>{t('enterPlotBasicInfo') || 'Enter your plot basic information'}</Text>
                 </View>
               </View>
 
@@ -235,7 +236,7 @@ export function AddPlotModal({ visible, onClose }: AddPlotModalProps) {
                 />
 
                 <View style={styles.inputRow}>
-                  <Text style={{ fontSize: 16 }}>🔢</Text>
+                  <Text style={{ fontSize: fontSizes.md }}>🔢</Text>
                   <Text style={[styles.inputIcon, { color: colors.foreground }]}>{t('gatNumber')}</Text>
                 </View>
                 <Input
@@ -246,7 +247,7 @@ export function AddPlotModal({ visible, onClose }: AddPlotModalProps) {
                 />
 
                 <View style={styles.inputRow}>
-                  <Text style={{ fontSize: 16 }}>📐</Text>
+                  <Text style={{ fontSize: fontSizes.md }}>📐</Text>
                   <Text style={[styles.inputIcon, { color: colors.foreground }]}>{t('area')}</Text>
                 </View>
                 <Input
@@ -278,7 +279,7 @@ export function AddPlotModal({ visible, onClose }: AddPlotModalProps) {
                           },
                         ]}
                       >
-                        <Text style={{ color: sel ? '#FFFFFF' : colors.foreground, fontWeight: '700', fontSize: 14 }}>
+                        <Text style={{ color: sel ? '#FFFFFF' : colors.foreground, fontWeight: '700', fontSize: fontSizes.base }}>
                           {t(u)}
                         </Text>
                       </TouchableOpacity>
@@ -293,10 +294,10 @@ export function AddPlotModal({ visible, onClose }: AddPlotModalProps) {
           {step === 2 && (
             <View>
               <View style={styles.stepHeaderRow}>
-                <Text style={{ fontSize: 28 }}>🌱</Text>
+                <Text style={{ fontSize: fontSizes.xxl }}>🌱</Text>
                 <View style={{ marginLeft: 10, flex: 1 }}>
                   <Text style={[styles.stepTitle, { color: colors.foreground }]}>{t('soilAndWater') || 'Soil & Water'}</Text>
-                  <Text style={{ color: colors.mutedFg, fontSize: 13 }}>{t('selectSoilWaterInfo') || 'Select soil and water details'}</Text>
+                  <Text style={{ color: colors.mutedFg, fontSize: fontSizes.sm }}>{t('selectSoilWaterInfo') || 'Select soil and water details'}</Text>
                 </View>
               </View>
 
@@ -333,19 +334,19 @@ export function AddPlotModal({ visible, onClose }: AddPlotModalProps) {
           {step === 3 && (
             <View>
               <View style={styles.stepHeaderRow}>
-                <Text style={{ fontSize: 28 }}>✅</Text>
+                <Text style={{ fontSize: fontSizes.xxl }}>✅</Text>
                 <View style={{ marginLeft: 10, flex: 1 }}>
                   <Text style={[styles.stepTitle, { color: colors.foreground }]}>{t('preview')}</Text>
-                  <Text style={{ color: colors.mutedFg, fontSize: 13 }}>{t('reviewAndSave') || 'Review your plot details and save'}</Text>
+                  <Text style={{ color: colors.mutedFg, fontSize: fontSizes.sm }}>{t('reviewAndSave') || 'Review your plot details and save'}</Text>
                 </View>
               </View>
 
               <View style={[styles.previewCard, { backgroundColor: colors.card, shadowColor: '#000' }]}>
                 {/* Plot name hero */}
                 <View style={[styles.previewHero, { backgroundColor: colors.primary + '10' }]}>
-                  <Text style={{ fontSize: 36 }}>🌾</Text>
+                  <Text style={{ fontSize: fontSizes.xxxl }}>🌾</Text>
                   <Text style={[styles.previewName, { color: colors.foreground }]}>{form.name}</Text>
-                  <Text style={{ color: colors.primary, fontSize: 14, fontWeight: '700', marginTop: 2 }}>
+                  <Text style={{ color: colors.primary, fontSize: fontSizes.base, fontWeight: '700', marginTop: 2 }}>
                     {t('gatNumber')}: {form.gatNumber}
                   </Text>
                 </View>
@@ -354,8 +355,8 @@ export function AddPlotModal({ visible, onClose }: AddPlotModalProps) {
                 <View style={styles.previewBody}>
                   <View style={[styles.previewItem, { borderBottomColor: colors.border }]}>
                     <View style={styles.previewLeft}>
-                      <Text style={{ fontSize: 18 }}>📐</Text>
-                      <Text style={{ color: colors.mutedFg, fontSize: 14 }}>{t('area')}</Text>
+                      <Text style={{ fontSize: fontSizes.lg }}>📐</Text>
+                      <Text style={{ color: colors.mutedFg, fontSize: fontSizes.base }}>{t('area')}</Text>
                     </View>
                     <Text style={[styles.previewValue, { color: colors.foreground }]}>
                       {form.area} {t(form.areaUnit)}
@@ -364,31 +365,31 @@ export function AddPlotModal({ visible, onClose }: AddPlotModalProps) {
 
                   <View style={[styles.previewItem, { borderBottomColor: colors.border }]}>
                     <View style={styles.previewLeft}>
-                      <Text style={{ fontSize: 18 }}>{SOIL_EMOJI[form.soilType]}</Text>
-                      <Text style={{ color: colors.mutedFg, fontSize: 14 }}>{t('soilType')}</Text>
+                      <Text style={{ fontSize: fontSizes.lg }}>{SOIL_EMOJI[form.soilType]}</Text>
+                      <Text style={{ color: colors.mutedFg, fontSize: fontSizes.base }}>{t('soilType')}</Text>
                     </View>
                     <View style={[styles.previewBadge, { backgroundColor: '#F59E0B' + '18' }]}>
-                      <Text style={{ color: '#B45309', fontWeight: '700', fontSize: 13 }}>{t(form.soilType)}</Text>
+                      <Text style={{ color: '#B45309', fontWeight: '700', fontSize: fontSizes.sm }}>{t(form.soilType)}</Text>
                     </View>
                   </View>
 
                   <View style={[styles.previewItem, { borderBottomColor: colors.border }]}>
                     <View style={styles.previewLeft}>
-                      <Text style={{ fontSize: 18 }}>{IRRIGATION_EMOJI[form.irrigationType]}</Text>
-                      <Text style={{ color: colors.mutedFg, fontSize: 14 }}>{t('irrigationType')}</Text>
+                      <Text style={{ fontSize: fontSizes.lg }}>{IRRIGATION_EMOJI[form.irrigationType]}</Text>
+                      <Text style={{ color: colors.mutedFg, fontSize: fontSizes.base }}>{t('irrigationType')}</Text>
                     </View>
                     <View style={[styles.previewBadge, { backgroundColor: '#3B82F6' + '18' }]}>
-                      <Text style={{ color: '#1D4ED8', fontWeight: '700', fontSize: 13 }}>{t(form.irrigationType)}</Text>
+                      <Text style={{ color: '#1D4ED8', fontWeight: '700', fontSize: fontSizes.sm }}>{t(form.irrigationType)}</Text>
                     </View>
                   </View>
 
                   <View style={[styles.previewItem, { borderBottomWidth: 0 }]}>
                     <View style={styles.previewLeft}>
-                      <Text style={{ fontSize: 18 }}>{WATER_EMOJI[form.waterAvailability]}</Text>
-                      <Text style={{ color: colors.mutedFg, fontSize: 14 }}>{t('waterAvailability')}</Text>
+                      <Text style={{ fontSize: fontSizes.lg }}>{WATER_EMOJI[form.waterAvailability]}</Text>
+                      <Text style={{ color: colors.mutedFg, fontSize: fontSizes.base }}>{t('waterAvailability')}</Text>
                     </View>
                     <View style={[styles.previewBadge, { backgroundColor: '#10B981' + '18' }]}>
-                      <Text style={{ color: '#047857', fontWeight: '700', fontSize: 13 }}>{t(form.waterAvailability)}</Text>
+                      <Text style={{ color: '#047857', fontWeight: '700', fontSize: fontSizes.sm }}>{t(form.waterAvailability)}</Text>
                     </View>
                   </View>
                 </View>
@@ -405,7 +406,7 @@ export function AddPlotModal({ visible, onClose }: AddPlotModalProps) {
             style={[styles.cancelBtn, { backgroundColor: colors.destructive }]}
           >
             <X color="#FFFFFF" size={18} />
-            <Text style={{ color: '#FFFFFF', fontWeight: '700', fontSize: 15 }}>{t('cancel')}</Text>
+            <Text style={{ color: '#FFFFFF', fontWeight: '700', fontSize: fontSizes.base }}>{t('cancel')}</Text>
           </TouchableOpacity>
 
           {step < 3 ? (
@@ -414,7 +415,7 @@ export function AddPlotModal({ visible, onClose }: AddPlotModalProps) {
               activeOpacity={0.7}
               style={[styles.nextBtn, { backgroundColor: '#16A34A', shadowColor: '#16A34A' }]}
             >
-              <Text style={{ color: '#FFFFFF', fontWeight: '800', fontSize: 16 }}>{t('next')}</Text>
+              <Text style={{ color: '#FFFFFF', fontWeight: '800', fontSize: fontSizes.md }}>{t('next')}</Text>
               <ChevronRight color="#FFFFFF" size={20} />
             </TouchableOpacity>
           ) : (
@@ -425,7 +426,7 @@ export function AddPlotModal({ visible, onClose }: AddPlotModalProps) {
               style={[styles.saveBtn, { backgroundColor: '#16A34A', shadowColor: '#16A34A', opacity: loading ? 0.6 : 1 }]}
             >
               <Check color="#FFFFFF" size={20} strokeWidth={3} />
-              <Text style={{ color: '#FFFFFF', fontWeight: '800', fontSize: 16 }}>
+              <Text style={{ color: '#FFFFFF', fontWeight: '800', fontSize: fontSizes.md }}>
                 {loading ? '...' : t('save')}
               </Text>
             </TouchableOpacity>
@@ -455,7 +456,7 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     borderRadius: 14,
   },
-  headerTitle: { fontSize: 18, fontWeight: '800' },
+  headerTitle: { fontSize: fontSizes.lg, fontWeight: '800' },
   stepContainer: {
     paddingVertical: 14,
     paddingHorizontal: 30,
@@ -487,7 +488,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 18,
   },
-  stepTitle: { fontSize: 20, fontWeight: '800' },
+  stepTitle: { fontSize: fontSizes.lg, fontWeight: '800' },
 
   // Step 1
   formCard: {
@@ -504,8 +505,8 @@ const styles = StyleSheet.create({
     gap: 8,
     marginBottom: 6,
   },
-  inputIcon: { fontSize: 14, fontWeight: '700' },
-  sectionLabel: { fontSize: 14, fontWeight: '700', marginBottom: 10 },
+  inputIcon: { fontSize: fontSizes.base, fontWeight: '700' },
+  sectionLabel: { fontSize: fontSizes.base, fontWeight: '700', marginBottom: 10 },
   unitRow: { flexDirection: 'row', gap: 10 },
   unitChip: {
     flex: 1,
@@ -524,7 +525,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
     elevation: 4,
   },
-  sectionTitle: { fontSize: 16, fontWeight: '800' },
+  sectionTitle: { fontSize: fontSizes.md, fontWeight: '800' },
   visualGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -539,8 +540,8 @@ const styles = StyleSheet.create({
     minHeight: 80,
     position: 'relative',
   },
-  visualEmoji: { fontSize: 26, marginBottom: 6 },
-  visualLabel: { fontSize: 12, textAlign: 'center' },
+  visualEmoji: { fontSize: fontSizes.xxl, marginBottom: 6 },
+  visualLabel: { fontSize: fontSizes.sm, textAlign: 'center' },
   checkDot: {
     position: 'absolute',
     top: 6,
@@ -566,7 +567,7 @@ const styles = StyleSheet.create({
     paddingVertical: 24,
     paddingHorizontal: 16,
   },
-  previewName: { fontSize: 22, fontWeight: '800', marginTop: 8 },
+  previewName: { fontSize: fontSizes.xl, fontWeight: '800', marginTop: 8 },
   previewBody: { padding: 16 },
   previewItem: {
     flexDirection: 'row',
@@ -576,7 +577,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
   },
   previewLeft: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  previewValue: { fontSize: 15, fontWeight: '700' },
+  previewValue: { fontSize: fontSizes.base, fontWeight: '700' },
   previewBadge: {
     paddingHorizontal: 12,
     paddingVertical: 5,

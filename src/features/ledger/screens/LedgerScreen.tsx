@@ -10,22 +10,20 @@ import { OCRScannerModal } from '../components/OCRScannerModal';
 import { CustomLedgersModal } from '../components/CustomLedgersModal';
 import { IncomeRegisterView } from '../components/IncomeRegisterView';
 import { ProfitLossView } from '../components/ProfitLossView';
-import { ReportsHubView } from '../components/ReportsHubView';
 import { PartyLedgerView } from '../components/PartyLedgerView';
 import { CreditTrackerView } from '../components/CreditTrackerView';
-import { NotebookLedgerView } from '../components/NotebookLedgerView';
 import { useLocalizedFormat } from '../../../shared/hooks/useLocalizedFormat';
-import { BookOpen, Wallet, TrendingUp, FileText, Users, CreditCard } from 'lucide-react-native';
+import { Wallet, TrendingUp, Users, CreditCard } from 'lucide-react-native';
 import { WaveHeader } from '../../../components/ui/WaveHeader';
-import { ms } from '../../../shared/utils/responsive';
+import { fontSizes } from '../../../shared/utils/typography';
 
-type TabKey = 'notebook' | 'income' | 'pnl' | 'reports' | 'party' | 'credit';
+type TabKey = 'income' | 'pnl' | 'party' | 'credit';
 
 export function LedgerScreen({ navigation }: any) {
   const { t } = useTranslation();
   const { colors } = useTheme();
   const { transactions, fetchTransactions } = useLedgerStore();
-  const [activeTab, setActiveTab] = useState<TabKey>('notebook');
+  const [activeTab, setActiveTab] = useState<TabKey>('income');
   const [moneyInVisible, setMoneyInVisible] = useState(false);
   const [moneyOutVisible, setMoneyOutVisible] = useState(false);
   const [ocrVisible, setOcrVisible] = useState(false);
@@ -51,12 +49,10 @@ export function LedgerScreen({ navigation }: any) {
     fetchTransactions();
   }, [fetchTransactions]);
 
-  const tabDefs: { key: TabKey; label: string; Icon: typeof BookOpen }[] = [
-    { key: 'notebook', label: t('notebook'), Icon: BookOpen },
+  const tabDefs: { key: TabKey; label: string; Icon: typeof Wallet }[] = [
     { key: 'income', label: t('incomeRegister'), Icon: Wallet },
-    { key: 'pnl', label: t('profitLoss'), Icon: TrendingUp },
-    { key: 'reports', label: t('reportsExport'), Icon: FileText },
     { key: 'party', label: t('partyLedgers'), Icon: Users },
+    { key: 'pnl', label: t('profitLoss'), Icon: TrendingUp },
     { key: 'credit', label: t('creditDues'), Icon: CreditCard },
   ];
 
@@ -92,7 +88,7 @@ export function LedgerScreen({ navigation }: any) {
                 <tab.Icon size={15} color={isActive ? '#FFFFFF' : colors.mutedFg} />
                 <Text
                   style={{
-                    fontSize: ms(12),
+                    fontSize: fontSizes.sm,
                     fontWeight: '700',
                     color: isActive ? '#FFFFFF' : colors.mutedFg,
                     marginLeft: 5,
@@ -108,19 +104,10 @@ export function LedgerScreen({ navigation }: any) {
       </View>
 
       <View style={styles.content}>
-        {activeTab === 'notebook' && (
-          <NotebookLedgerView
-            onMoneyIn={() => setMoneyInVisible(true)}
-            onMoneyOut={() => setMoneyOutVisible(true)}
-            onScanBill={() => setOcrVisible(true)}
-            onCustomLedgers={() => setCustomLedgersVisible(true)}
-          />
-        )}
         {activeTab === 'income' && (
           <IncomeRegisterView onOpenMoneyInModal={() => setMoneyInVisible(true)} />
         )}
         {activeTab === 'pnl' && <ProfitLossView />}
-        {activeTab === 'reports' && <ReportsHubView />}
         {activeTab === 'party' && <PartyLedgerView />}
         {activeTab === 'credit' && (
           <CreditTrackerView onOpenAddModal={() => setMoneyOutVisible(true)} />

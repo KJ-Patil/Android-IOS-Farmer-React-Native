@@ -9,6 +9,7 @@ import { Button } from '../../../components/ui/Button';
 import { Card } from '../../../components/ui/Card';
 import { Badge } from '../../../components/ui/Badge';
 import { DatePickerInput } from '../../../components/ui/DatePickerInput';
+import { fontSizes } from '../../../shared/utils/typography';
 
 interface OCRScannerModalProps {
   visible: boolean;
@@ -108,11 +109,11 @@ export function OCRScannerModal({ visible, onClose, onApply }: OCRScannerModalPr
             <>
               <View style={styles.actionRow}>
                 <TouchableOpacity onPress={handleCamera} style={[styles.actionCard, { backgroundColor: colors.primary + '15', borderRadius: colors.radius }]}>
-                  <Text style={{ fontSize: 28 }}>📷</Text>
+                  <Text style={{ fontSize: fontSizes.xxl }}>📷</Text>
                   <Text style={{ color: colors.primary, fontWeight: '600', marginTop: 8 }}>{t('camera')}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity onPress={handleGallery} style={[styles.actionCard, { backgroundColor: '#3B82F6' + '15', borderRadius: colors.radius }]}>
-                  <Text style={{ fontSize: 28 }}>🖼️</Text>
+                  <Text style={{ fontSize: fontSizes.xxl }}>🖼️</Text>
                   <Text style={{ color: '#3B82F6', fontWeight: '600', marginTop: 8 }}>{t('gallery')}</Text>
                 </TouchableOpacity>
               </View>
@@ -122,7 +123,7 @@ export function OCRScannerModal({ visible, onClose, onApply }: OCRScannerModalPr
                 <TouchableOpacity key={i} onPress={() => handleDemoBill(bill.text)}>
                   <Card style={{ marginBottom: 10 }}>
                     <Text style={{ color: colors.foreground, fontWeight: '600' }}>{bill.name}</Text>
-                    <Text style={{ color: colors.mutedFg, fontSize: 12, marginTop: 4 }} numberOfLines={2}>{bill.text.slice(0, 80)}...</Text>
+                    <Text style={{ color: colors.mutedFg, fontSize: fontSizes.sm, marginTop: 4 }} numberOfLines={2}>{bill.text.slice(0, 80)}...</Text>
                   </Card>
                 </TouchableOpacity>
               ))}
@@ -151,7 +152,7 @@ export function OCRScannerModal({ visible, onClose, onApply }: OCRScannerModalPr
                   onPress={() => Alert.alert('Raw OCR Text', rawText)}
                   style={{ marginTop: 8, marginBottom: 4 }}
                 >
-                  <Text style={{ color: colors.primary, fontSize: 12, fontWeight: '600' }}>
+                  <Text style={{ color: colors.primary, fontSize: fontSizes.sm, fontWeight: '600' }}>
                     {t('viewRawText') || 'View raw scanned text'}
                   </Text>
                 </TouchableOpacity>
@@ -166,11 +167,11 @@ export function OCRScannerModal({ visible, onClose, onApply }: OCRScannerModalPr
 
         <View style={[styles.footer, { backgroundColor: colors.card, borderTopColor: colors.border }]}>
           <TouchableOpacity onPress={onClose} activeOpacity={0.7} style={[styles.cancelBtn, { backgroundColor: colors.destructive }]}>
-            <Text style={{ color: '#FFFFFF', fontWeight: '700', fontSize: 15 }}>{t('cancel')}</Text>
+            <Text style={{ color: '#FFFFFF', fontWeight: '700', fontSize: fontSizes.base }}>{t('cancel')}</Text>
           </TouchableOpacity>
           {result && editedResult && (
             <TouchableOpacity onPress={handleApply} activeOpacity={0.7} style={[styles.saveBtn, { backgroundColor: '#16A34A', shadowColor: '#16A34A' }]}>
-              <Text style={{ color: '#FFFFFF', fontWeight: '800', fontSize: 16 }}>{t('applyToEntry')}</Text>
+              <Text style={{ color: '#FFFFFF', fontWeight: '800', fontSize: fontSizes.md }}>{t('applyToEntry')}</Text>
             </TouchableOpacity>
           )}
         </View>
@@ -182,12 +183,12 @@ export function OCRScannerModal({ visible, onClose, onApply }: OCRScannerModalPr
 const styles = StyleSheet.create({
   container: { flex: 1 },
   header: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, paddingTop: 14, paddingBottom: 10, borderBottomWidth: 1 },
-  title: { fontSize: 18, fontWeight: '800' },
+  title: { fontSize: fontSizes.lg, fontWeight: '800' },
   scroll: { padding: 16, paddingBottom: 40 },
   scanningBox: { alignItems: 'center', justifyContent: 'center', paddingVertical: 60 },
   actionRow: { flexDirection: 'row', gap: 12 },
   actionCard: { flex: 1, paddingVertical: 28, alignItems: 'center' },
-  sectionTitle: { fontSize: 16, fontWeight: '600', marginBottom: 12 },
+  sectionTitle: { fontSize: fontSizes.md, fontWeight: '600', marginBottom: 12 },
   footer: { flexDirection: 'row', padding: 16, paddingBottom: 34, gap: 12, borderTopWidth: 1 },
   cancelBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 14, borderRadius: 14 },
   saveBtn: { flex: 1.5, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 14, borderRadius: 14, shadowOpacity: 0.35, shadowRadius: 8, shadowOffset: { width: 0, height: 4 }, elevation: 6 },

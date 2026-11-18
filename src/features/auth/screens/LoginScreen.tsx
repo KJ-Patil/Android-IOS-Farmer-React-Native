@@ -8,6 +8,7 @@ import { Button } from '../../../components/ui/Button';
 import { Card } from '../../../components/ui/Card';
 import Svg, { Path, Defs, LinearGradient, Stop } from 'react-native-svg';
 import { SUPPORTED_LANGUAGES } from '../../../shared/locales/i18n';
+import { fontSizes } from '../../../shared/utils/typography';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const WAVE_HEIGHT = 220;
@@ -216,7 +217,7 @@ export function LoginScreen({ navigation }: any) {
                     style={{
                       color: i18n.language === lang.code ? colors.primary : colors.foreground,
                       fontWeight: '700',
-                      fontSize: 15,
+                      fontSize: fontSizes.base,
                     }}
                   >
                     {lang.nativeLabel}
@@ -235,23 +236,23 @@ const styles = StyleSheet.create({
   container: { flex: 1 },
   waveContainer: { position: 'relative', width: '100%', height: WAVE_HEIGHT },
   langBtn: { position: 'absolute', top: 48, right: 16, padding: 8, zIndex: 10 },
-  langText: { fontSize: 16, fontWeight: '700' },
+  langText: { fontSize: fontSizes.md, fontWeight: '700' },
   waveLogoWrap: { position: 'absolute', bottom: 10, alignSelf: 'center', width: '100%', alignItems: 'center' },
   waveLogo: { width: 72, height: 72, borderRadius: 20, backgroundColor: '#FFFFFF', alignItems: 'center', justifyContent: 'center', elevation: 6, shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.15, shadowRadius: 10 },
-  logoText: { color: '#16A34A', fontSize: 34, fontWeight: '800' },
+  logoText: { color: '#16A34A', fontSize: fontSizes.xxxl, fontWeight: '800' },
   scroll: { flexGrow: 1, padding: 24, paddingTop: 8 },
-  title: { fontSize: 24, fontWeight: '700', textAlign: 'center', marginBottom: 24 },
+  title: { fontSize: fontSizes.xl, fontWeight: '700', textAlign: 'center', marginBottom: 24 },
   card: { marginBottom: 20 },
-  otpInfo: { fontSize: 13, marginBottom: 12 },
+  otpInfo: { fontSize: fontSizes.sm, marginBottom: 12 },
   backLink: { marginTop: 12, alignItems: 'center' },
-  errorText: { marginTop: 12, fontSize: 13, textAlign: 'center' },
+  errorText: { marginTop: 12, fontSize: fontSizes.sm, textAlign: 'center' },
   divider: { flexDirection: 'row', alignItems: 'center', marginVertical: 20 },
   line: { flex: 1, height: 1 },
-  orText: { marginHorizontal: 12, fontSize: 13 },
+  orText: { marginHorizontal: 12, fontSize: fontSizes.sm },
   footer: { flexDirection: 'row', justifyContent: 'center', marginTop: 16 },
   langModalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center', padding: 20 },
   langModalCard: { width: '100%', maxWidth: 380, borderRadius: 16, padding: 20 },
-  langModalTitle: { fontSize: 17, fontWeight: '700', marginBottom: 14, textAlign: 'center' },
+  langModalTitle: { fontSize: fontSizes.md, fontWeight: '700', marginBottom: 14, textAlign: 'center' },
   langModalGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
   langModalBtn: { width: '30%', flexGrow: 1, paddingVertical: 12, alignItems: 'center', borderWidth: 1.5, borderRadius: 10 },
 });

@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, Modal, ScrollView } from 'rea
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../../app/providers/ThemeProvider';
 import { DatePickerInput } from '../../../components/ui/DatePickerInput';
+import { fontSizes } from '../../../shared/utils/typography';
 
 export interface TransactionFilters {
   type?: 'income' | 'expense';
@@ -45,25 +46,25 @@ export function TransactionFilterBar({ filters, onApply }: TransactionFilterBarP
     <>
       <View style={styles.bar}>
         <TouchableOpacity onPress={handleOpen} style={[styles.filterBtn, { borderColor: activeCount > 0 ? colors.primary : colors.border, backgroundColor: activeCount > 0 ? colors.primary + '10' : colors.card }]}>
-          <Text style={{ color: activeCount > 0 ? colors.primary : colors.foreground, fontWeight: '600', fontSize: 13 }}>
+          <Text style={{ color: activeCount > 0 ? colors.primary : colors.foreground, fontWeight: '600', fontSize: fontSizes.sm }}>
             {t('filters')} {activeCount > 0 ? `(${activeCount})` : ''}
           </Text>
         </TouchableOpacity>
 
         {filters.type && (
           <View style={[styles.chip, { backgroundColor: colors.primary + '15', borderColor: colors.primary }]}>
-            <Text style={{ color: colors.primary, fontSize: 12, fontWeight: '600' }}>{t(filters.type)}</Text>
+            <Text style={{ color: colors.primary, fontSize: fontSizes.sm, fontWeight: '600' }}>{t(filters.type)}</Text>
             <TouchableOpacity onPress={() => onApply({ ...filters, type: undefined })}>
-              <Text style={{ color: colors.primary, fontSize: 14, fontWeight: '700', marginLeft: 4 }}>×</Text>
+              <Text style={{ color: colors.primary, fontSize: fontSizes.base, fontWeight: '700', marginLeft: 4 }}>×</Text>
             </TouchableOpacity>
           </View>
         )}
 
         {filters.paymentMode && (
           <View style={[styles.chip, { backgroundColor: colors.info + '15', borderColor: colors.info }]}>
-            <Text style={{ color: colors.info, fontSize: 12, fontWeight: '600' }}>{t(filters.paymentMode)}</Text>
+            <Text style={{ color: colors.info, fontSize: fontSizes.sm, fontWeight: '600' }}>{t(filters.paymentMode)}</Text>
             <TouchableOpacity onPress={() => onApply({ ...filters, paymentMode: undefined })}>
-              <Text style={{ color: colors.info, fontSize: 14, fontWeight: '700', marginLeft: 4 }}>×</Text>
+              <Text style={{ color: colors.info, fontSize: fontSizes.base, fontWeight: '700', marginLeft: 4 }}>×</Text>
             </TouchableOpacity>
           </View>
         )}
@@ -88,7 +89,7 @@ export function TransactionFilterBar({ filters, onApply }: TransactionFilterBarP
                   onPress={() => setLocalFilters((f) => ({ ...f, type: f.type === tp ? undefined : tp }))}
                   style={[styles.optionChip, { borderColor: localFilters.type === tp ? colors.primary : colors.border, backgroundColor: localFilters.type === tp ? colors.primary + '15' : colors.card, borderRadius: 8 }]}
                 >
-                  <Text style={{ color: localFilters.type === tp ? colors.primary : colors.foreground, fontWeight: '600', fontSize: 13 }}>{t(tp)}</Text>
+                  <Text style={{ color: localFilters.type === tp ? colors.primary : colors.foreground, fontWeight: '600', fontSize: fontSizes.sm }}>{t(tp)}</Text>
                 </TouchableOpacity>
               ))}
             </View>
@@ -101,7 +102,7 @@ export function TransactionFilterBar({ filters, onApply }: TransactionFilterBarP
                   onPress={() => setLocalFilters((f) => ({ ...f, paymentMode: f.paymentMode === mode ? undefined : mode }))}
                   style={[styles.optionChip, { borderColor: localFilters.paymentMode === mode ? colors.primary : colors.border, backgroundColor: localFilters.paymentMode === mode ? colors.primary + '15' : colors.card, borderRadius: 8 }]}
                 >
-                  <Text style={{ color: localFilters.paymentMode === mode ? colors.primary : colors.foreground, fontWeight: '600', fontSize: 13 }}>{t(mode)}</Text>
+                  <Text style={{ color: localFilters.paymentMode === mode ? colors.primary : colors.foreground, fontWeight: '600', fontSize: fontSizes.sm }}>{t(mode)}</Text>
                 </TouchableOpacity>
               ))}
             </View>
@@ -112,10 +113,10 @@ export function TransactionFilterBar({ filters, onApply }: TransactionFilterBarP
 
           <View style={[styles.unifiedFooter, { backgroundColor: colors.card, borderTopColor: colors.border }]}>
             <TouchableOpacity onPress={handleClear} activeOpacity={0.7} style={[styles.unifiedCancelBtn, { borderColor: colors.destructive }]}>
-              <Text style={{ color: colors.destructive, fontWeight: '700', fontSize: 15 }}>✕ {t('clearAll')}</Text>
+              <Text style={{ color: colors.destructive, fontWeight: '700', fontSize: fontSizes.base }}>✕ {t('clearAll')}</Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={handleApply} activeOpacity={0.7} style={[styles.unifiedSaveBtn, { backgroundColor: colors.primary, shadowColor: colors.primary }]}>
-              <Text style={{ color: '#FFFFFF', fontWeight: '800', fontSize: 16 }}>✓ {t('apply')}</Text>
+              <Text style={{ color: '#FFFFFF', fontWeight: '800', fontSize: fontSizes.md }}>✓ {t('apply')}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -130,11 +131,11 @@ const styles = StyleSheet.create({
   chip: { flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderRadius: 12, paddingHorizontal: 10, paddingVertical: 4 },
   overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center', padding: 24 },
   sheet: { width: '100%', maxWidth: 380, borderRadius: 16, padding: 20, elevation: 5, shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.15, shadowRadius: 8 },
-  label: { fontSize: 14, fontWeight: '500', marginBottom: 8 },
+  label: { fontSize: fontSizes.base, fontWeight: '500', marginBottom: 8 },
   chipGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 16 },
   optionChip: { borderWidth: 1.5, paddingVertical: 8, paddingHorizontal: 14 },
   unifiedHeader: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, paddingTop: 14, paddingBottom: 10, borderBottomWidth: 1 },
-  unifiedTitle: { fontSize: 18, fontWeight: '800' },
+  unifiedTitle: { fontSize: fontSizes.lg, fontWeight: '800' },
   unifiedFooter: { flexDirection: 'row', padding: 16, paddingBottom: 34, gap: 12, borderTopWidth: 1 },
   unifiedCancelBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 14, borderRadius: 14, borderWidth: 1.5 },
   unifiedSaveBtn: { flex: 1.5, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 14, borderRadius: 14, shadowOpacity: 0.35, shadowRadius: 8, shadowOffset: { width: 0, height: 4 }, elevation: 6 },

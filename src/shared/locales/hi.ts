@@ -199,7 +199,6 @@ export default {
   custom: 'अन्य',
 
   // Ledger
-  notebook: 'नोटबुक',
   overallIncome: 'कुल आय',
   overallExpense: 'कुल खर्च',
   dairyFarming: 'डेयरी फार्मिंग',
@@ -227,7 +226,6 @@ export default {
   profit: 'लाभ',
   loss: 'हानि',
   profitLoss: 'लाभ व हानि',
-  reportsExport: 'रिपोर्ट व निर्यात',
   partyLedgers: 'पार्टी खाता बही',
   creditDues: 'उधारी व बकाया',
   income: 'आय',
@@ -263,6 +261,8 @@ export default {
   otherIncome: 'अन्य आय',
   buyer: 'खरीदार',
   quantity: 'मात्रा',
+  unit: 'इकाई',
+  rate: 'दर',
   ratePerUnit: 'प्रति इकाई दर',
   grossAmount: 'कुल राशि',
   deductions: 'कटौती',

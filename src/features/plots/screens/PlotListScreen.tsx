@@ -10,6 +10,7 @@ import { AddPlotModal } from '../components/AddPlotModal';
 import { Layers, Droplets, Sparkles } from 'lucide-react-native';
 import { WaveHeader } from '../../../components/ui/WaveHeader';
 import { useLocalizedFormat } from '../../../shared/hooks/useLocalizedFormat';
+import { fontSizes } from '../../../shared/utils/typography';
 
 export function PlotListScreen({ navigation }: any) {
   const { t } = useTranslation();
@@ -53,7 +54,7 @@ export function PlotListScreen({ navigation }: any) {
         }
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
-            <Text style={{ color: colors.mutedFg, textAlign: 'center', fontSize: 14 }}>
+            <Text style={{ color: colors.mutedFg, textAlign: 'center', fontSize: fontSizes.base }}>
               {t('noData')}
             </Text>
           </View>
@@ -121,17 +122,17 @@ const styles = StyleSheet.create({
     marginTop: 12,
     marginBottom: 16,
   },
-  title: { fontSize: 24, fontWeight: '700', letterSpacing: -0.5 },
-  subtitle: { fontSize: 12, marginTop: 2, lineHeight: 17 },
+  title: { fontSize: fontSizes.xl, fontWeight: '700', letterSpacing: -0.5 },
+  subtitle: { fontSize: fontSizes.sm, marginTop: 2, lineHeight: 17 },
   addBtn: { minWidth: 100 },
   plotCard: { marginBottom: 12 },
   plotCardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
-  plotName: { fontSize: 16, fontWeight: '700' },
-  plotAreaSub: { fontSize: 13, fontWeight: '600', marginTop: 3 },
+  plotName: { fontSize: fontSizes.md, fontWeight: '700' },
+  plotAreaSub: { fontSize: fontSizes.sm, fontWeight: '600', marginTop: 3 },
   divider: { height: 1, marginVertical: 12 },
   metaRow: { gap: 8 },
   metaItem: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  metaLabel: { fontSize: 13 },
-  metaValue: { fontSize: 13, fontWeight: '600' },
+  metaLabel: { fontSize: fontSizes.sm },
+  metaValue: { fontSize: fontSizes.sm, fontWeight: '600' },
   emptyContainer: { paddingVertical: 48, alignItems: 'center' },
 });

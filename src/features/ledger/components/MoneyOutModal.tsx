@@ -21,6 +21,7 @@ import { DatePickerInput } from '../../../components/ui/DatePickerInput';
 import type { PaymentMode, LedgerType } from '../../../shared/types/ledger';
 import { ArrowLeft, ChevronDown, Search, Plus, X, Check, Trash2 } from 'lucide-react-native';
 import { getFarmExpenseCategories, FARM_CATEGORY_EMOJIS } from '../../../shared/config/farmCategories';
+import { fontSizes } from '../../../shared/utils/typography';
 
 interface MoneyOutModalProps {
   visible: boolean;
@@ -106,7 +107,7 @@ export function MoneyOutModal({ visible, onClose, initialData, plotId, cropId, f
 
   const [loading, setLoading] = useState(false);
   const [section, setSection] = useState<Section | ''>(farmType ? 'dairy' : 'agriculture');
-  const [selectedCategory, setSelectedCategory] = useState(farmType ? 'fodder' : 'fertilizers');
+  const [selectedCategory, setSelectedCategory] = useState(farmType ? '' : 'fertilizers');
   const [amount, setAmount] = useState('');
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
   const [paymentMode, setPaymentMode] = useState<PaymentMode>('cash');
@@ -190,8 +191,7 @@ export function MoneyOutModal({ visible, onClose, initialData, plotId, cropId, f
           setSection(farmType ? 'dairy' : 'agriculture');
         } else if (farmType) {
           setSection('dairy');
-          const farmCats = getFarmExpenseCategories(farmType);
-          setSelectedCategory(farmCats[0] || 'fodder');
+          setSelectedCategory('');
         }
       });
     }
@@ -295,7 +295,7 @@ export function MoneyOutModal({ visible, onClose, initialData, plotId, cropId, f
           onPress={() => onSelect(opt)}
           style={[styles.chip, { borderColor: selected === opt ? colors.destructive : colors.border, backgroundColor: selected === opt ? colors.destructive + '15' : colors.card, borderRadius: 8 }]}
         >
-          <Text style={{ color: selected === opt ? colors.destructive : colors.foreground, fontWeight: '600', fontSize: 12 }}>{t(opt)}</Text>
+          <Text style={{ color: selected === opt ? colors.destructive : colors.foreground, fontWeight: '600', fontSize: fontSizes.sm }}>{t(opt)}</Text>
         </TouchableOpacity>
       ))}
     </View>
@@ -330,69 +330,80 @@ export function MoneyOutModal({ visible, onClose, initialData, plotId, cropId, f
               {sections.map((sec) => (
                 <TouchableOpacity key={sec.key} onPress={() => setSection(sec.key)}>
                   <Card style={{ marginBottom: 10, borderLeftWidth: 4, borderLeftColor: colors.destructive }}>
-                    <Text style={{ color: colors.foreground, fontWeight: '600', fontSize: 16 }}>{sec.label}</Text>
-                    <Text style={{ color: colors.mutedFg, fontSize: 12 }}>{sec.count} {t('categoriesCount')}</Text>
+                    <Text style={{ color: colors.foreground, fontWeight: '600', fontSize: fontSizes.md }}>{sec.label}</Text>
+                    <Text style={{ color: colors.mutedFg, fontSize: fontSizes.sm }}>{sec.count} {t('categoriesCount')}</Text>
                   </Card>
                 </TouchableOpacity>
               ))}
             </>
           ) : (
             <>
-              <TouchableOpacity
-                onPress={() => { setSection(''); setSelectedCategory(''); }}
-                activeOpacity={0.7}
-                style={[styles.backBtn, { borderColor: colors.border, backgroundColor: colors.card }]}
-              >
-                <ArrowLeft size={16} color={colors.foreground} />
-                <Text style={{ color: colors.foreground, fontWeight: '700', fontSize: 14, marginLeft: 6 }}>{t('back')}</Text>
-              </TouchableOpacity>
-
-              {/* Category Header Row with + Add Button */}
-              <View style={styles.categoryHeaderRow}>
-                <Text style={[styles.sectionTitle, { color: colors.foreground, marginBottom: 0 }]}>
-                  {t('category')}
-                </Text>
+              {!farmType && (
                 <TouchableOpacity
-                  onPress={() => setAddCustomModalOpen(true)}
-                  activeOpacity={0.75}
-                  style={styles.addCategoryHeaderBtn}
+                  onPress={() => { setSection(''); setSelectedCategory(''); }}
+                  activeOpacity={0.7}
+                  style={[styles.backBtn, { borderColor: colors.border, backgroundColor: colors.card }]}
                 >
-                  <Plus size={16} color="#FFFFFF" strokeWidth={2.5} />
-                  <Text style={styles.addCategoryHeaderBtnText}>
-                    {t('add')}
-                  </Text>
+                  <ArrowLeft size={16} color={colors.foreground} />
+                  <Text style={{ color: colors.foreground, fontWeight: '700', fontSize: fontSizes.base, marginLeft: 6 }}>{t('back')}</Text>
                 </TouchableOpacity>
-              </View>
+              )}
 
-              {/* Category Dropdown Trigger */}
-              <TouchableOpacity
-                onPress={() => {
-                  setCategorySearchQuery('');
-                  setCategoryDropdownOpen(true);
-                }}
-                activeOpacity={0.7}
-                style={[
-                  styles.dropdownTrigger,
-                  { backgroundColor: colors.card, borderColor: colors.border },
-                ]}
-              >
-                <View style={styles.dropdownLeft}>
-                  <Text style={{ fontSize: 22 }}>
-                    {CATEGORY_EMOJIS[selectedCategory] || FARM_CATEGORY_EMOJIS[selectedCategory] || '🏷️'}
-                  </Text>
-                  <View style={{ flex: 1, marginLeft: 10 }}>
-                    <Text style={[styles.dropdownSelectedText, { color: colors.foreground }]} numberOfLines={1}>
-                      {t(selectedCategory) !== selectedCategory ? t(selectedCategory) : selectedCategory}
+              {farmType ? (
+                <>
+                  <Text style={[styles.sectionTitle, { color: colors.foreground }]}>{t('expense')}</Text>
+                  <Input label={t('expense')} value={selectedCategory} onChangeText={setSelectedCategory} placeholder={t('enterName')} autoFocus />
+                </>
+              ) : (
+                <>
+                  {/* Category Header Row with + Add Button */}
+                  <View style={styles.categoryHeaderRow}>
+                    <Text style={[styles.sectionTitle, { color: colors.foreground, marginBottom: 0 }]}>
+                      {t('category')}
                     </Text>
-                    <Text style={[styles.dropdownSubtext, { color: colors.mutedFg }]}>
-                      {customCategories.includes(selectedCategory)
-                        ? `★ ${t('custom') || 'Custom'}`
-                        : t('expenseCategory')}
-                    </Text>
+                    <TouchableOpacity
+                      onPress={() => setAddCustomModalOpen(true)}
+                      activeOpacity={0.75}
+                      style={styles.addCategoryHeaderBtn}
+                    >
+                      <Plus size={16} color="#FFFFFF" strokeWidth={2.5} />
+                      <Text style={styles.addCategoryHeaderBtnText}>
+                        {t('add')}
+                      </Text>
+                    </TouchableOpacity>
                   </View>
-                </View>
-                <ChevronDown size={18} color={colors.mutedFg} />
-              </TouchableOpacity>
+
+                  {/* Category Dropdown Trigger */}
+                  <TouchableOpacity
+                    onPress={() => {
+                      setCategorySearchQuery('');
+                      setCategoryDropdownOpen(true);
+                    }}
+                    activeOpacity={0.7}
+                    style={[
+                      styles.dropdownTrigger,
+                      { backgroundColor: colors.card, borderColor: colors.border },
+                    ]}
+                  >
+                    <View style={styles.dropdownLeft}>
+                      <Text style={{ fontSize: fontSizes.xl }}>
+                        {CATEGORY_EMOJIS[selectedCategory] || FARM_CATEGORY_EMOJIS[selectedCategory] || '🏷️'}
+                      </Text>
+                      <View style={{ flex: 1, marginLeft: 10 }}>
+                        <Text style={[styles.dropdownSelectedText, { color: colors.foreground }]} numberOfLines={1}>
+                          {t(selectedCategory) !== selectedCategory ? t(selectedCategory) : selectedCategory}
+                        </Text>
+                        <Text style={[styles.dropdownSubtext, { color: colors.mutedFg }]}>
+                          {customCategories.includes(selectedCategory)
+                            ? `★ ${t('custom') || 'Custom'}`
+                            : t('expenseCategory')}
+                        </Text>
+                      </View>
+                    </View>
+                    <ChevronDown size={18} color={colors.mutedFg} />
+                  </TouchableOpacity>
+                </>
+              )}
 
               {section === 'agriculture' && (
                 <>
@@ -400,7 +411,7 @@ export function MoneyOutModal({ visible, onClose, initialData, plotId, cropId, f
                     <>
                       <Text style={[styles.label, { color: colors.foreground }]}>{t('plot')}</Text>
                       <View style={[styles.chip, { borderColor: colors.primary, backgroundColor: colors.primary + '15', borderRadius: 8, alignSelf: 'flex-start', marginBottom: 12 }]}>
-                        <Text style={{ color: colors.primary, fontWeight: '700', fontSize: 12 }}>{selectedPlot?.name}</Text>
+                        <Text style={{ color: colors.primary, fontWeight: '700', fontSize: fontSizes.sm }}>{selectedPlot?.name}</Text>
                       </View>
                     </>
                   ) : (
@@ -413,7 +424,7 @@ export function MoneyOutModal({ visible, onClose, initialData, plotId, cropId, f
                             onPress={() => { setSelectedPlotId(p.id); setSelectedCropId(''); }}
                             style={[styles.chip, { borderColor: selectedPlotId === p.id ? colors.primary : colors.border, backgroundColor: selectedPlotId === p.id ? colors.primary + '15' : colors.card, borderRadius: 8 }]}
                           >
-                            <Text style={{ color: selectedPlotId === p.id ? colors.primary : colors.foreground, fontWeight: '600', fontSize: 12 }}>{p.name}</Text>
+                            <Text style={{ color: selectedPlotId === p.id ? colors.primary : colors.foreground, fontWeight: '600', fontSize: fontSizes.sm }}>{p.name}</Text>
                           </TouchableOpacity>
                         ))}
                       </View>
@@ -437,7 +448,7 @@ export function MoneyOutModal({ visible, onClose, initialData, plotId, cropId, f
                                 opacity: isDone ? 0.55 : 1,
                               }]}
                             >
-                              <Text style={{ color: isSelected ? colors.primary : isDone ? colors.mutedFg : colors.foreground, fontWeight: '600', fontSize: 12 }}>
+                              <Text style={{ color: isSelected ? colors.primary : isDone ? colors.mutedFg : colors.foreground, fontWeight: '600', fontSize: fontSizes.sm }}>
                                 {t(c.cropType)} {isDone ? `(${t(c.status)})` : ''}
                               </Text>
                             </TouchableOpacity>
@@ -464,7 +475,7 @@ export function MoneyOutModal({ visible, onClose, initialData, plotId, cropId, f
                     style={[styles.partyDropdown, { borderColor: colors.border, backgroundColor: colors.card, borderRadius: colors.radius }]}
                     activeOpacity={0.7}
                   >
-                    <Text style={{ color: partyName ? colors.foreground : colors.mutedFg, fontSize: 15, flex: 1 }} numberOfLines={1}>
+                    <Text style={{ color: partyName ? colors.foreground : colors.mutedFg, fontSize: fontSizes.base, flex: 1 }} numberOfLines={1}>
                       {partyName || t('optional')}
                     </Text>
                     <ChevronDown size={16} color={colors.mutedFg} />
@@ -478,7 +489,7 @@ export function MoneyOutModal({ visible, onClose, initialData, plotId, cropId, f
                           onChangeText={setPartyName}
                           placeholder={t('searchOrType')}
                           placeholderTextColor={colors.mutedFg}
-                          style={{ flex: 1, color: colors.foreground, fontSize: 14, padding: 0, marginLeft: 8 }}
+                          style={{ flex: 1, color: colors.foreground, fontSize: fontSizes.base, padding: 0, marginLeft: 8 }}
                           autoFocus
                         />
                         {partyName ? (
@@ -494,7 +505,7 @@ export function MoneyOutModal({ visible, onClose, initialData, plotId, cropId, f
                             onPress={() => { setPartyName(name); setPartyDropdownOpen(false); }}
                             style={[styles.partyDropdownItem, { borderBottomColor: colors.border }]}
                           >
-                            <Text style={{ color: colors.foreground, fontSize: 14 }}>{name}</Text>
+                            <Text style={{ color: colors.foreground, fontSize: fontSizes.base }}>{name}</Text>
                           </TouchableOpacity>
                         ))}
                         {filteredPartyNames.length === 0 && partyName.trim() ? (
@@ -503,7 +514,7 @@ export function MoneyOutModal({ visible, onClose, initialData, plotId, cropId, f
                             style={[styles.partyDropdownItem, { borderBottomColor: colors.border }]}
                           >
                             <Plus size={14} color={colors.primary} />
-                            <Text style={{ color: colors.primary, fontSize: 14, fontWeight: '600', marginLeft: 6 }}>
+                            <Text style={{ color: colors.primary, fontSize: fontSizes.base, fontWeight: '600', marginLeft: 6 }}>
                               {t('add')} {`"${partyName.trim()}"`}
                             </Text>
                           </TouchableOpacity>
@@ -525,7 +536,7 @@ export function MoneyOutModal({ visible, onClose, initialData, plotId, cropId, f
               <Modal visible={addPartyModalOpen} transparent animationType="fade">
                 <View style={styles.addPartyOverlay}>
                   <View style={[styles.addPartyCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
-                    <Text style={{ color: colors.foreground, fontSize: 16, fontWeight: '700', marginBottom: 12 }}>
+                    <Text style={{ color: colors.foreground, fontSize: fontSizes.md, fontWeight: '700', marginBottom: 12 }}>
                       {t('addPartyName')}
                     </Text>
                     <TextInput
@@ -567,11 +578,11 @@ export function MoneyOutModal({ visible, onClose, initialData, plotId, cropId, f
 
         <View style={[styles.footer, { backgroundColor: colors.card, borderTopColor: colors.border }]}>
           <TouchableOpacity onPress={onClose} activeOpacity={0.7} style={[styles.cancelBtn, { backgroundColor: colors.destructive }]}>
-            <Text style={{ color: '#FFFFFF', fontWeight: '700', fontSize: 15 }}>✕ {t('cancel')}</Text>
+            <Text style={{ color: '#FFFFFF', fontWeight: '700', fontSize: fontSizes.base }}>✕ {t('cancel')}</Text>
           </TouchableOpacity>
           {section && (
             <TouchableOpacity onPress={handleSave} activeOpacity={0.7} disabled={loading} style={[styles.saveBtn, { backgroundColor: '#16A34A', shadowColor: '#16A34A', opacity: loading ? 0.6 : 1 }]}>
-              <Text style={{ color: '#FFFFFF', fontWeight: '800', fontSize: 16 }}>{loading ? '...' : `✓ ${t('save')}`}</Text>
+              <Text style={{ color: '#FFFFFF', fontWeight: '800', fontSize: fontSizes.md }}>{loading ? '...' : `✓ ${t('save')}`}</Text>
             </TouchableOpacity>
           )}
         </View>
@@ -591,7 +602,7 @@ export function MoneyOutModal({ visible, onClose, initialData, plotId, cropId, f
                   <Text style={[styles.modalTitleText, { color: colors.foreground }]}>
                     {t('selectCategory') || 'Select Category'}
                   </Text>
-                  <Text style={{ fontSize: 12, color: colors.mutedFg, marginTop: 2 }}>
+                  <Text style={{ fontSize: fontSizes.sm, color: colors.mutedFg, marginTop: 2 }}>
                     {fullCategoryList.length} {t('categoriesCount')}
                   </Text>
                 </View>
@@ -661,7 +672,7 @@ export function MoneyOutModal({ visible, onClose, initialData, plotId, cropId, f
                         },
                       ]}
                     >
-                      <Text style={{ fontSize: 20, marginRight: 12 }}>
+                      <Text style={{ fontSize: fontSizes.lg, marginRight: 12 }}>
                         {CATEGORY_EMOJIS[item] || FARM_CATEGORY_EMOJIS[item] || '🏷️'}
                       </Text>
                       <View style={{ flex: 1 }}>
@@ -677,7 +688,7 @@ export function MoneyOutModal({ visible, onClose, initialData, plotId, cropId, f
                           {t(item) !== item ? t(item) : item}
                         </Text>
                         {isCustom && (
-                          <Text style={{ fontSize: 10, color: colors.primary, fontWeight: '700', marginTop: 1 }}>
+                          <Text style={{ fontSize: fontSizes.xs, color: colors.primary, fontWeight: '700', marginTop: 1 }}>
                             ★ {t('custom') || 'Custom'}
                           </Text>
                         )}
@@ -701,7 +712,7 @@ export function MoneyOutModal({ visible, onClose, initialData, plotId, cropId, f
                 }}
                 ListEmptyComponent={
                   <View style={styles.emptyListNotice}>
-                    <Text style={{ color: colors.mutedFg, fontSize: 13 }}>
+                    <Text style={{ color: colors.mutedFg, fontSize: fontSizes.sm }}>
                       {t('noResultsFound') || 'No categories found'}
                     </Text>
                     {categorySearchQuery.trim().length > 0 && (
@@ -713,7 +724,7 @@ export function MoneyOutModal({ visible, onClose, initialData, plotId, cropId, f
                         }}
                         style={[styles.addAsCustomBtn, { backgroundColor: colors.primary + '15', borderColor: colors.primary }]}
                       >
-                        <Text style={{ color: colors.primary, fontWeight: '700', fontSize: 13 }}>
+                        <Text style={{ color: colors.primary, fontWeight: '700', fontSize: fontSizes.sm }}>
                           {`+ Add "${categorySearchQuery.trim()}"`}
                         </Text>
                       </TouchableOpacity>
@@ -743,7 +754,7 @@ export function MoneyOutModal({ visible, onClose, initialData, plotId, cropId, f
                 </TouchableOpacity>
               </View>
 
-              <Text style={{ fontSize: 12, color: colors.mutedFg, marginBottom: 12, lineHeight: 17 }}>
+              <Text style={{ fontSize: fontSizes.sm, color: colors.mutedFg, marginBottom: 12, lineHeight: 17 }}>
                 {t('enterCustomCategoryPrompt')}
               </Text>
 
@@ -794,10 +805,10 @@ export function MoneyOutModal({ visible, onClose, initialData, plotId, cropId, f
 const styles = StyleSheet.create({
   container: { flex: 1 },
   header: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, paddingTop: 14, paddingBottom: 10, borderBottomWidth: 1 },
-  title: { fontSize: 18, fontWeight: '800' },
+  title: { fontSize: fontSizes.lg, fontWeight: '800' },
   scroll: { padding: 16, paddingBottom: 60 },
-  sectionTitle: { fontSize: 16, fontWeight: '600', marginBottom: 12 },
-  label: { fontSize: 14, fontWeight: '500', marginBottom: 8 },
+  sectionTitle: { fontSize: fontSizes.md, fontWeight: '600', marginBottom: 12 },
+  label: { fontSize: fontSizes.base, fontWeight: '500', marginBottom: 8 },
   chipGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 16 },
   chip: { borderWidth: 1.5, paddingVertical: 8, paddingHorizontal: 12 },
   footer: { flexDirection: 'row', padding: 16, paddingBottom: 34, gap: 12, borderTopWidth: 1 },
@@ -825,7 +836,7 @@ const styles = StyleSheet.create({
   },
   addCategoryHeaderBtnText: {
     color: '#FFFFFF',
-    fontSize: 13,
+    fontSize: fontSizes.sm,
     fontWeight: '800',
     letterSpacing: 0.2,
   },
@@ -846,11 +857,11 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   dropdownSelectedText: {
-    fontSize: 15,
+    fontSize: fontSizes.base,
     fontWeight: '700',
   },
   dropdownSubtext: {
-    fontSize: 11,
+    fontSize: fontSizes.xs,
     marginTop: 1,
   },
   modalBackdrop: {
@@ -880,7 +891,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: StyleSheet.hairlineWidth,
   },
   modalTitleText: {
-    fontSize: 17,
+    fontSize: fontSizes.md,
     fontWeight: '800',
   },
   closeModalBtn: {
@@ -908,7 +919,7 @@ const styles = StyleSheet.create({
   },
   searchInput: {
     flex: 1,
-    fontSize: 14,
+    fontSize: fontSizes.base,
     paddingVertical: 6,
   },
   addCustomInlineBtn: {
@@ -923,7 +934,7 @@ const styles = StyleSheet.create({
   addCustomInlineBtnText: {
     color: '#FFFFFF',
     fontWeight: '800',
-    fontSize: 13,
+    fontSize: fontSizes.sm,
   },
   categoryListItem: {
     flexDirection: 'row',
@@ -934,7 +945,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: StyleSheet.hairlineWidth,
   },
   categoryItemTitle: {
-    fontSize: 15,
+    fontSize: fontSizes.base,
   },
   emptyListNotice: {
     paddingVertical: 24,
@@ -966,7 +977,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   addCustomTitle: {
-    fontSize: 17,
+    fontSize: fontSizes.md,
     fontWeight: '800',
   },
   customCategoryInput: {
@@ -974,7 +985,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     paddingHorizontal: 14,
     paddingVertical: 12,
-    fontSize: 16,
+    fontSize: fontSizes.md,
     minHeight: 48,
     marginBottom: 16,
   },
@@ -1000,6 +1011,6 @@ const styles = StyleSheet.create({
   addPartyBtn: { width: 48, height: 48, alignItems: 'center', justifyContent: 'center' },
   addPartyOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center', padding: 20 },
   addPartyCard: { width: '100%', maxWidth: 380, borderRadius: 20, padding: 20, borderWidth: 1, shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.15, shadowRadius: 10, elevation: 8 },
-  addPartyInput: { borderWidth: 1, borderRadius: 12, paddingHorizontal: 14, paddingVertical: 12, fontSize: 16, minHeight: 48 },
+  addPartyInput: { borderWidth: 1, borderRadius: 12, paddingHorizontal: 14, paddingVertical: 12, fontSize: fontSizes.md, minHeight: 48 },
   addPartyActionBtn: { flex: 1, alignItems: 'center', paddingVertical: 12, borderRadius: 12 },
 });

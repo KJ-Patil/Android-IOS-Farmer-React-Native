@@ -198,7 +198,6 @@ export default {
   custom: 'ଅନ୍ୟ',
 
   // Ledger
-  notebook: 'ନୋଟବୁକ୍',
   overallIncome: 'ମୋଟ ଆୟ',
   overallExpense: 'ମୋଟ ଖର୍ଚ୍ଚ',
   dairyFarming: 'ଡେରି ଫାର୍ମିଂ',
@@ -224,7 +223,6 @@ export default {
   allTransactions: 'ସମସ୍ତ ଲେନଦେନ',
   incomeRegister: 'ଆୟ ରେଜିଷ୍ଟର',
   profitLoss: 'ଲାଭ ଓ କ୍ଷତି',
-  reportsExport: 'ରିପୋର୍ଟ ଓ ରପ୍ତାନି',
   partyLedgers: 'ପାର୍ଟି ଖାତା ବହି',
   creditDues: 'ଧାର ଓ ବାକି',
   income: 'ଆୟ',

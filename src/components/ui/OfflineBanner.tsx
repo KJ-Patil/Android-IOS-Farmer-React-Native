@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useAppStore } from '../../shared/hooks/useAppStore';
+import { fontSizes } from '../../shared/utils/typography';
 
 export function OfflineBanner() {
   const { t } = useTranslation();
@@ -23,5 +24,5 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     alignItems: 'center',
   },
-  text: { color: '#FFFFFF', fontSize: 13, fontWeight: '600' },
+  text: { color: '#FFFFFF', fontSize: fontSizes.sm, fontWeight: '600' },
 });

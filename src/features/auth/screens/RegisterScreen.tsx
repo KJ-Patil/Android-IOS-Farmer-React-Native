@@ -15,6 +15,7 @@ import { INDIAN_DISTRICTS } from '../../../shared/data/indianDistricts';
 import { fetchDistrictData, DistrictData } from '../../../shared/services/indiaPostalService';
 import { MapPin } from 'lucide-react-native';
 import Svg, { Path, Defs, LinearGradient, Stop } from 'react-native-svg';
+import { fontSizes } from '../../../shared/utils/typography';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const WAVE_HEIGHT = 180;
@@ -232,13 +233,13 @@ export function RegisterScreen({ navigation, route }: any) {
                 style={[styles.detectBtn, { borderColor: colors.primary, backgroundColor: colors.primary + '10', borderRadius: colors.radius }]}
               >
                 <MapPin size={18} color={colors.primary} />
-                <Text style={{ color: colors.primary, fontWeight: '600', fontSize: 14, marginLeft: 8 }}>
+                <Text style={{ color: colors.primary, fontWeight: '600', fontSize: fontSizes.base, marginLeft: 8 }}>
                   {locationLoading ? t('fetchingData') : t('detectLocation')}
                 </Text>
               </TouchableOpacity>
 
               {form.geoLocation && (
-                <Text style={{ color: colors.mutedFg, fontSize: 12, marginBottom: 12 }}>
+                <Text style={{ color: colors.mutedFg, fontSize: fontSizes.sm, marginBottom: 12 }}>
                   {t('locationDetected')} — {form.geoLocation.lat.toFixed(4)}, {form.geoLocation.lng.toFixed(4)}
                 </Text>
               )}
@@ -349,7 +350,7 @@ export function RegisterScreen({ navigation, route }: any) {
           )}
 
           {(error || formError) && (
-            <Text style={{ color: colors.destructive, marginTop: 12, fontSize: 13 }}>{error || formError}</Text>
+            <Text style={{ color: colors.destructive, marginTop: 12, fontSize: fontSizes.sm }}>{error || formError}</Text>
           )}
         </Card>
 
@@ -380,12 +381,12 @@ const styles = StyleSheet.create({
   container: { flex: 1 },
   waveContainer: { position: 'relative', width: '100%', height: WAVE_HEIGHT },
   waveTitleWrap: { position: 'absolute', top: 52, left: 24 },
-  waveTitle: { color: '#FFFFFF', fontSize: 26, fontWeight: '800' },
+  waveTitle: { color: '#FFFFFF', fontSize: fontSizes.xxl, fontWeight: '800' },
   scroll: { flexGrow: 1, padding: 24, paddingTop: 8 },
-  stepLabel: { fontSize: 14, fontWeight: '500', marginBottom: 8 },
+  stepLabel: { fontSize: fontSizes.base, fontWeight: '500', marginBottom: 8 },
   progressBar: { height: 4, borderRadius: 2, overflow: 'hidden' },
   progressFill: { height: '100%', borderRadius: 2 },
-  sectionTitle: { fontSize: 16, fontWeight: '600', marginBottom: 12 },
+  sectionTitle: { fontSize: fontSizes.md, fontWeight: '600', marginBottom: 12 },
   optionRow: { flexDirection: 'row', gap: 12 },
   optionBtn: { flex: 1, borderWidth: 1.5, padding: 16, alignItems: 'center' },
   languageGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },

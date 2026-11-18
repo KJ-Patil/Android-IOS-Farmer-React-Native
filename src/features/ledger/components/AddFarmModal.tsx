@@ -5,6 +5,7 @@ import { useTheme } from '../../../app/providers/ThemeProvider';
 import { useNotebookFarmStore, FarmType } from '../../../shared/hooks/useNotebookFarmStore';
 import { Input } from '../../../components/ui/Input';
 import { Minus, Plus } from 'lucide-react-native';
+import { fontSizes } from '../../../shared/utils/typography';
 
 interface AddFarmModalProps {
   visible: boolean;
@@ -153,11 +154,11 @@ export function AddFarmModal({ visible, onClose }: AddFarmModalProps) {
 
         <View style={[styles.footer, { backgroundColor: colors.card, borderTopColor: colors.border }]}>
           <TouchableOpacity onPress={handleClose} activeOpacity={0.7} style={[styles.cancelBtn, { backgroundColor: colors.destructive }]}>
-            <Text style={{ color: '#FFFFFF', fontWeight: '700', fontSize: 15 }}>✕ {t('cancel')}</Text>
+            <Text style={{ color: '#FFFFFF', fontWeight: '700', fontSize: fontSizes.base }}>✕ {t('cancel')}</Text>
           </TouchableOpacity>
           {selectedType && (
             <TouchableOpacity onPress={handleSave} activeOpacity={0.7} disabled={loading} style={[styles.saveBtn, { backgroundColor: '#16A34A', shadowColor: '#16A34A', opacity: loading ? 0.6 : 1 }]}>
-              <Text style={{ color: '#FFFFFF', fontWeight: '800', fontSize: 16 }}>{loading ? '...' : `✓ ${t('save')}`}</Text>
+              <Text style={{ color: '#FFFFFF', fontWeight: '800', fontSize: fontSizes.md }}>{loading ? '...' : `✓ ${t('save')}`}</Text>
             </TouchableOpacity>
           )}
         </View>
@@ -169,7 +170,7 @@ export function AddFarmModal({ visible, onClose }: AddFarmModalProps) {
 const styles = StyleSheet.create({
   container: { flex: 1 },
   header: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, paddingTop: 14, paddingBottom: 10, borderBottomWidth: 1 },
-  title: { fontSize: 18, fontWeight: '800' },
+  title: { fontSize: fontSizes.lg, fontWeight: '800' },
   scroll: { padding: 16, paddingBottom: 40 },
   grid: {
     flexDirection: 'row',
@@ -185,8 +186,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     padding: 6,
   },
-  emoji: { fontSize: 28 },
-  tileLabel: { fontSize: 11, fontWeight: '600', marginTop: 4, textAlign: 'center' },
+  emoji: { fontSize: fontSizes.xxl },
+  tileLabel: { fontSize: fontSizes.xs, fontWeight: '600', marginTop: 4, textAlign: 'center' },
   confirmView: { },
   selectedCard: {
     alignItems: 'center',
@@ -195,15 +196,15 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     marginBottom: 18,
   },
-  selectedEmoji: { fontSize: 40 },
-  selectedLabel: { fontSize: 16, fontWeight: '700', marginTop: 6 },
-  inputLabel: { fontSize: 13, fontWeight: '600', marginBottom: 6 },
+  selectedEmoji: { fontSize: fontSizes.xxxl },
+  selectedLabel: { fontSize: fontSizes.md, fontWeight: '700', marginTop: 6 },
+  inputLabel: { fontSize: fontSizes.sm, fontWeight: '600', marginBottom: 6 },
   input: {
     borderWidth: 1.5,
     borderRadius: 12,
     paddingHorizontal: 14,
     paddingVertical: 12,
-    fontSize: 15,
+    fontSize: fontSizes.base,
     fontWeight: '500',
   },
   counter: {
@@ -228,10 +229,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   counterText: {
-    fontSize: 20,
+    fontSize: fontSizes.lg,
     fontWeight: '800',
   },
-  error: { color: '#DC2626', fontSize: 13, marginTop: 8 },
+  error: { color: '#DC2626', fontSize: fontSizes.sm, marginTop: 8 },
   footer: { flexDirection: 'row', padding: 16, paddingBottom: 34, gap: 12, borderTopWidth: 1 },
   cancelBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 14, borderRadius: 14 },
   saveBtn: { flex: 1.5, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 14, borderRadius: 14, shadowOpacity: 0.35, shadowRadius: 8, shadowOffset: { width: 0, height: 4 }, elevation: 6 },

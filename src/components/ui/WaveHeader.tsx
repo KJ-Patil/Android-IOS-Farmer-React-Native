@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, StatusBar } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { fontSizes } from '../../shared/utils/typography';
 
 const STATUS_BAR_HEIGHT = StatusBar.currentHeight || 44;
 
@@ -64,8 +65,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingBottom: 18,
   },
-  title: { fontSize: 20, fontWeight: '700', color: '#FFFFFF', letterSpacing: -0.3 },
-  subtitle: { fontSize: 13, color: 'rgba(255,255,255,0.85)', marginTop: 2, fontWeight: '500' },
+  title: { fontSize: fontSizes.lg, fontWeight: '700', color: '#FFFFFF', letterSpacing: -0.3 },
+  subtitle: { fontSize: fontSizes.sm, color: 'rgba(255,255,255,0.85)', marginTop: 2, fontWeight: '500' },
   statsRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -76,7 +77,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 6,
   },
   statItem: { flex: 1, alignItems: 'center' },
-  statValue: { fontSize: 16, fontWeight: '800', color: '#FFFFFF', letterSpacing: -0.3 },
-  statLabel: { fontSize: 10, color: 'rgba(255,255,255,0.9)', marginTop: 2, fontWeight: '600', textTransform: 'uppercase', letterSpacing: 0.3 },
+  statValue: { fontSize: fontSizes.md, fontWeight: '800', color: '#FFFFFF', letterSpacing: -0.3 },
+  statLabel: { fontSize: fontSizes.xs, color: 'rgba(255,255,255,0.9)', marginTop: 2, fontWeight: '600', textTransform: 'uppercase', letterSpacing: 0.3 },
   statDivider: { width: 1, height: 28, backgroundColor: 'rgba(255,255,255,0.3)' },
 });

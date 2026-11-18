@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, ActivityIndicator, Text, StyleSheet } from 'react-native';
 import { useTheme } from '../../app/providers/ThemeProvider';
+import { fontSizes } from '../../shared/utils/typography';
 
 interface SpinnerProps {
   message?: string;
@@ -21,5 +22,5 @@ export function Spinner({ message, size = 'large' }: SpinnerProps) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 },
-  message: { marginTop: 12, fontSize: 14 },
+  message: { marginTop: 12, fontSize: fontSizes.base },
 });

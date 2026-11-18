@@ -196,7 +196,6 @@ export default {
   custom: 'অন্যান্য',
 
   // Ledger
-  notebook: 'নোটবুক',
   overallIncome: 'মোট আয়',
   overallExpense: 'মোট ব্যয়',
   dairyFarming: 'দুগ্ধ খামার',
@@ -222,7 +221,6 @@ export default {
   allTransactions: 'সমস্ত লেনদেন',
   incomeRegister: 'আয় রেজিস্টার',
   profitLoss: 'লাভ ও ক্ষতি',
-  reportsExport: 'প্রতিবেদন ও রপ্তানি',
   partyLedgers: 'পার্টি খাতা',
   creditDues: 'বাকি ও পাওনা',
   income: 'আয়',
