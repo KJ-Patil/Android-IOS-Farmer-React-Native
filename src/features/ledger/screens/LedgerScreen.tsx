@@ -9,15 +9,16 @@ import { MoneyOutModal } from '../components/MoneyOutModal';
 import { OCRScannerModal } from '../components/OCRScannerModal';
 import { CustomLedgersModal } from '../components/CustomLedgersModal';
 import { IncomeRegisterView } from '../components/IncomeRegisterView';
+import { ExpenseRegisterView } from '../components/ExpenseRegisterView';
 import { ProfitLossView } from '../components/ProfitLossView';
 import { PartyLedgerView } from '../components/PartyLedgerView';
 import { CreditTrackerView } from '../components/CreditTrackerView';
 import { useLocalizedFormat } from '../../../shared/hooks/useLocalizedFormat';
-import { Wallet, TrendingUp, Users, CreditCard } from 'lucide-react-native';
+import { Wallet, TrendingDown, TrendingUp, Users, CreditCard } from 'lucide-react-native';
 import { WaveHeader } from '../../../components/ui/WaveHeader';
 import { fontSizes } from '../../../shared/utils/typography';
 
-type TabKey = 'income' | 'pnl' | 'party' | 'credit';
+type TabKey = 'income' | 'expense' | 'pnl' | 'party' | 'credit';
 
 export function LedgerScreen({ navigation }: any) {
   const { t } = useTranslation();
@@ -51,6 +52,7 @@ export function LedgerScreen({ navigation }: any) {
 
   const tabDefs: { key: TabKey; label: string; Icon: typeof Wallet }[] = [
     { key: 'income', label: t('incomeRegister'), Icon: Wallet },
+    { key: 'expense', label: t('expenseRegister'), Icon: TrendingDown },
     { key: 'party', label: t('partyLedgers'), Icon: Users },
     { key: 'pnl', label: t('profitLoss'), Icon: TrendingUp },
     { key: 'credit', label: t('creditDues'), Icon: CreditCard },
@@ -106,6 +108,9 @@ export function LedgerScreen({ navigation }: any) {
       <View style={styles.content}>
         {activeTab === 'income' && (
           <IncomeRegisterView onOpenMoneyInModal={() => setMoneyInVisible(true)} />
+        )}
+        {activeTab === 'expense' && (
+          <ExpenseRegisterView onOpenMoneyOutModal={() => setMoneyOutVisible(true)} />
         )}
         {activeTab === 'pnl' && <ProfitLossView />}
         {activeTab === 'party' && <PartyLedgerView />}

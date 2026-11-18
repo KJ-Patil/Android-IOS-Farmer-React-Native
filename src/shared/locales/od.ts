@@ -555,6 +555,8 @@ export default {
   receivableCr: 'ପ୍ରାପ୍ୟ (ଜମା)',
   totalPurchases: 'ମୋଟ କ୍ରୟ',
   totalPaid: 'ମୋଟ ଦେୟ',
+  paymentProgress: 'ଦେୟ ପ୍ରଗତି',
+  remaining: 'ବାକି',
   recordPaymentOrReceipt: '+ ଦେୟ / ପ୍ରାପ୍ତି ଦାଖଲ କରନ୍ତୁ',
   transactionsStatement: 'ଲେନଦେନ ବିବରଣୀ',
   noTransactionsForParty: 'ଏହି ପାର୍ଟିର କୌଣସି ଲେନଦେନ ମିଳୁନାହିଁ।',

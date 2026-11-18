@@ -555,6 +555,8 @@ export default {
   receivableCr: 'ਲੈਣਾ (ਜਮ੍ਹਾਂ)',
   totalPurchases: 'ਕੁੱਲ ਖ਼ਰੀਦ',
   totalPaid: 'ਕੁੱਲ ਭੁਗਤਾਨ',
+  paymentProgress: 'ਭੁਗਤਾਨ ਪ੍ਰਗਤੀ',
+  remaining: 'ਬਾਕੀ',
   recordPaymentOrReceipt: '+ ਭੁਗਤਾਨ / ਰਸੀਦ ਦਰਜ ਕਰੋ',
   transactionsStatement: 'ਲੈਣ-ਦੇਣ ਦਾ ਵੇਰਵਾ',
   noTransactionsForParty: 'ਇਸ ਪਾਰਟੀ ਦਾ ਕੋਈ ਲੈਣ-ਦੇਣ ਨਹੀਂ ਮਿਲਿਆ।',

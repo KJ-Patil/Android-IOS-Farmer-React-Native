@@ -503,6 +503,8 @@ export default {
   receivableCr: 'পাওনা (ক্রেডিট)',
   totalPurchases: 'মোট ক্রয়',
   totalPaid: 'মোট পরিশোধ',
+  paymentProgress: 'পেমেন্ট অগ্রগতি',
+  remaining: 'বাকি',
   recordPaymentOrReceipt: '+ পেমেন্ট / প্রাপ্তি নথিভুক্ত করুন',
   transactionsStatement: 'লেনদেন বিবরণী',
   noTransactionsForParty: 'এই পার্টির কোনো লেনদেন পাওয়া যায়নি।',

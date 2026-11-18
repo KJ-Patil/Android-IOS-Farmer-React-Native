@@ -555,6 +555,8 @@ export default {
   receivableCr: 'ಸ್ವೀಕರಿಸಬೇಕಾದ (ಜಮೆ)',
   totalPurchases: 'ಒಟ್ಟು ಖರೀದಿ',
   totalPaid: 'ಒಟ್ಟು ಪಾವತಿ',
+  paymentProgress: 'ಪಾವತಿ ಪ್ರಗತಿ',
+  remaining: 'ಬಾಕಿ',
   recordPaymentOrReceipt: '+ ಪಾವತಿ / ಸ್ವೀಕೃತಿ ದಾಖಲಿಸಿ',
   transactionsStatement: 'ವಹಿವಾಟು ಹೇಳಿಕೆ',
   noTransactionsForParty: 'ಈ ಪಾರ್ಟಿಯ ಯಾವುದೇ ವಹಿವಾಟುಗಳು ಕಂಡುಬಂದಿಲ್ಲ.',

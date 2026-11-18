@@ -555,6 +555,8 @@ export default {
   receivableCr: 'பெற வேண்டியது (வரவு)',
   totalPurchases: 'மொத்த கொள்முதல்',
   totalPaid: 'மொத்தம் செலுத்தியது',
+  paymentProgress: 'கட்டணம் முன்னேற்றம்',
+  remaining: 'மீதம்',
   recordPaymentOrReceipt: '+ பணம் செலுத்தல் / பெறுதல் பதிவு செய்',
   transactionsStatement: 'பரிவர்த்தனை அறிக்கை',
   noTransactionsForParty: 'இந்தத் தரப்புக்கு பரிவர்த்தனை இல்லை.',

@@ -1,12 +1,12 @@
 import { ms } from './responsive';
 
 export const fontSizes = {
-  xs: ms(11),
-  sm: ms(13),
-  base: ms(15),
-  md: ms(17),
-  lg: ms(20),
-  xl: ms(24),
-  xxl: ms(28),
-  xxxl: ms(34),
+  xs: ms(10),
+  sm: ms(12),
+  base: ms(14),
+  md: ms(16),
+  lg: ms(18),
+  xl: ms(22),
+  xxl: ms(26),
+  xxxl: ms(30),
 } as const;

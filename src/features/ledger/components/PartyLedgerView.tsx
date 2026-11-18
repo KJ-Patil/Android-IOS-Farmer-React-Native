@@ -178,6 +178,16 @@ export function PartyLedgerView() {
           paymentMode,
           notes: paymentNotes || `${selectedPartyName} - ${t('payInstallment')}`,
         });
+        await createTransaction({
+          type: 'income',
+          ledgerType: 'party',
+          category: selectedPartyName,
+          partyName: selectedPartyName,
+          amount: numAmount,
+          date: paymentDate,
+          paymentMode,
+          notes: paymentNotes || `${selectedPartyName} - ${t('paidToParty')}`,
+        });
       } else {
         await createTransaction({
           type: paymentType === 'pay_to_party' ? 'expense' : 'income',
@@ -232,6 +242,7 @@ export function PartyLedgerView() {
               </TouchableOpacity>
 
               <Card style={{ marginTop: 10 }} padding={16}>
+                {/* Party Name & Contact */}
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                   <View style={{ flex: 1 }}>
                     <Text style={{ color: colors.foreground, fontSize: fontSizes.md, fontWeight: '700' }}>
@@ -250,49 +261,68 @@ export function PartyLedgerView() {
                     )}
                   </View>
 
-                  <View style={{ alignItems: 'flex-end' }}>
-                    <Text style={{ color: colors.mutedFg, fontSize: fontSizes.sm }}>
-                      {t('currentBalance')}
-                    </Text>
-                    <Text
-                      style={{
-                        color: netBal > 0 ? colors.destructive : colors.primary,
-                        fontSize: fontSizes.md,
-                        fontWeight: '800',
-                      }}
-                    >
-                      {fmt(Math.abs(netBal))}
-                    </Text>
-                    <Badge
-                      text={netBal > 0 ? t('payableDr') : t('receivableCr')}
-                      variant={netBal > 0 ? 'destructive' : 'success'}
-                    />
+                  <Badge
+                    text={netBal > 0 ? t('payableDr') : t('receivableCr')}
+                    variant={netBal > 0 ? 'destructive' : 'success'}
+                  />
+                </View>
+
+                {/* KPI Table: Total Bill | Total Paid | Pending */}
+                <View style={[styles.kpiTable, { backgroundColor: colors.card, borderColor: colors.border }]}>
+                  <View style={styles.kpiCol}>
+                    <Text style={[styles.kpiLabel, { color: colors.mutedFg }]}>{t('totalPurchases')}</Text>
+                    <Text style={[styles.kpiVal, { color: colors.foreground }]} numberOfLines={1}>{fmt(activeParty.totalDebit)}</Text>
+                  </View>
+                  <View style={[styles.kpiDivider, { backgroundColor: colors.border }]} />
+                  <View style={styles.kpiCol}>
+                    <Text style={[styles.kpiLabel, { color: colors.mutedFg }]}>{t('totalPaid')}</Text>
+                    <Text style={[styles.kpiVal, { color: '#16A34A' }]} numberOfLines={1}>{fmt(activeParty.totalCredit)}</Text>
+                  </View>
+                  <View style={[styles.kpiDivider, { backgroundColor: colors.border }]} />
+                  <View style={styles.kpiCol}>
+                    <Text style={[styles.kpiLabel, { color: colors.mutedFg }]}>{t('pendingBills')}</Text>
+                    <Text style={[styles.kpiVal, { color: '#DC2626' }]} numberOfLines={1}>{fmt(Math.abs(netBal))}</Text>
                   </View>
                 </View>
 
-                {/* Dues summary row */}
-                <View style={[styles.duesRow, { borderTopColor: colors.border }]}>
-                  <View>
-                    <Text style={{ color: colors.mutedFg, fontSize: fontSizes.sm }}>{t('totalPurchases')}</Text>
-                    <Text style={{ color: colors.destructive, fontWeight: '700', fontSize: fontSizes.sm }}>{fmt(activeParty.totalDebit)}</Text>
-                  </View>
-                  <View>
-                    <Text style={{ color: colors.mutedFg, fontSize: fontSizes.sm }}>{t('totalPaid')}</Text>
-                    <Text style={{ color: colors.primary, fontWeight: '700', fontSize: fontSizes.sm }}>{fmt(activeParty.totalCredit)}</Text>
-                  </View>
-                  {activeParty.pendingCreditDue > 0 && (
-                    <View>
-                      <Text style={{ color: colors.mutedFg, fontSize: fontSizes.sm }}>{t('pendingBills')}</Text>
-                      <Text style={{ color: colors.warning, fontWeight: '700', fontSize: fontSizes.sm }}>{fmt(activeParty.pendingCreditDue)}</Text>
+                {/* Payment Progress Bar */}
+                {activeParty.totalDebit > 0 && (
+                  <View style={{ marginTop: 14 }}>
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 6 }}>
+                      <Text style={{ color: colors.mutedFg, fontSize: fontSizes.xs, fontWeight: '600', textTransform: 'uppercase' }}>
+                        {t('paymentProgress')}
+                      </Text>
+                      <Text style={{ color: colors.foreground, fontSize: fontSizes.xs, fontWeight: '700' }}>
+                        {toNative(Math.min(100, Math.round((activeParty.totalCredit / activeParty.totalDebit) * 100)))}%
+                      </Text>
                     </View>
-                  )}
-                </View>
+                    <View style={[styles.progressTrack, { backgroundColor: colors.border }]}>
+                      <View
+                        style={[
+                          styles.progressFill,
+                          {
+                            backgroundColor: '#16A34A',
+                            width: `${Math.min(100, Math.round((activeParty.totalCredit / activeParty.totalDebit) * 100))}%`,
+                          },
+                        ]}
+                      />
+                    </View>
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 4 }}>
+                      <Text style={{ color: '#16A34A', fontSize: fontSizes.xs, fontWeight: '600' }}>
+                        {t('paid')}: {fmt(activeParty.totalCredit)}
+                      </Text>
+                      <Text style={{ color: '#DC2626', fontSize: fontSizes.xs, fontWeight: '600' }}>
+                        {t('remaining')}: {fmt(Math.abs(netBal))}
+                      </Text>
+                    </View>
+                  </View>
+                )}
 
                 {/* Action button */}
                 <Button
                   title={t('recordPaymentOrReceipt')}
                   onPress={() => setIsPaymentModalOpen(true)}
-                  style={{ marginTop: 12 }}
+                  style={{ marginTop: 14 }}
                   size="sm"
                 />
               </Card>
@@ -589,7 +619,8 @@ export function PartyLedgerView() {
 const styles = StyleSheet.create({
   headingIcon: { width: 36, height: 36, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
   backBtn: { flexDirection: 'row', alignItems: 'center', paddingVertical: 6 },
-  duesRow: { flexDirection: 'row', justifyContent: 'space-between', borderTopWidth: StyleSheet.hairlineWidth, marginTop: 12, paddingTop: 10 },
+  progressTrack: { height: 8, borderRadius: 4, overflow: 'hidden' },
+  progressFill: { height: '100%', borderRadius: 4 },
   kpiTable: { flexDirection: 'row', marginVertical: 12, borderRadius: 12, borderWidth: 1, padding: 14, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.08, shadowRadius: 6, elevation: 3 },
   kpiCol: { flex: 1, alignItems: 'center', justifyContent: 'space-between' },
   kpiDivider: { width: 1, alignSelf: 'stretch', marginVertical: 2 },

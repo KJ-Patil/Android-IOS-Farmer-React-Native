@@ -37,7 +37,7 @@ interface CreditTrackerViewProps {
 export function CreditTrackerView({ onOpenAddModal }: CreditTrackerViewProps) {
   const { t } = useTranslation();
   const { colors } = useTheme();
-  const { transactions, recordCreditPayment } = useLedgerStore();
+  const { transactions, recordCreditPayment, createTransaction } = useLedgerStore();
   const { fmtCurrency, toNative, fmtDMY } = useLocalizedFormat();
 
   const [expandedTxId, setExpandedTxId] = useState<string | null>(null);
@@ -85,6 +85,18 @@ export function CreditTrackerView({ onOpenAddModal }: CreditTrackerViewProps) {
         amount: numAmount,
         paymentMode: payMode,
         notes: payNotes || `${selectedTx.partyName || t('party')} - ${t('payInstallment')}`,
+      });
+
+      const partyName = selectedTx.partyName || t('party');
+      await createTransaction({
+        type: 'income',
+        ledgerType: 'party',
+        category: partyName,
+        partyName,
+        amount: numAmount,
+        date: payDate,
+        paymentMode: payMode,
+        notes: payNotes || `${partyName} - ${t('paidToParty')}`,
       });
 
       setSelectedTx(null);

@@ -555,6 +555,8 @@ export default {
   receivableCr: 'ലഭിക്കേണ്ടത് (ക്രെഡിറ്റ്)',
   totalPurchases: 'ആകെ വാങ്ങലുകൾ',
   totalPaid: 'ആകെ അടച്ചത്',
+  paymentProgress: 'പേയ്‌മെന്റ് പുരോഗതി',
+  remaining: 'ബാക്കി',
   recordPaymentOrReceipt: '+ പേയ്‌മെന്റ് / രസീത് രേഖപ്പെടുത്തുക',
   transactionsStatement: 'ഇടപാട് വിശദാംശങ്ങൾ',
   noTransactionsForParty: 'ഈ പാർട്ടിക്ക് ഇടപാടുകൾ കണ്ടെത്തിയില്ല.',

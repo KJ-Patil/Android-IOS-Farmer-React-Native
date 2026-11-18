@@ -555,6 +555,8 @@ export default {
   receivableCr: 'రావాల్సినది (క్రెడిట్)',
   totalPurchases: 'మొత్తం కొనుగోళ్ళు',
   totalPaid: 'మొత్తం చెల్లించినది',
+  paymentProgress: 'చెల్లింపు పురోగతి',
+  remaining: 'మిగిలినది',
   recordPaymentOrReceipt: '+ చెల్లింపు / రసీదు నమోదు చేయండి',
   transactionsStatement: 'లావాదేవీల వివరణ',
   noTransactionsForParty: 'ఈ పార్టీకి లావాదేవీలు కనుగొనబడలేదు.',

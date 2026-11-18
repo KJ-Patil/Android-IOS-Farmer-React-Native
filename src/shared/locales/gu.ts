@@ -555,6 +555,8 @@ export default {
   receivableCr: 'મેળવવાપાત્ર (ક્રેડિટ)',
   totalPurchases: 'કુલ ખરીદી',
   totalPaid: 'કુલ ચુકવણી',
+  paymentProgress: 'ચુકવણી પ્રગતિ',
+  remaining: 'બાકી',
   recordPaymentOrReceipt: '+ ચુકવણી / રસીદ નોંધો',
   transactionsStatement: 'વ્યવહાર વિગત',
   noTransactionsForParty: 'આ પાર્ટીના કોઈ વ્યવહાર મળ્યા નથી.',
