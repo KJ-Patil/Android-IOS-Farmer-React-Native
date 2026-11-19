@@ -257,25 +257,40 @@ export function MoneyInModal({ visible, onClose, plotId, cropId, farmId, farmNam
           },
         });
       } else if (category === 'dairy') {
-        if (!dairyProduct || dairyTotal <= 0) {
-          Alert.alert(t('error'), t('fillDairyIncomeDetails')); setLoading(false); return;
+        if (farmType) {
+          const farmAmt = parseFloat(otherAmount || '0');
+          if (!dairyProduct || farmAmt <= 0) {
+            Alert.alert(t('error'), t('fillDairyIncomeDetails')); setLoading(false); return;
+          }
+          await postIncomeTransaction({
+            incomeCategory: 'dairy',
+            ledgerType: 'dairy',
+            category: dairyProduct,
+            amount: farmAmt,
+            date, paymentMode, partyName, billNumber, notes,
+            ...(farmId ? { farmId } : {}),
+            ...(farmName ? { farmName } : {}),
+          });
+        } else {
+          if (!dairyProduct || dairyTotal <= 0) {
+            Alert.alert(t('error'), t('fillDairyIncomeDetails')); setLoading(false); return;
+          }
+          await postIncomeTransaction({
+            incomeCategory: 'dairy',
+            ledgerType: 'dairy',
+            category: 'dairyIncome',
+            amount: dairyTotal,
+            date, paymentMode, partyName, billNumber, notes,
+            ...(farmId ? { farmId } : {}),
+            ...(farmName ? { farmName } : {}),
+            dairyDetails: {
+              productType: dairyProduct as any,
+              quantity: parseFloat(dairyQty),
+              unit: dairyUnit,
+              ratePerUnit: parseFloat(dairyRate),
+            },
+          });
         }
-        const isFarmIncome = farmType && farmType !== 'dairy';
-        await postIncomeTransaction({
-          incomeCategory: 'dairy',
-          ledgerType: 'dairy',
-          category: isFarmIncome ? dairyProduct : 'dairyIncome',
-          amount: dairyTotal,
-          date, paymentMode, partyName, billNumber, notes,
-          ...(farmId ? { farmId } : {}),
-          ...(farmName ? { farmName } : {}),
-          dairyDetails: {
-            productType: dairyProduct as any,
-            quantity: parseFloat(dairyQty),
-            unit: dairyUnit,
-            ratePerUnit: parseFloat(dairyRate),
-          },
-        });
       } else if (category === 'loan') {
         if (!loanType || loanNet <= 0) {
           Alert.alert(t('error'), t('fillLoanDetails')); setLoading(false); return;
@@ -461,6 +476,7 @@ export function MoneyInModal({ visible, onClose, plotId, cropId, farmId, farmNam
                     <>
                       <Text style={[styles.sectionTitle, { color: colors.foreground }]}>{t('income')}</Text>
                       <Input label={t('income')} value={dairyProduct} onChangeText={setDairyProduct} placeholder={t('enterName')} autoFocus />
+                      <Input label={t('amount')} value={otherAmount} onChangeText={(v) => setOtherAmount(v.replace(/[^0-9.]/g, ''))} keyboardType="decimal-pad" placeholder="₹0" />
                     </>
                   ) : (
                     <>
@@ -478,14 +494,14 @@ export function MoneyInModal({ visible, onClose, plotId, cropId, farmId, farmNam
                         </TouchableOpacity>
                       </View>
                       {renderChips([...customIncomeCategories, ...DAIRY_PRODUCTS], dairyProduct, setDairyProduct)}
+                      <Input label={t('quantity')} value={dairyQty} onChangeText={(v) => setDairyQty(v.replace(/[^0-9.]/g, ''))} keyboardType="decimal-pad" />
+                      <Input label={t('unit')} value={dairyUnit} onChangeText={setDairyUnit} />
+                      <Input label={t('rate')} value={dairyRate} onChangeText={(v) => setDairyRate(v.replace(/[^0-9.]/g, ''))} keyboardType="decimal-pad" />
+                      <Card style={{ marginVertical: 10 }} padding={12}>
+                        <Text style={{ color: colors.primary, fontWeight: '700', fontSize: fontSizes.lg }}>{t('amount')}: {fmtCurrency(dairyTotal)}</Text>
+                      </Card>
                     </>
                   )}
-                  <Input label={t('quantity')} value={dairyQty} onChangeText={(v) => setDairyQty(v.replace(/[^0-9.]/g, ''))} keyboardType="decimal-pad" />
-                  <Input label={t('unit')} value={dairyUnit} onChangeText={setDairyUnit} />
-                  <Input label={t('rate')} value={dairyRate} onChangeText={(v) => setDairyRate(v.replace(/[^0-9.]/g, ''))} keyboardType="decimal-pad" />
-                  <Card style={{ marginVertical: 10 }} padding={12}>
-                    <Text style={{ color: colors.primary, fontWeight: '700', fontSize: fontSizes.lg }}>{t('amount')}: {fmtCurrency(dairyTotal)}</Text>
-                  </Card>
                 </>
               )}
 

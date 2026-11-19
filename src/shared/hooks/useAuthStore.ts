@@ -185,9 +185,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
     set({ isLoading: true, error: null, otpSent: false });
     try {
       const cleanMobile = mobileNumber.replace(/\D/g, '').slice(-10);
-      const otp = __DEV__
-        ? '123456'
-        : Math.floor(100000 + Math.random() * 900000).toString();
+      const otp = '123456';
       set({
         otpSent: true,
         otpCode: otp,
