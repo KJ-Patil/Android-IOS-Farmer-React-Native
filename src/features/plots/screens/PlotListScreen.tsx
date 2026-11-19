@@ -81,7 +81,7 @@ export function PlotListScreen({ navigation }: any) {
 
               <View style={styles.metaRow}>
                 <View style={styles.metaItem}>
-                  <Layers color="#F59E0B" size={14} />
+                  <Layers color={colors.warning} size={14} />
                   <Text style={[styles.metaLabel, { color: colors.mutedFg }]}>{t('soilType')}:</Text>
                   <Text style={[styles.metaValue, { color: colors.foreground }]}>
                     {t(plot.soilType) || plot.soilType}
@@ -89,7 +89,7 @@ export function PlotListScreen({ navigation }: any) {
                 </View>
 
                 <View style={styles.metaItem}>
-                  <Droplets color="#3B82F6" size={14} />
+                  <Droplets color={colors.info} size={14} />
                   <Text style={[styles.metaLabel, { color: colors.mutedFg }]}>{t('irrigationType')}:</Text>
                   <Text style={[styles.metaValue, { color: colors.foreground }]}>
                     {t(plot.irrigationType) || plot.irrigationType}
@@ -97,7 +97,7 @@ export function PlotListScreen({ navigation }: any) {
                 </View>
 
                 <View style={styles.metaItem}>
-                  <Sparkles color="#10B981" size={14} />
+                  <Sparkles color={colors.success} size={14} />
                   <Text style={[styles.metaLabel, { color: colors.mutedFg }]}>{t('waterAvailability')}:</Text>
                   <Text style={[styles.metaValue, { color: colors.foreground }]}>
                     {t(plot.waterAvailability) || plot.waterAvailability}

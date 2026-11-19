@@ -2,16 +2,18 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useAppStore } from '../../shared/hooks/useAppStore';
+import { useTheme } from '../../app/providers/ThemeProvider';
 import { fontSizes } from '../../shared/utils/typography';
 
 export function OfflineBanner() {
   const { t } = useTranslation();
+  const { colors } = useTheme();
   const isOnline = useAppStore((s) => s.isOnline);
 
   if (isOnline) return null;
 
   return (
-    <View style={styles.banner}>
+    <View style={[styles.banner, { backgroundColor: colors.destructive }]}>
       <Text style={styles.text}>{t('offline')}</Text>
     </View>
   );
@@ -19,7 +21,6 @@ export function OfflineBanner() {
 
 const styles = StyleSheet.create({
   banner: {
-    backgroundColor: '#EF4444',
     paddingVertical: 6,
     paddingHorizontal: 16,
     alignItems: 'center',

@@ -6,6 +6,7 @@ import { useTheme } from '../../../app/providers/ThemeProvider';
 import { useLedgerStore } from '../../../shared/hooks/useLedgerStore';
 import { Input } from '../../../components/ui/Input';
 import { X, Check } from 'lucide-react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { fontSizes } from '../../../shared/utils/typography';
 
 interface CustomLedgersModalProps {
@@ -20,6 +21,7 @@ const TYPE_EMOJI: Record<string, string> = { income: '💰', expense: '💸', bo
 export function CustomLedgersModal({ visible, onClose }: CustomLedgersModalProps) {
   const { t } = useTranslation();
   const { colors } = useTheme();
+  const insets = useSafeAreaInsets();
   const { createCustomLedger } = useLedgerStore();
   const [name, setName] = useState('');
   const [nameMr, setNameMr] = useState('');
@@ -151,7 +153,7 @@ export function CustomLedgersModal({ visible, onClose }: CustomLedgersModalProps
         </ScrollView>
 
         {/* Footer */}
-        <View style={[styles.footer, { backgroundColor: colors.card, borderTopColor: colors.border }]}>
+        <View style={[styles.footer, { backgroundColor: colors.card, borderTopColor: colors.border, paddingBottom: insets.bottom + 16 }]}>
           <TouchableOpacity
             onPress={handleClose}
             activeOpacity={0.7}
@@ -238,7 +240,6 @@ const styles = StyleSheet.create({
   footer: {
     flexDirection: 'row',
     padding: 16,
-    paddingBottom: 34,
     gap: 12,
     borderTopWidth: 1,
   },

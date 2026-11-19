@@ -10,6 +10,7 @@ import { Button } from '../../../components/ui/Button';
 import { Card } from '../../../components/ui/Card';
 import { Badge } from '../../../components/ui/Badge';
 import { DatePickerInput } from '../../../components/ui/DatePickerInput';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { fontSizes } from '../../../shared/utils/typography';
 
 interface OCRScannerModalProps {
@@ -21,6 +22,7 @@ interface OCRScannerModalProps {
 export function OCRScannerModal({ visible, onClose, onApply }: OCRScannerModalProps) {
   const { t, i18n } = useTranslation();
   const { colors } = useTheme();
+  const insets = useSafeAreaInsets();
   const [scanning, setScanning] = useState(false);
   const [result, setResult] = useState<ParsedBillData | null>(null);
   const [editedResult, setEditedResult] = useState<ParsedBillData | null>(null);
@@ -167,7 +169,7 @@ export function OCRScannerModal({ visible, onClose, onApply }: OCRScannerModalPr
           )}
         </ScrollView>
 
-        <View style={[styles.footer, { backgroundColor: colors.card, borderTopColor: colors.border }]}>
+        <View style={[styles.footer, { backgroundColor: colors.card, borderTopColor: colors.border, paddingBottom: insets.bottom + 16 }]}>
           <TouchableOpacity onPress={onClose} activeOpacity={0.7} style={[styles.cancelBtn, { backgroundColor: colors.destructive }]}>
             <Text style={{ color: '#FFFFFF', fontWeight: '700', fontSize: fontSizes.base }}>{t('cancel')}</Text>
           </TouchableOpacity>
@@ -191,7 +193,7 @@ const styles = StyleSheet.create({
   actionRow: { flexDirection: 'row', gap: 12 },
   actionCard: { flex: 1, paddingVertical: 28, alignItems: 'center' },
   sectionTitle: { fontSize: fontSizes.md, fontWeight: '600', marginBottom: 12 },
-  footer: { flexDirection: 'row', padding: 16, paddingBottom: 34, gap: 12, borderTopWidth: 1 },
+  footer: { flexDirection: 'row', padding: 16, gap: 12, borderTopWidth: 1 },
   cancelBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 14, borderRadius: 14 },
   saveBtn: { flex: 1.5, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 14, borderRadius: 14, shadowOpacity: 0.35, shadowRadius: 8, shadowOffset: { width: 0, height: 4 }, elevation: 6 },
 });

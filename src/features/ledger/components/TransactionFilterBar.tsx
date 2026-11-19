@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, Modal, ScrollView } from 'rea
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../../app/providers/ThemeProvider';
 import { DatePickerInput } from '../../../components/ui/DatePickerInput';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { fontSizes } from '../../../shared/utils/typography';
 
 export interface TransactionFilters {
@@ -22,6 +23,7 @@ const PAYMENT_MODES = ['cash', 'upi', 'credit'];
 export function TransactionFilterBar({ filters, onApply }: TransactionFilterBarProps) {
   const { t } = useTranslation();
   const { colors } = useTheme();
+  const insets = useSafeAreaInsets();
   const [visible, setVisible] = useState(false);
   const [localFilters, setLocalFilters] = useState<TransactionFilters>(filters);
 
@@ -111,7 +113,7 @@ export function TransactionFilterBar({ filters, onApply }: TransactionFilterBarP
             <DatePickerInput label={t('to')} value={localFilters.dateTo || ''} onChange={(v) => setLocalFilters((f) => ({ ...f, dateTo: v }))} />
           </ScrollView>
 
-          <View style={[styles.unifiedFooter, { backgroundColor: colors.card, borderTopColor: colors.border }]}>
+          <View style={[styles.unifiedFooter, { backgroundColor: colors.card, borderTopColor: colors.border, paddingBottom: insets.bottom + 16 }]}>
             <TouchableOpacity onPress={handleClear} activeOpacity={0.7} style={[styles.unifiedCancelBtn, { borderColor: colors.destructive }]}>
               <Text style={{ color: colors.destructive, fontWeight: '700', fontSize: fontSizes.base }}>✕ {t('clearAll')}</Text>
             </TouchableOpacity>
@@ -136,7 +138,7 @@ const styles = StyleSheet.create({
   optionChip: { borderWidth: 1.5, paddingVertical: 8, paddingHorizontal: 14 },
   unifiedHeader: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, paddingTop: 14, paddingBottom: 10, borderBottomWidth: 1 },
   unifiedTitle: { fontSize: fontSizes.lg, fontWeight: '800' },
-  unifiedFooter: { flexDirection: 'row', padding: 16, paddingBottom: 34, gap: 12, borderTopWidth: 1 },
+  unifiedFooter: { flexDirection: 'row', padding: 16, gap: 12, borderTopWidth: 1 },
   unifiedCancelBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 14, borderRadius: 14, borderWidth: 1.5 },
   unifiedSaveBtn: { flex: 1.5, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 14, borderRadius: 14, shadowOpacity: 0.35, shadowRadius: 8, shadowOffset: { width: 0, height: 4 }, elevation: 6 },
 });

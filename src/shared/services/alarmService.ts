@@ -1,6 +1,6 @@
 import * as Notifications from 'expo-notifications';
 import { AndroidImportance } from 'expo-notifications';
-import { Audio } from 'expo-av';
+import { createAudioPlayer, setAudioModeAsync, type AudioPlayer } from 'expo-audio';
 import { File as ExpoFile, Paths } from 'expo-file-system';
 import { Platform, Vibration } from 'react-native';
 
@@ -11,7 +11,7 @@ const IST_TARGET_HOUR = 18;
 const IST_TARGET_MINUTE = 45;
 const IST_UTC_OFFSET_MINUTES = 330;
 
-let alarmSound: Audio.Sound | null = null;
+let alarmPlayer: AudioPlayer | null = null;
 let alarmTimeout: ReturnType<typeof setTimeout> | null = null;
 
 Notifications.setNotificationHandler({
@@ -85,6 +85,73 @@ export async function cancelDailyAlarm() {
   await Notifications.cancelScheduledNotificationAsync(ALARM_NOTIFICATION_ID).catch(() => {});
 }
 
+// --- Daily Notification Reminders (9 AM, 1 PM, 3 PM IST) ---
+
+const REMINDER_CHANNEL_ID = 'farmer-daily-reminders';
+
+const DAILY_REMINDERS = [
+  { id: 'reminder-9am-ist', istHour: 9, istMinute: 0, title: '🌾 Good Morning!', body: 'Start your day — open FarmerLedger to plan today\'s farm activities.' },
+  { id: 'reminder-1pm-ist', istHour: 13, istMinute: 0, title: '🌾 Afternoon Check-in', body: 'Update your morning expenses and income in FarmerLedger.' },
+  { id: 'reminder-3pm-ist', istHour: 15, istMinute: 0, title: '🌾 Evening Reminder', body: 'Don\'t forget to log today\'s transactions in FarmerLedger.' },
+] as const;
+
+function istToLocalTime(istHour: number, istMinute: number): { hour: number; minute: number } {
+  const utcTotalMinutes = istHour * 60 + istMinute - IST_UTC_OFFSET_MINUTES;
+  const offsetMinutes = new Date().getTimezoneOffset();
+  let localMinutes = utcTotalMinutes - offsetMinutes;
+  if (localMinutes < 0) localMinutes += 1440;
+  if (localMinutes >= 1440) localMinutes -= 1440;
+  return {
+    hour: Math.floor(localMinutes / 60),
+    minute: localMinutes % 60,
+  };
+}
+
+async function setupReminderChannel() {
+  if (Platform.OS === 'android') {
+    await Notifications.setNotificationChannelAsync(REMINDER_CHANNEL_ID, {
+      name: 'Daily Reminders',
+      importance: AndroidImportance.DEFAULT,
+      sound: 'default',
+    });
+  }
+}
+
+export async function scheduleDailyReminders(): Promise<boolean> {
+  const granted = await requestNotificationPermissions();
+  if (!granted) return false;
+
+  await setupReminderChannel();
+
+  for (const r of DAILY_REMINDERS) {
+    await Notifications.cancelScheduledNotificationAsync(r.id).catch(() => {});
+    const { hour, minute } = istToLocalTime(r.istHour, r.istMinute);
+
+    await Notifications.scheduleNotificationAsync({
+      identifier: r.id,
+      content: {
+        title: r.title,
+        body: r.body,
+        sound: 'default',
+        ...(Platform.OS === 'android' ? { channelId: REMINDER_CHANNEL_ID } : {}),
+      },
+      trigger: {
+        type: Notifications.SchedulableTriggerInputTypes.DAILY,
+        hour,
+        minute,
+      },
+    });
+  }
+
+  return true;
+}
+
+export async function cancelDailyReminders() {
+  for (const r of DAILY_REMINDERS) {
+    await Notifications.cancelScheduledNotificationAsync(r.id).catch(() => {});
+  }
+}
+
 
 async function getAlarmSoundUri(): Promise<string> {
   const file = new ExpoFile(Paths.cache, 'alarm_tone.wav');
@@ -156,19 +223,17 @@ function generateAlarmWavBytes(): Uint8Array {
 
 export async function playAlarmSound(): Promise<void> {
   try {
-    await Audio.setAudioModeAsync({
-      allowsRecordingIOS: false,
-      playsInSilentModeIOS: true,
-      staysActiveInBackground: true,
-      shouldDuckAndroid: false,
+    await setAudioModeAsync({
+      playsInSilentMode: true,
+      shouldPlayInBackground: true,
     });
 
     const uri = await getAlarmSoundUri();
-    const { sound } = await Audio.Sound.createAsync(
-      { uri },
-      { isLooping: true, volume: 1.0, shouldPlay: true },
-    );
-    alarmSound = sound;
+    const player = createAudioPlayer({ uri });
+    player.loop = true;
+    player.volume = 1.0;
+    player.play();
+    alarmPlayer = player;
 
     Vibration.vibrate(
       [0, 500, 300, 500, 300, 500, 800, 500, 300, 500, 300, 500, 800],
@@ -197,12 +262,12 @@ export async function stopAlarmSound(): Promise<void> {
 
   Vibration.cancel();
 
-  if (alarmSound) {
+  if (alarmPlayer) {
     try {
-      await alarmSound.stopAsync();
-      await alarmSound.unloadAsync();
+      alarmPlayer.pause();
+      alarmPlayer.remove();
     } catch {}
-    alarmSound = null;
+    alarmPlayer = null;
   }
 }
 

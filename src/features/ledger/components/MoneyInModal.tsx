@@ -13,6 +13,7 @@ import { useLocalizedFormat } from '../../../shared/hooks/useLocalizedFormat';
 import { ArrowLeft, ChevronDown, Search, Plus, X } from 'lucide-react-native';
 import type { IncomeCategory, PaymentMode } from '../../../shared/types/ledger';
 import { getFarmIncomeCategories } from '../../../shared/config/farmCategories';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { fontSizes } from '../../../shared/utils/typography';
 
 const STORAGE_KEY_PARTY_NAMES = '@farmer_party_names';
@@ -37,6 +38,7 @@ const QUANTITY_UNITS = ['Bags', 'Quintal', 'Kg', 'Ton', 'Crates'];
 export function MoneyInModal({ visible, onClose, plotId, cropId, farmId, farmName, farmType }: MoneyInModalProps) {
   const { t } = useTranslation();
   const { colors } = useTheme();
+  const insets = useSafeAreaInsets();
   const { postIncomeTransaction, transactions } = useLedgerStore();
   const { plots, crops } = usePlotStore();
   const { fmtCurrency } = useLocalizedFormat();
@@ -626,7 +628,7 @@ export function MoneyInModal({ visible, onClose, plotId, cropId, farmId, farmNam
           )}
         </ScrollView>
 
-        <View style={[styles.footer, { backgroundColor: colors.card, borderTopColor: colors.border }]}>
+        <View style={[styles.footer, { backgroundColor: colors.card, borderTopColor: colors.border, paddingBottom: insets.bottom + 16 }]}>
           <TouchableOpacity onPress={onClose} activeOpacity={0.7} style={[styles.cancelBtn, { borderColor: colors.destructive }]}>
             <Text style={{ color: colors.destructive, fontWeight: '700', fontSize: fontSizes.base }}>✕ {t('cancel')}</Text>
           </TouchableOpacity>
@@ -700,7 +702,7 @@ const styles = StyleSheet.create({
   chipGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 16 },
   chip: { borderWidth: 1.5, paddingVertical: 8, paddingHorizontal: 12 },
   divider: { height: 1, marginVertical: 20 },
-  footer: { flexDirection: 'row', padding: 16, paddingBottom: 34, gap: 12, borderTopWidth: 1 },
+  footer: { flexDirection: 'row', padding: 16, gap: 12, borderTopWidth: 1 },
   cancelBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 14, borderRadius: 14, borderWidth: 1.5 },
   saveBtn: { flex: 1.5, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 14, borderRadius: 14, shadowOpacity: 0.35, shadowRadius: 8, shadowOffset: { width: 0, height: 4 }, elevation: 6 },
   backBtn: { flexDirection: 'row', alignItems: 'center', alignSelf: 'flex-start', paddingHorizontal: 14, paddingVertical: 10, borderRadius: 10, borderWidth: 1, marginBottom: 14 },

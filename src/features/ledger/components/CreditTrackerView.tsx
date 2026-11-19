@@ -29,6 +29,7 @@ import {
   ChevronDown,
   ChevronUp,
 } from 'lucide-react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { fontSizes } from '../../../shared/utils/typography';
 
 interface CreditTrackerViewProps {
@@ -38,6 +39,7 @@ interface CreditTrackerViewProps {
 export function CreditTrackerView({ onOpenAddModal }: CreditTrackerViewProps) {
   const { t } = useTranslation();
   const { colors } = useTheme();
+  const insets = useSafeAreaInsets();
   const { transactions, recordCreditPayment, createTransaction } = useLedgerStore();
   const { fmtCurrency, toNative, fmtDMY } = useLocalizedFormat();
 
@@ -361,7 +363,7 @@ export function CreditTrackerView({ onOpenAddModal }: CreditTrackerViewProps) {
               />
             </ScrollView>
 
-            <View style={[styles.unifiedFooter, { backgroundColor: colors.card, borderTopColor: colors.border }]}>
+            <View style={[styles.unifiedFooter, { backgroundColor: colors.card, borderTopColor: colors.border, paddingBottom: insets.bottom + 16 }]}>
               <TouchableOpacity onPress={() => setSelectedTx(null)} activeOpacity={0.7} style={[styles.unifiedCancelBtn, { borderColor: colors.destructive }]}>
                 <Text style={{ color: colors.destructive, fontWeight: '700', fontSize: fontSizes.base }}>✕ {t('cancel')}</Text>
               </TouchableOpacity>
@@ -438,7 +440,7 @@ const styles = StyleSheet.create({
   },
   unifiedHeader: { flexDirection: 'row' as const, alignItems: 'center' as const, paddingHorizontal: 12, paddingTop: 14, paddingBottom: 10, borderBottomWidth: 1 },
   unifiedTitle: { fontSize: fontSizes.lg, fontWeight: '800' as const },
-  unifiedFooter: { flexDirection: 'row' as const, padding: 16, paddingBottom: 34, gap: 12, borderTopWidth: 1 },
+  unifiedFooter: { flexDirection: 'row' as const, padding: 16, gap: 12, borderTopWidth: 1 },
   unifiedCancelBtn: { flex: 1, flexDirection: 'row' as const, alignItems: 'center' as const, justifyContent: 'center' as const, paddingVertical: 14, borderRadius: 14, borderWidth: 1.5 },
   unifiedSaveBtn: { flex: 1.5, flexDirection: 'row' as const, alignItems: 'center' as const, justifyContent: 'center' as const, paddingVertical: 14, borderRadius: 14, shadowOpacity: 0.35, shadowRadius: 8, shadowOffset: { width: 0, height: 4 }, elevation: 6 },
 });

@@ -8,6 +8,7 @@ import { Input } from '../../../components/ui/Input';
 import { DatePickerInput } from '../../../components/ui/DatePickerInput';
 import { Plus } from 'lucide-react-native';
 import { useLocalizedFormat } from '../../../shared/hooks/useLocalizedFormat';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { fontSizes } from '../../../shared/utils/typography';
 
 interface AddCropModalProps {
@@ -23,6 +24,7 @@ const AREA_UNITS = ['acre', 'hectare', 'guntha'] as const;
 export function AddCropModal({ visible, onClose, plotId }: AddCropModalProps) {
   const { t } = useTranslation();
   const { colors } = useTheme();
+  const insets = useSafeAreaInsets();
   const { createCrop, getPlotRemainingArea } = usePlotStore();
 
   const remaining = getPlotRemainingArea(plotId);
@@ -42,6 +44,18 @@ export function AddCropModal({ visible, onClose, plotId }: AddCropModalProps) {
   });
 
   const updateForm = (key: string, value: any) => setForm((f) => ({ ...f, [key]: value }));
+
+  const resetForm = () => {
+    setForm({ cropType: '', customCropType: '', variety: '', area: '', areaUnit: 'acre', season: 'kharif', sowingDate: '', expectedHarvestDate: '' });
+    setCropDropdownOpen(false);
+    setAddingCustomCrop(false);
+    setLoading(false);
+  };
+
+  const handleClose = () => {
+    resetForm();
+    onClose();
+  };
 
   const handleSave = async () => {
     const cropType = form.cropType === 'custom' ? form.customCropType : form.cropType;
@@ -65,6 +79,7 @@ export function AddCropModal({ visible, onClose, plotId }: AddCropModalProps) {
         expectedHarvestDate: form.expectedHarvestDate || undefined,
         status: 'sown',
       });
+      resetForm();
       onClose();
     } catch (err: any) {
       logger.error('AddCropModal save error:', err);
@@ -75,7 +90,7 @@ export function AddCropModal({ visible, onClose, plotId }: AddCropModalProps) {
   };
 
   return (
-    <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
+    <Modal visible={visible} animationType="slide" onRequestClose={handleClose}>
       <View style={[styles.container, { backgroundColor: colors.background }]}>
         <View style={[styles.header, { backgroundColor: colors.card, borderBottomColor: colors.border }]}>
           <View style={{ width: 40 }} />
@@ -174,11 +189,11 @@ export function AddCropModal({ visible, onClose, plotId }: AddCropModalProps) {
 
         </ScrollView>
 
-        <View style={[styles.footer, { backgroundColor: colors.card, borderTopColor: colors.border }]}>
-          <TouchableOpacity onPress={onClose} activeOpacity={0.7} style={[styles.cancelBtn, { backgroundColor: colors.destructive }]}>
+        <View style={[styles.footer, { backgroundColor: colors.card, borderTopColor: colors.border, paddingBottom: insets.bottom + 16 }]}>
+          <TouchableOpacity onPress={handleClose} activeOpacity={0.7} style={[styles.cancelBtn, { backgroundColor: colors.destructive }]}>
             <Text style={{ color: '#FFFFFF', fontWeight: '700', fontSize: fontSizes.base }}>✕ {t('cancel')}</Text>
           </TouchableOpacity>
-          <TouchableOpacity onPress={handleSave} activeOpacity={0.7} disabled={loading} style={[styles.saveBtn, { backgroundColor: '#16A34A', shadowColor: '#16A34A', opacity: loading ? 0.6 : 1 }]}>
+          <TouchableOpacity onPress={handleSave} activeOpacity={0.7} disabled={loading} style={[styles.saveBtn, { backgroundColor: colors.success, shadowColor: colors.success, opacity: loading ? 0.6 : 1 }]}>
             <Text style={{ color: '#FFFFFF', fontWeight: '800', fontSize: fontSizes.md }}>{loading ? '...' : `✓ ${t('save')}`}</Text>
           </TouchableOpacity>
         </View>
@@ -200,7 +215,7 @@ const styles = StyleSheet.create({
   dropdownList: { borderWidth: 1, borderRadius: 12, marginBottom: 16, maxHeight: 220, overflow: 'hidden' },
   dropdownItem: { paddingHorizontal: 14, paddingVertical: 11, borderBottomWidth: StyleSheet.hairlineWidth },
   unitBtn: { borderWidth: 1.5, paddingHorizontal: 14, paddingVertical: 10 },
-  footer: { flexDirection: 'row', padding: 16, paddingBottom: 34, gap: 12, borderTopWidth: 1 },
+  footer: { flexDirection: 'row', padding: 16, gap: 12, borderTopWidth: 1 },
   cancelBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 14, borderRadius: 14 },
   saveBtn: { flex: 1.5, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 14, borderRadius: 14, shadowOpacity: 0.35, shadowRadius: 8, shadowOffset: { width: 0, height: 4 }, elevation: 6 },
 });

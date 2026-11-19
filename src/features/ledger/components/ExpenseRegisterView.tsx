@@ -121,8 +121,8 @@ export function ExpenseRegisterView({ onOpenMoneyOutModal }: ExpenseRegisterView
               <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
                 <View style={{ flex: 1 }}>
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                    <View style={[styles.summaryIcon, { backgroundColor: '#FEE2E2' }]}>
-                      <IndianRupee color="#DC2626" size={20} />
+                    <View style={[styles.summaryIcon, { backgroundColor: colors.surfaceDestructive }]}>
+                      <IndianRupee color={colors.destructive} size={20} />
                     </View>
                     <Text style={{ color: colors.foreground, fontSize: fontSizes.md, fontWeight: '700' }}>
                       {t('expenseRegisterTitle')}
@@ -133,7 +133,7 @@ export function ExpenseRegisterView({ onOpenMoneyOutModal }: ExpenseRegisterView
                 {onOpenMoneyOutModal && (
                   <TouchableOpacity
                     onPress={onOpenMoneyOutModal}
-                    style={styles.addButton}
+                    style={[styles.addButton, { backgroundColor: colors.destructive, shadowColor: colors.destructive }]}
                     activeOpacity={0.8}
                   >
                     <Text style={{ color: '#FFFFFF', fontWeight: '800', fontSize: fontSizes.base }}>+ {t('add')}</Text>
@@ -144,7 +144,7 @@ export function ExpenseRegisterView({ onOpenMoneyOutModal }: ExpenseRegisterView
               <View style={[styles.kpiTable, { backgroundColor: colors.card, borderColor: colors.border }]}>
                 <View style={styles.kpiCol}>
                   <Text style={[styles.kpiLabel, { color: colors.mutedFg }]}>{t('todaysExpense')}</Text>
-                  <Text style={[styles.kpiValue, { color: '#DC2626' }]} numberOfLines={1}>
+                  <Text style={[styles.kpiValue, { color: colors.destructive }]} numberOfLines={1}>
                     {fmt(todayExpense)}
                   </Text>
                 </View>
@@ -158,7 +158,7 @@ export function ExpenseRegisterView({ onOpenMoneyOutModal }: ExpenseRegisterView
                 <View style={[styles.kpiDivider, { backgroundColor: colors.border }]} />
                 <View style={styles.kpiCol}>
                   <Text style={[styles.kpiLabel, { color: colors.mutedFg }]}>{t('totalMoneyOut')}</Text>
-                  <Text style={[styles.kpiValue, { color: '#DC2626' }]} numberOfLines={1}>
+                  <Text style={[styles.kpiValue, { color: colors.destructive }]} numberOfLines={1}>
                     {fmt(totalExpense)}
                   </Text>
                 </View>
@@ -292,7 +292,7 @@ export function ExpenseRegisterView({ onOpenMoneyOutModal }: ExpenseRegisterView
 
 const styles = StyleSheet.create({
   summaryIcon: { width: 36, height: 36, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
-  addButton: { paddingHorizontal: 18, height: 44, borderRadius: 14, backgroundColor: '#DC2626', alignItems: 'center', justifyContent: 'center', elevation: 4, shadowColor: '#DC2626', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8 },
+  addButton: { paddingHorizontal: 18, height: 44, borderRadius: 14, alignItems: 'center', justifyContent: 'center', elevation: 4, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8 },
   searchBox: { flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderRadius: 12, paddingHorizontal: 10, height: 40 },
   searchInput: { flex: 1, marginLeft: 8, fontSize: fontSizes.sm, height: '100%' },
   filterChip: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20, borderWidth: 1, marginRight: 8 },

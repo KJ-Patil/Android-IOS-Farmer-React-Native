@@ -9,7 +9,6 @@ import {
   Alert,
   Image,
   Modal,
-  Switch,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
@@ -17,24 +16,21 @@ import { logger } from '../../../shared/services/logger';
 import { useTheme } from '../../../app/providers/ThemeProvider';
 import { useAuthStore } from '../../../shared/hooks/useAuthStore';
 import { useThemeStore } from '../../../shared/hooks/useThemeStore';
-import { useAlarmStore } from '../../../shared/hooks/useAlarmStore';
 import { ScreenLayout } from '../../../components/layout/ScreenLayout';
 import { Card } from '../../../components/ui/Card';
 import { Button } from '../../../components/ui/Button';
 import { Input } from '../../../components/ui/Input';
-import { Sparkles, Edit3, Check, Crown, Star, Zap, Bell } from 'lucide-react-native';
+import { Sparkles, Edit3, Check, Crown, Star, Zap } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { SUPPORTED_LANGUAGES } from '../../../shared/locales/i18n';
 import { useLocalizedFormat } from '../../../shared/hooks/useLocalizedFormat';
 import { fontSizes } from '../../../shared/utils/typography';
-import { getAlarmDisplayTime, getAlarmDurationSeconds } from '../../../shared/services/alarmService';
 
 export function SettingsScreen() {
   const { t, i18n } = useTranslation();
   const { colors } = useTheme();
   const { user, signOut, updateProfile, isLoading } = useAuthStore();
   const { theme, setTheme } = useThemeStore();
-  const { isEnabled: alarmEnabled, toggleAlarm } = useAlarmStore();
   const { fmtCurrency, toNative } = useLocalizedFormat();
   const insets = useSafeAreaInsets();
   // Profile Edit modal state
@@ -161,7 +157,7 @@ export function SettingsScreen() {
             { label: t('aadhaarNumber'), value: user?.aadhaarNumber ? toNative(`XXXX XXXX ${user.aadhaarNumber.slice(-4)}`) : '—' },
             { label: t('farmerId'), value: user?.farmerId ? toNative(user.farmerId) : '—' },
           ].map((item, i) => (
-            <View key={i} style={styles.detailRow}>
+            <View key={i} style={[styles.detailRow, { borderBottomColor: colors.divider }]}>
               <Text style={{ color: colors.mutedFg, flex: 1 }}>{item.label}</Text>
               <Text style={{ color: colors.foreground, fontWeight: '600', flex: 1, textAlign: 'right' }}>
                 {item.value}
@@ -180,7 +176,7 @@ export function SettingsScreen() {
             { label: t('state'), value: user?.state },
             { label: t('pincode'), value: user?.pincode ? toNative(user.pincode) : undefined },
           ].map((item, i) => (
-            <View key={i} style={styles.detailRow}>
+            <View key={i} style={[styles.detailRow, { borderBottomColor: colors.divider }]}>
               <Text style={{ color: colors.mutedFg, flex: 1 }}>{item.label}</Text>
               <Text style={{ color: colors.foreground, fontWeight: '600', flex: 1, textAlign: 'right' }}>
                 {item.value || '—'}
@@ -256,32 +252,6 @@ export function SettingsScreen() {
               </TouchableOpacity>
             ))}
           </View>
-        </Card>
-
-        {/* Daily Reminder Alarm */}
-        <Card style={{ marginTop: 12 }}>
-          <View style={styles.alarmHeader}>
-            <View style={[styles.alarmIconWrap, { backgroundColor: colors.surfaceWarning }]}>
-              <Bell color={colors.warning} size={18} />
-            </View>
-            <View style={{ flex: 1 }}>
-              <Text style={[styles.sectionTitle, { color: colors.foreground, marginBottom: 0 }]}>
-                {t('dailyReminder') || 'Daily Reminder'}
-              </Text>
-              <Text style={{ color: colors.mutedFg, fontSize: fontSizes.sm, marginTop: 2 }}>
-                {getAlarmDisplayTime()} · {getAlarmDurationSeconds()}s ring
-              </Text>
-            </View>
-            <Switch
-              value={alarmEnabled}
-              onValueChange={toggleAlarm}
-              trackColor={{ false: colors.border, true: colors.primary + '60' }}
-              thumbColor={alarmEnabled ? colors.primary : '#ccc'}
-            />
-          </View>
-          <Text style={{ color: colors.mutedFg, fontSize: fontSizes.sm, marginTop: 8 }}>
-            {t('alarmDescription') || 'Rings every day at 6:45 PM IST to remind you to update your farm records.'}
-          </Text>
         </Card>
 
         {/* Subscription Plans */}
@@ -427,7 +397,7 @@ export function SettingsScreen() {
             <Input label={t('alternateMobile')} value={alternateMobile} onChangeText={setAlternateMobile} keyboardType="phone-pad" />
           </ScrollView>
 
-          <View style={[styles.unifiedFooter, { backgroundColor: colors.card, borderTopColor: colors.border }]}>
+          <View style={[styles.unifiedFooter, { backgroundColor: colors.card, borderTopColor: colors.border, paddingBottom: insets.bottom + 16 }]}>
             <TouchableOpacity onPress={() => setEditOpen(false)} activeOpacity={0.7} style={[styles.unifiedCancelBtn, { borderColor: colors.destructive }]}>
               <Text style={{ color: colors.destructive, fontWeight: '700', fontSize: fontSizes.base }}>✕ {t('cancel')}</Text>
             </TouchableOpacity>
@@ -457,7 +427,7 @@ const styles = StyleSheet.create({
   membershipBadge: { flexDirection: 'row', alignItems: 'center', gap: 4, alignSelf: 'flex-start', paddingHorizontal: 10, paddingVertical: 3, borderRadius: 12, backgroundColor: 'rgba(255,255,255,0.18)', marginTop: 6 },
   membershipText: { fontSize: fontSizes.sm, fontWeight: '700', textTransform: 'uppercase', color: '#FDE047' },
   sectionTitle: { fontSize: fontSizes.base, fontWeight: '700', marginBottom: 10 },
-  detailRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 8, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: 'rgba(0,0,0,0.06)' },
+  detailRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 8, borderBottomWidth: StyleSheet.hairlineWidth },
   optionRow: { flexDirection: 'row', gap: 10 },
   optionBtn: { flex: 1, paddingVertical: 12, alignItems: 'center', borderWidth: 1 },
   languageGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
@@ -472,9 +442,7 @@ const styles = StyleSheet.create({
   activeBadge: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 8, marginTop: 4 },
   unifiedHeader: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, paddingTop: 14, paddingBottom: 10, borderBottomWidth: 1 },
   unifiedTitle: { fontSize: fontSizes.lg, fontWeight: '800' },
-  unifiedFooter: { flexDirection: 'row', padding: 16, paddingBottom: 34, gap: 12, borderTopWidth: 1 },
+  unifiedFooter: { flexDirection: 'row', padding: 16, gap: 12, borderTopWidth: 1 },
   unifiedCancelBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 14, borderRadius: 14, borderWidth: 1.5 },
   unifiedSaveBtn: { flex: 1.5, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 14, borderRadius: 14, shadowOpacity: 0.35, shadowRadius: 8, shadowOffset: { width: 0, height: 4 }, elevation: 6 },
-  alarmHeader: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  alarmIconWrap: { width: 36, height: 36, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
 });

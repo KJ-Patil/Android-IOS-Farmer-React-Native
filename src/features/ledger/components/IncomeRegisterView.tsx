@@ -36,6 +36,7 @@ import {
   X,
   IndianRupee,
 } from 'lucide-react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { fontSizes } from '../../../shared/utils/typography';
 
 interface IncomeRegisterViewProps {
@@ -45,6 +46,7 @@ interface IncomeRegisterViewProps {
 export function IncomeRegisterView({ onOpenMoneyInModal }: IncomeRegisterViewProps) {
   const { t } = useTranslation();
   const { colors } = useTheme();
+  const insets = useSafeAreaInsets();
   const { transactions, deleteTransaction, recordLoanEmiPayment } = useLedgerStore();
   const { fmtCurrency, toNative, fmtDMY } = useLocalizedFormat();
 
@@ -198,8 +200,8 @@ export function IncomeRegisterView({ onOpenMoneyInModal }: IncomeRegisterViewPro
               <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
                 <View style={{ flex: 1 }}>
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                    <View style={[styles.summaryIcon, { backgroundColor: '#DCFCE7' }]}>
-                      <IndianRupee color="#16A34A" size={20} />
+                    <View style={[styles.summaryIcon, { backgroundColor: colors.surfaceSuccess }]}>
+                      <IndianRupee color={colors.success} size={20} />
                     </View>
                     <Text style={{ color: colors.foreground, fontSize: fontSizes.md, fontWeight: '700' }}>
                       {t('incomeRegisterTitle')}
@@ -210,7 +212,7 @@ export function IncomeRegisterView({ onOpenMoneyInModal }: IncomeRegisterViewPro
                 {onOpenMoneyInModal && (
                   <TouchableOpacity
                     onPress={onOpenMoneyInModal}
-                    style={styles.addButton}
+                    style={[styles.addButton, { backgroundColor: colors.success }]}
                     activeOpacity={0.8}
                   >
                     <Text style={{ color: '#FFFFFF', fontWeight: '800', fontSize: fontSizes.base }}>+ {t('add')}</Text>
@@ -221,7 +223,7 @@ export function IncomeRegisterView({ onOpenMoneyInModal }: IncomeRegisterViewPro
               <View style={[styles.kpiTable, { backgroundColor: colors.card, borderColor: colors.border }]}>
                 <View style={styles.kpiCol}>
                   <Text style={[styles.kpiLabel, { color: colors.mutedFg }]}>{t('todaysIncome')}</Text>
-                  <Text style={[styles.kpiValue, { color: '#16A34A' }]} numberOfLines={1}>
+                  <Text style={[styles.kpiValue, { color: colors.success }]} numberOfLines={1}>
                     {fmt(todayIncome)}
                   </Text>
                 </View>
@@ -235,7 +237,7 @@ export function IncomeRegisterView({ onOpenMoneyInModal }: IncomeRegisterViewPro
                 <View style={[styles.kpiDivider, { backgroundColor: colors.border }]} />
                 <View style={styles.kpiCol}>
                   <Text style={[styles.kpiLabel, { color: colors.mutedFg }]}>{t('totalMoneyIn')}</Text>
-                  <Text style={[styles.kpiValue, { color: '#16A34A' }]} numberOfLines={1}>
+                  <Text style={[styles.kpiValue, { color: colors.success }]} numberOfLines={1}>
                     {fmt(totalNetIncome)}
                   </Text>
                 </View>
@@ -536,7 +538,7 @@ export function IncomeRegisterView({ onOpenMoneyInModal }: IncomeRegisterViewPro
               />
             </ScrollView>
 
-            <View style={[styles.unifiedFooter, { backgroundColor: colors.card, borderTopColor: colors.border }]}>
+            <View style={[styles.unifiedFooter, { backgroundColor: colors.card, borderTopColor: colors.border, paddingBottom: insets.bottom + 16 }]}>
               <TouchableOpacity onPress={() => setSelectedLoanTx(null)} activeOpacity={0.7} style={[styles.unifiedCancelBtn, { borderColor: colors.destructive }]}>
                 <Text style={{ color: colors.destructive, fontWeight: '700', fontSize: fontSizes.base }}>✕ {t('cancel')}</Text>
               </TouchableOpacity>
@@ -553,7 +555,7 @@ export function IncomeRegisterView({ onOpenMoneyInModal }: IncomeRegisterViewPro
 
 const styles = StyleSheet.create({
   summaryIcon: { width: 36, height: 36, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
-  addButton: { paddingHorizontal: 18, height: 44, borderRadius: 14, backgroundColor: '#16A34A', alignItems: 'center', justifyContent: 'center', elevation: 4, shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8 },
+  addButton: { paddingHorizontal: 18, height: 44, borderRadius: 14, alignItems: 'center', justifyContent: 'center', elevation: 4, shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8 },
   loanItemCard: { padding: 10, borderRadius: 12, borderWidth: 1, marginTop: 8 },
   searchBox: { flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderRadius: 12, paddingHorizontal: 10, height: 40 },
   searchInput: { flex: 1, marginLeft: 8, fontSize: fontSizes.sm, height: '100%' },
@@ -570,7 +572,7 @@ const styles = StyleSheet.create({
   modeChip: { flex: 1, paddingVertical: 8, borderRadius: 10, borderWidth: 1, alignItems: 'center' },
   unifiedHeader: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, paddingTop: 14, paddingBottom: 10, borderBottomWidth: 1 },
   unifiedTitle: { fontSize: fontSizes.lg, fontWeight: '800' },
-  unifiedFooter: { flexDirection: 'row', padding: 16, paddingBottom: 34, gap: 12, borderTopWidth: 1 },
+  unifiedFooter: { flexDirection: 'row', padding: 16, gap: 12, borderTopWidth: 1 },
   unifiedCancelBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 14, borderRadius: 14, borderWidth: 1.5 },
   unifiedSaveBtn: { flex: 1.5, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 14, borderRadius: 14, shadowOpacity: 0.35, shadowRadius: 8, shadowOffset: { width: 0, height: 4 }, elevation: 6 },
   kpiTable: { flexDirection: 'row', marginTop: 14, borderRadius: 12, borderWidth: 1, padding: 14, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.08, shadowRadius: 6, elevation: 3 },

@@ -787,7 +787,21 @@ export default {
   // Alarm & Reminder
   dailyReminder: 'Daily Reminder',
   alarmDescription: 'Rings every day at 6:45 PM IST to remind you to update your farm records.',
+  alarmMessage: 'Time to review your daily farm records!',
+  alarmHint: 'Update your ledger entries, check expenses & income',
+  autoDismissIn: 'Auto-dismiss in {{seconds}}s',
   dismiss: 'Dismiss',
+
+  // Error Boundary
+  appCrashed: 'Something went wrong',
+  appCrashedSubtitle: 'The app ran into an unexpected error.',
+  restartApp: 'Restart App',
+
+  // Forgot Password
+  mobileRequired: 'Please enter your mobile number',
+  otpRequired: 'Please enter the OTP',
+  passwordMinLength: 'Password must be at least 6 characters',
+  passwordMismatch: 'Passwords do not match',
 
   // Additional localization keys
   balance: 'Bal',

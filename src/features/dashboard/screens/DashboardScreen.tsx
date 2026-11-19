@@ -65,14 +65,6 @@ const ANIMAL_LABEL: Record<FarmType, string> = {
   other: 'animals',
 };
 
-function isDairyTransaction(tx: Transaction): boolean {
-  return (
-    tx.ledgerType === 'dairy' ||
-    tx.incomeCategory === 'dairy' ||
-    !!(tx.category && (tx.category.startsWith('dairy_') || tx.category.includes('dairy') || tx.category.includes('Dairy')))
-  );
-}
-
 function getSelectionFinancials(
   txns: Transaction[],
   plotId: string,
@@ -322,9 +314,6 @@ export function DashboardScreen({ navigation }: any) {
 
   const summaries = useMemo(() => {
     const plotMap: Record<string, { income: number; expense: number }> = {};
-    let dairyIncome = 0;
-    let dairyExpense = 0;
-    let hasDairy = false;
 
     for (const plot of plots) {
       plotMap[plot.id] = { income: 0, expense: 0 };
@@ -335,12 +324,6 @@ export function DashboardScreen({ navigation }: any) {
       if (tx.plotId && plotMap[tx.plotId]) {
         if (tx.type === 'income') plotMap[tx.plotId].income += amt;
         else plotMap[tx.plotId].expense += amt;
-      }
-
-      if (isDairyTransaction(tx)) {
-        hasDairy = true;
-        if (tx.type === 'income') dairyIncome += amt;
-        else dairyExpense += amt;
       }
     }
 
@@ -379,7 +362,7 @@ export function DashboardScreen({ navigation }: any) {
       return { id: f.id, name: f.name, type: f.type, animalCount: f.animalCount, income, expense };
     });
 
-    return { plotStats, farmStats, dairyIncome, dairyExpense, hasDairy };
+    return { plotStats, farmStats };
   }, [transactions, plots, farms, crops]);
 
   const plotFinancials = useMemo(() => {
@@ -745,20 +728,6 @@ export function DashboardScreen({ navigation }: any) {
                 );
               })}
 
-              {summaries.hasDairy && (
-                <View
-                  style={[styles.dairyCard, { backgroundColor: colors.card, borderColor: colors.warning }]}
-                >
-                  <Text style={styles.kpiEmoji}>🥛</Text>
-                  <Text style={[styles.kpiName, { color: colors.foreground }]}>
-                    {t('dairyFarming')}
-                  </Text>
-                  <View style={styles.kpiAmounts}>
-                    <Text style={styles.kpiIncome}>+{formatC(summaries.dairyIncome)}</Text>
-                    <Text style={styles.kpiExpense}>-{formatC(summaries.dairyExpense)}</Text>
-                  </View>
-                </View>
-              )}
             </View>
           )}
 
@@ -1075,7 +1044,6 @@ const styles = StyleSheet.create({
   },
   plotCropsSection: {
     borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: 'rgba(0,0,0,0.06)',
     paddingTop: 10,
   },
   plotCropsHeaderRow: {
@@ -1159,13 +1127,5 @@ const styles = StyleSheet.create({
     fontSize: fontSizes.xs,
     fontWeight: '800',
     letterSpacing: 0.2,
-  },
-  dairyCard: {
-    width: '100%',
-    paddingVertical: 14,
-    paddingHorizontal: 14,
-    borderRadius: 16,
-    marginBottom: 10,
-    borderWidth: 1.5,
   },
 });

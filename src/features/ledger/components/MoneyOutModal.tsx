@@ -22,6 +22,7 @@ import { DatePickerInput } from '../../../components/ui/DatePickerInput';
 import type { PaymentMode, LedgerType } from '../../../shared/types/ledger';
 import { ArrowLeft, ChevronDown, Search, Plus, X, Check, Trash2 } from 'lucide-react-native';
 import { getFarmExpenseCategories, FARM_CATEGORY_EMOJIS } from '../../../shared/config/farmCategories';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { fontSizes } from '../../../shared/utils/typography';
 
 interface MoneyOutModalProps {
@@ -103,6 +104,7 @@ type Section = 'agriculture' | 'dairy' | 'personal';
 export function MoneyOutModal({ visible, onClose, initialData, plotId, cropId, farmId, farmName, farmType }: MoneyOutModalProps) {
   const { t } = useTranslation();
   const { colors } = useTheme();
+  const insets = useSafeAreaInsets();
   const { postExpenseTransaction, transactions } = useLedgerStore();
   const { plots, crops } = usePlotStore();
 
@@ -599,7 +601,7 @@ export function MoneyOutModal({ visible, onClose, initialData, plotId, cropId, f
           )}
         </ScrollView>
 
-        <View style={[styles.footer, { backgroundColor: colors.card, borderTopColor: colors.border }]}>
+        <View style={[styles.footer, { backgroundColor: colors.card, borderTopColor: colors.border, paddingBottom: insets.bottom + 16 }]}>
           <TouchableOpacity onPress={onClose} activeOpacity={0.7} style={[styles.cancelBtn, { backgroundColor: colors.destructive }]}>
             <Text style={{ color: '#FFFFFF', fontWeight: '700', fontSize: fontSizes.base }}>✕ {t('cancel')}</Text>
           </TouchableOpacity>
@@ -834,7 +836,7 @@ const styles = StyleSheet.create({
   label: { fontSize: fontSizes.base, fontWeight: '500', marginBottom: 8 },
   chipGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 16 },
   chip: { borderWidth: 1.5, paddingVertical: 8, paddingHorizontal: 12 },
-  footer: { flexDirection: 'row', padding: 16, paddingBottom: 34, gap: 12, borderTopWidth: 1 },
+  footer: { flexDirection: 'row', padding: 16, gap: 12, borderTopWidth: 1 },
   cancelBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 14, borderRadius: 14 },
   saveBtn: { flex: 1.5, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 14, borderRadius: 14, shadowOpacity: 0.35, shadowRadius: 8, shadowOffset: { width: 0, height: 4 }, elevation: 6 },
   categoryHeaderRow: {

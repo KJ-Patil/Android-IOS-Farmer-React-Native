@@ -29,6 +29,7 @@ import {
   Phone,
   X,
 } from 'lucide-react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { fontSizes } from '../../../shared/utils/typography';
 
 interface PartySummary {
@@ -45,6 +46,7 @@ interface PartySummary {
 export function PartyLedgerView() {
   const { t } = useTranslation();
   const { colors } = useTheme();
+  const insets = useSafeAreaInsets();
   const { transactions, customLedgers, createTransaction, recordCreditPayment } = useLedgerStore();
   const { fmtCurrency, toNative, fmtDMY } = useLocalizedFormat();
 
@@ -278,12 +280,12 @@ export function PartyLedgerView() {
                   <View style={[styles.kpiDivider, { backgroundColor: colors.border }]} />
                   <View style={styles.kpiCol}>
                     <Text style={[styles.kpiLabel, { color: colors.mutedFg }]}>{t('totalPaid')}</Text>
-                    <Text style={[styles.kpiVal, { color: '#16A34A' }]} numberOfLines={1}>{fmt(activeParty.totalCredit)}</Text>
+                    <Text style={[styles.kpiVal, { color: colors.success }]} numberOfLines={1}>{fmt(activeParty.totalCredit)}</Text>
                   </View>
                   <View style={[styles.kpiDivider, { backgroundColor: colors.border }]} />
                   <View style={styles.kpiCol}>
                     <Text style={[styles.kpiLabel, { color: colors.mutedFg }]}>{t('pendingBills')}</Text>
-                    <Text style={[styles.kpiVal, { color: '#DC2626' }]} numberOfLines={1}>{fmt(Math.abs(netBal))}</Text>
+                    <Text style={[styles.kpiVal, { color: colors.destructive }]} numberOfLines={1}>{fmt(Math.abs(netBal))}</Text>
                   </View>
                 </View>
 
@@ -303,17 +305,17 @@ export function PartyLedgerView() {
                         style={[
                           styles.progressFill,
                           {
-                            backgroundColor: '#16A34A',
+                            backgroundColor: colors.success,
                             width: `${Math.min(100, Math.round((activeParty.totalCredit / activeParty.totalDebit) * 100))}%`,
                           },
                         ]}
                       />
                     </View>
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 4 }}>
-                      <Text style={{ color: '#16A34A', fontSize: fontSizes.xs, fontWeight: '600' }}>
+                      <Text style={{ color: colors.success, fontSize: fontSizes.xs, fontWeight: '600' }}>
                         {t('paid')}: {fmt(activeParty.totalCredit)}
                       </Text>
-                      <Text style={{ color: '#DC2626', fontSize: fontSizes.xs, fontWeight: '600' }}>
+                      <Text style={{ color: colors.destructive, fontSize: fontSizes.xs, fontWeight: '600' }}>
                         {t('remaining')}: {fmt(Math.abs(netBal))}
                       </Text>
                     </View>
@@ -490,7 +492,7 @@ export function PartyLedgerView() {
             />
           </ScrollView>
 
-          <View style={[styles.unifiedFooter, { backgroundColor: colors.card, borderTopColor: colors.border }]}>
+          <View style={[styles.unifiedFooter, { backgroundColor: colors.card, borderTopColor: colors.border, paddingBottom: insets.bottom + 16 }]}>
             <TouchableOpacity onPress={() => setIsPaymentModalOpen(false)} activeOpacity={0.7} style={[styles.unifiedCancelBtn, { borderColor: colors.destructive }]}>
               <Text style={{ color: colors.destructive, fontWeight: '700', fontSize: fontSizes.base }}>✕ {t('cancel')}</Text>
             </TouchableOpacity>
@@ -516,8 +518,8 @@ export function PartyLedgerView() {
         ListHeaderComponent={
           <View style={{ paddingTop: 8 }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-              <View style={[styles.headingIcon, { backgroundColor: '#E0E7FF' }]}>
-                <Users color="#4F46E5" size={20} />
+              <View style={[styles.headingIcon, { backgroundColor: colors.surfacePurple }]}>
+                <Users color={colors.surfacePurpleText} size={20} />
               </View>
               <Text style={{ color: colors.foreground, fontSize: fontSizes.md, fontWeight: '700' }}>
                 {t('partyLedgersTitle')}
@@ -533,12 +535,12 @@ export function PartyLedgerView() {
               <View style={[styles.kpiDivider, { backgroundColor: colors.border }]} />
               <View style={styles.kpiCol}>
                 <Text style={[styles.kpiLabel, { color: colors.mutedFg }]}>{t('payableDr')}</Text>
-                <Text style={[styles.kpiVal, { color: '#DC2626' }]} numberOfLines={1}>{fmt(totalPayable)}</Text>
+                <Text style={[styles.kpiVal, { color: colors.destructive }]} numberOfLines={1}>{fmt(totalPayable)}</Text>
               </View>
               <View style={[styles.kpiDivider, { backgroundColor: colors.border }]} />
               <View style={styles.kpiCol}>
                 <Text style={[styles.kpiLabel, { color: colors.mutedFg }]}>{t('receivableCr')}</Text>
-                <Text style={[styles.kpiVal, { color: '#16A34A' }]} numberOfLines={1}>{fmt(totalReceivable)}</Text>
+                <Text style={[styles.kpiVal, { color: colors.success }]} numberOfLines={1}>{fmt(totalReceivable)}</Text>
               </View>
             </View>
 
@@ -641,7 +643,7 @@ const styles = StyleSheet.create({
   modeChip: { flex: 1, paddingVertical: 8, borderRadius: 10, borderWidth: 1, alignItems: 'center' },
   unifiedHeader: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, paddingTop: 14, paddingBottom: 10, borderBottomWidth: 1 },
   unifiedTitle: { fontSize: fontSizes.lg, fontWeight: '800' },
-  unifiedFooter: { flexDirection: 'row', padding: 16, paddingBottom: 34, gap: 12, borderTopWidth: 1 },
+  unifiedFooter: { flexDirection: 'row', padding: 16, gap: 12, borderTopWidth: 1 },
   unifiedCancelBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 14, borderRadius: 14, borderWidth: 1.5 },
   unifiedSaveBtn: { flex: 1.5, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 14, borderRadius: 14, shadowOpacity: 0.35, shadowRadius: 8, shadowOffset: { width: 0, height: 4 }, elevation: 6 },
 });

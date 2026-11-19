@@ -1,9 +1,8 @@
 import React from 'react';
-import { View, Text, StyleSheet, StatusBar } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { fontSizes } from '../../shared/utils/typography';
-
-const STATUS_BAR_HEIGHT = StatusBar.currentHeight || 44;
 
 interface WaveHeaderStat {
   value: string | number;
@@ -25,6 +24,7 @@ export function WaveHeader({
   gradientFrom = '#16A34A',
   gradientTo = '#0F766E',
 }: WaveHeaderProps) {
+  const insets = useSafeAreaInsets();
   return (
     <LinearGradient
       colors={[gradientFrom, gradientTo]}
@@ -32,7 +32,7 @@ export function WaveHeader({
       end={{ x: 1, y: 1 }}
       style={styles.container}
     >
-      <View style={[styles.content, { paddingTop: STATUS_BAR_HEIGHT + 16 }]}>
+      <View style={[styles.content, { paddingTop: insets.top + 16 }]}>
         <Text style={styles.title}>{title}</Text>
         {subtitle ? <Text style={styles.subtitle}>{subtitle}</Text> : null}
 

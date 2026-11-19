@@ -209,8 +209,8 @@ export function PlotDashboardScreen({ route, navigation }: any) {
               style={[
                 styles.profitBadge,
                 {
-                  backgroundColor: financials.profit >= 0 ? '#DCFCE7' : '#FEE2E2',
-                  borderColor: financials.profit >= 0 ? '#16A34A' : '#DC2626',
+                  backgroundColor: financials.profit >= 0 ? colors.surfaceSuccess : colors.surfaceDestructive,
+                  borderColor: financials.profit >= 0 ? colors.success : colors.destructive,
                 },
               ]}
             >
@@ -218,7 +218,7 @@ export function PlotDashboardScreen({ route, navigation }: any) {
                 style={{
                   fontSize: fontSizes.xs,
                   fontWeight: '700',
-                  color: financials.profit >= 0 ? '#16A34A' : '#DC2626',
+                  color: financials.profit >= 0 ? colors.success : colors.destructive,
                 }}
               >
                 {financials.profit >= 0 ? `+ ${fmtCurrency(financials.profit)} ${t('profit')}` : `- ${fmtCurrency(Math.abs(financials.profit))} ${t('loss')}`}
@@ -229,7 +229,7 @@ export function PlotDashboardScreen({ route, navigation }: any) {
           <View style={[styles.kpiCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
             <View style={styles.kpiCol}>
               <Text style={[styles.kpiLabel, { color: colors.mutedFg }]}>{t('income')}</Text>
-              <Text style={[styles.kpiValue, { color: '#16A34A' }]} numberOfLines={1}>
+              <Text style={[styles.kpiValue, { color: colors.success }]} numberOfLines={1}>
                 +{fmtCurrency(financials.income)}
               </Text>
             </View>
@@ -246,7 +246,7 @@ export function PlotDashboardScreen({ route, navigation }: any) {
               <Text
                 style={[
                   styles.kpiValue,
-                  { color: financials.profit >= 0 ? '#16A34A' : colors.destructive },
+                  { color: financials.profit >= 0 ? colors.success : colors.destructive },
                 ]}
                 numberOfLines={1}
               >
@@ -259,7 +259,7 @@ export function PlotDashboardScreen({ route, navigation }: any) {
           <View style={styles.actionBtnRow}>
             <TouchableOpacity
               onPress={() => setMoneyInOpen(true)}
-              style={[styles.actionBtn, { backgroundColor: '#16A34A' }]}
+              style={[styles.actionBtn, { backgroundColor: colors.success }]}
               activeOpacity={0.8}
             >
               <ArrowDownLeft size={16} color="#FFFFFF" />
@@ -453,7 +453,7 @@ export function PlotDashboardScreen({ route, navigation }: any) {
                       </Text>
                     </View>
                     <View style={{ alignItems: 'flex-end' }}>
-                      <Text style={{ color: '#16A34A', fontWeight: '800', fontSize: fontSizes.base }}>
+                      <Text style={{ color: colors.success, fontWeight: '800', fontSize: fontSizes.base }}>
                         +{fmtCurrency(txn.amount)}
                       </Text>
                       <Badge text={tPaymentMode(txn.paymentMode, t)} />
@@ -479,15 +479,15 @@ export function PlotDashboardScreen({ route, navigation }: any) {
                   variant={pnl.netProfit >= 0 ? 'success' : 'destructive'}
                 />
               </View>
-              <Text style={{ color: pnl.netProfit >= 0 ? '#16A34A' : '#DC2626', fontSize: fontSizes.xxl, fontWeight: '900', marginTop: 6 }}>
+              <Text style={{ color: pnl.netProfit >= 0 ? colors.success : colors.destructive, fontSize: fontSizes.xxl, fontWeight: '900', marginTop: 6 }}>
                 {pnl.netProfit < 0 ? '-' : ''}{fmtCurrency(Math.abs(pnl.netProfit))}
               </Text>
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 10, paddingTop: 10, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.border }}>
                 <Text style={{ color: colors.mutedFg, fontSize: fontSizes.sm }}>
-                  {t('revenue')}: <Text style={{ color: '#16A34A', fontWeight: '700' }}>{fmtCurrency(pnl.totalRevenue)}</Text>
+                  {t('revenue')}: <Text style={{ color: colors.success, fontWeight: '700' }}>{fmtCurrency(pnl.totalRevenue)}</Text>
                 </Text>
                 <Text style={{ color: colors.mutedFg, fontSize: fontSizes.sm }}>
-                  {t('expenses')}: <Text style={{ color: '#DC2626', fontWeight: '700' }}>{fmtCurrency(pnl.directCosts + pnl.indirectCosts)}</Text>
+                  {t('expenses')}: <Text style={{ color: colors.destructive, fontWeight: '700' }}>{fmtCurrency(pnl.directCosts + pnl.indirectCosts)}</Text>
                 </Text>
               </View>
             </View>
@@ -498,15 +498,15 @@ export function PlotDashboardScreen({ route, navigation }: any) {
                 <Text style={{ color: colors.primary, fontSize: fontSizes.sm, fontWeight: '700' }}>A. {t('totalFarmRevenue')}</Text>
                 <Text style={{ color: colors.primary, fontSize: fontSizes.base, fontWeight: '800' }}>{fmtCurrency(pnl.totalRevenue)}</Text>
               </View>
-              <View style={styles.pnlDataRow}>
+              <View style={[styles.pnlDataRow, { borderBottomColor: colors.divider }]}>
                 <Text style={{ color: colors.mutedFg, fontSize: fontSizes.sm }}>{t('cropSales')}</Text>
                 <Text style={{ color: colors.foreground, fontWeight: '700', fontSize: fontSizes.sm }}>{fmtCurrency(pnl.cropSales)}</Text>
               </View>
-              <View style={styles.pnlDataRow}>
+              <View style={[styles.pnlDataRow, { borderBottomColor: colors.divider }]}>
                 <Text style={{ color: colors.mutedFg, fontSize: fontSizes.sm }}>{t('dairyIncome')}</Text>
                 <Text style={{ color: colors.foreground, fontWeight: '700', fontSize: fontSizes.sm }}>{fmtCurrency(pnl.dairyIncome)}</Text>
               </View>
-              <View style={styles.pnlDataRow}>
+              <View style={[styles.pnlDataRow, { borderBottomColor: colors.divider }]}>
                 <Text style={{ color: colors.mutedFg, fontSize: fontSizes.sm }}>{t('otherSubsidies')}</Text>
                 <Text style={{ color: colors.foreground, fontWeight: '700', fontSize: fontSizes.sm }}>{fmtCurrency(pnl.otherIncome)}</Text>
               </View>
@@ -520,7 +520,7 @@ export function PlotDashboardScreen({ route, navigation }: any) {
               </View>
               {pnl.costBreakdown.length > 0 ? (
                 pnl.costBreakdown.slice(0, 8).map(([cat, amt]) => (
-                  <View key={cat} style={styles.pnlDataRow}>
+                  <View key={cat} style={[styles.pnlDataRow, { borderBottomColor: colors.divider }]}>
                     <Text style={{ color: colors.mutedFg, fontSize: fontSizes.sm }}>{t(cat)}</Text>
                     <Text style={{ color: colors.foreground, fontWeight: '600', fontSize: fontSizes.sm }}>{fmtCurrency(amt)}</Text>
                   </View>
@@ -536,13 +536,13 @@ export function PlotDashboardScreen({ route, navigation }: any) {
             <View style={[styles.pnlHeroCard, { backgroundColor: colors.card, marginBottom: 10 }]}>
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                 <View>
-                  <Text style={{ color: '#2563EB', fontSize: fontSizes.sm, fontWeight: '700' }}>C. {t('grossProfit')}</Text>
+                  <Text style={{ color: colors.surfaceInfoText, fontSize: fontSizes.sm, fontWeight: '700' }}>C. {t('grossProfit')}</Text>
                 </View>
                 <View style={{ alignItems: 'flex-end' }}>
-                  <Text style={{ color: pnl.grossProfit >= 0 ? '#16A34A' : '#DC2626', fontSize: fontSizes.md, fontWeight: '800' }}>
+                  <Text style={{ color: pnl.grossProfit >= 0 ? colors.success : colors.destructive, fontSize: fontSizes.md, fontWeight: '800' }}>
                     {fmtCurrency(pnl.grossProfit)}
                   </Text>
-                  <Text style={{ color: '#2563EB', fontSize: fontSizes.sm, fontWeight: '700' }}>
+                  <Text style={{ color: colors.surfaceInfoText, fontSize: fontSizes.sm, fontWeight: '700' }}>
                     {toNative(pnl.grossMargin.toFixed(1))}% {t('margin')}
                   </Text>
                 </View>
@@ -552,8 +552,8 @@ export function PlotDashboardScreen({ route, navigation }: any) {
             {/* Indirect Costs */}
             <Card style={{ marginBottom: 10 }} padding={14}>
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                <Text style={{ color: '#D97706', fontSize: fontSizes.sm, fontWeight: '700' }}>D. {t('indirectCosts')}</Text>
-                <Text style={{ color: '#D97706', fontSize: fontSizes.base, fontWeight: '800' }}>{fmtCurrency(pnl.indirectCosts)}</Text>
+                <Text style={{ color: colors.surfaceWarningText, fontSize: fontSizes.sm, fontWeight: '700' }}>D. {t('indirectCosts')}</Text>
+                <Text style={{ color: colors.surfaceWarningText, fontSize: fontSizes.base, fontWeight: '800' }}>{fmtCurrency(pnl.indirectCosts)}</Text>
               </View>
             </Card>
           </View>
@@ -586,23 +586,23 @@ export function PlotDashboardScreen({ route, navigation }: any) {
 
           <View style={[styles.divider, { backgroundColor: colors.border }]} />
 
-          <View style={styles.detailRow}>
+          <View style={[styles.detailRow, { borderBottomColor: colors.divider }]}>
             <Text style={{ color: colors.mutedFg, fontSize: fontSizes.sm }}>{t('gatNumber')}</Text>
             <Text style={{ color: colors.foreground, fontWeight: '700', fontSize: fontSizes.sm }}>{toNative(plot.gatNumber)}</Text>
           </View>
-          <View style={styles.detailRow}>
+          <View style={[styles.detailRow, { borderBottomColor: colors.divider }]}>
             <Text style={{ color: colors.mutedFg, fontSize: fontSizes.sm }}>{t('area')}</Text>
             <Text style={{ color: colors.foreground, fontWeight: '700', fontSize: fontSizes.sm }}>
               {toNative(plot.area)} {t(plot.areaUnit || 'acre')}
             </Text>
           </View>
-          <View style={styles.detailRow}>
+          <View style={[styles.detailRow, { borderBottomColor: colors.divider }]}>
             <Text style={{ color: colors.mutedFg, fontSize: fontSizes.sm }}>{t('soilType')}</Text>
             <Text style={{ color: colors.foreground, fontWeight: '700', fontSize: fontSizes.sm }}>
               {t(plot.soilType) || plot.soilType}
             </Text>
           </View>
-          <View style={styles.detailRow}>
+          <View style={[styles.detailRow, { borderBottomColor: colors.divider }]}>
             <Text style={{ color: colors.mutedFg, fontSize: fontSizes.sm }}>{t('irrigationType')}</Text>
             <Text style={{ color: colors.foreground, fontWeight: '700', fontSize: fontSizes.sm }}>{t(plot.irrigationType) || plot.irrigationType}</Text>
           </View>
@@ -703,12 +703,12 @@ const styles = StyleSheet.create({
   txHeaderRow: { marginTop: 8, marginBottom: 8 },
   miniCropTag: { paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4 },
   pnlHeroCard: { borderRadius: 16, padding: 16, marginBottom: 12, shadowColor: '#000', shadowOffset: { width: 0, height: 3 }, shadowOpacity: 0.1, shadowRadius: 8, elevation: 4 },
-  pnlDataRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 6, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: 'rgba(0,0,0,0.06)' },
+  pnlDataRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 6, borderBottomWidth: StyleSheet.hairlineWidth },
 
   sectionTitle: { fontSize: fontSizes.base, fontWeight: '700' },
   progressBar: { height: 8, borderRadius: 4, overflow: 'hidden', marginTop: 10, marginBottom: 8 },
   progressFill: { height: '100%', borderRadius: 4 },
   areaStats: { flexDirection: 'row', justifyContent: 'space-between' },
   divider: { height: 1, marginVertical: 12 },
-  detailRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 8, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: 'rgba(0,0,0,0.06)' },
+  detailRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 8, borderBottomWidth: StyleSheet.hairlineWidth },
 });

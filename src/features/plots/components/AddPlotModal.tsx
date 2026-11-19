@@ -6,6 +6,7 @@ import { useTheme } from '../../../app/providers/ThemeProvider';
 import { usePlotStore } from '../../../shared/hooks/usePlotStore';
 import { Input } from '../../../components/ui/Input';
 import { X, ChevronRight, Check, MapPin, Layers, Droplets, Sparkles } from 'lucide-react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { fontSizes } from '../../../shared/utils/typography';
 
 interface AddPlotModalProps {
@@ -28,6 +29,7 @@ const STEP_LABELS_KEYS = ['plotDetails', 'soilAndWater', 'preview'];
 export function AddPlotModal({ visible, onClose }: AddPlotModalProps) {
   const { t } = useTranslation();
   const { colors } = useTheme();
+  const insets = useSafeAreaInsets();
   const { createPlot, isDuplicateGatNumber } = usePlotStore();
 
   const [step, setStep] = useState(1);
@@ -370,8 +372,8 @@ export function AddPlotModal({ visible, onClose }: AddPlotModalProps) {
                       <Text style={{ fontSize: fontSizes.lg }}>{SOIL_EMOJI[form.soilType]}</Text>
                       <Text style={{ color: colors.mutedFg, fontSize: fontSizes.base }}>{t('soilType')}</Text>
                     </View>
-                    <View style={[styles.previewBadge, { backgroundColor: '#F59E0B' + '18' }]}>
-                      <Text style={{ color: '#B45309', fontWeight: '700', fontSize: fontSizes.sm }}>{t(form.soilType)}</Text>
+                    <View style={[styles.previewBadge, { backgroundColor: colors.surfaceWarning }]}>
+                      <Text style={{ color: colors.surfaceWarningText, fontWeight: '700', fontSize: fontSizes.sm }}>{t(form.soilType)}</Text>
                     </View>
                   </View>
 
@@ -380,8 +382,8 @@ export function AddPlotModal({ visible, onClose }: AddPlotModalProps) {
                       <Text style={{ fontSize: fontSizes.lg }}>{IRRIGATION_EMOJI[form.irrigationType]}</Text>
                       <Text style={{ color: colors.mutedFg, fontSize: fontSizes.base }}>{t('irrigationType')}</Text>
                     </View>
-                    <View style={[styles.previewBadge, { backgroundColor: '#3B82F6' + '18' }]}>
-                      <Text style={{ color: '#1D4ED8', fontWeight: '700', fontSize: fontSizes.sm }}>{t(form.irrigationType)}</Text>
+                    <View style={[styles.previewBadge, { backgroundColor: colors.surfaceInfo }]}>
+                      <Text style={{ color: colors.surfaceInfoText, fontWeight: '700', fontSize: fontSizes.sm }}>{t(form.irrigationType)}</Text>
                     </View>
                   </View>
 
@@ -390,8 +392,8 @@ export function AddPlotModal({ visible, onClose }: AddPlotModalProps) {
                       <Text style={{ fontSize: fontSizes.lg }}>{WATER_EMOJI[form.waterAvailability]}</Text>
                       <Text style={{ color: colors.mutedFg, fontSize: fontSizes.base }}>{t('waterAvailability')}</Text>
                     </View>
-                    <View style={[styles.previewBadge, { backgroundColor: '#10B981' + '18' }]}>
-                      <Text style={{ color: '#047857', fontWeight: '700', fontSize: fontSizes.sm }}>{t(form.waterAvailability)}</Text>
+                    <View style={[styles.previewBadge, { backgroundColor: colors.surfaceSuccess }]}>
+                      <Text style={{ color: colors.surfaceSuccessText, fontWeight: '700', fontSize: fontSizes.sm }}>{t(form.waterAvailability)}</Text>
                     </View>
                   </View>
                 </View>
@@ -401,7 +403,7 @@ export function AddPlotModal({ visible, onClose }: AddPlotModalProps) {
         </ScrollView>
 
         {/* Footer */}
-        <View style={[styles.footer, { backgroundColor: colors.card, borderTopColor: colors.border }]}>
+        <View style={[styles.footer, { backgroundColor: colors.card, borderTopColor: colors.border, paddingBottom: insets.bottom + 16 }]}>
           <TouchableOpacity
             onPress={handleClose}
             activeOpacity={0.7}
@@ -590,7 +592,6 @@ const styles = StyleSheet.create({
   footer: {
     flexDirection: 'row',
     padding: 16,
-    paddingBottom: 34,
     gap: 12,
     borderTopWidth: 1,
   },

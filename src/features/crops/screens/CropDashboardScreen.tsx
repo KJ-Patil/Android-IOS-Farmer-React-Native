@@ -155,20 +155,20 @@ export function CropDashboardScreen({ route, navigation }: any) {
           <View style={styles.finGrid}>
             <View style={[styles.finItem, styles.finCard, { backgroundColor: colors.card }]}>
               <Text style={[styles.finLabel, { color: colors.mutedFg }]}>{t('revenue')}</Text>
-              <Text style={[styles.finValue, { color: '#16A34A' }]}>
+              <Text style={[styles.finValue, { color: colors.success }]}>
                 {fmtCurrency(cropFinancials.income)}
               </Text>
             </View>
             <View style={[styles.finItem, styles.finCard, { backgroundColor: colors.card }]}>
               <Text style={[styles.finLabel, { color: colors.mutedFg }]}>{t('expenses')}</Text>
-              <Text style={[styles.finValue, { color: '#DC2626' }]}>
+              <Text style={[styles.finValue, { color: colors.destructive }]}>
                 {fmtCurrency(cropFinancials.expenses)}
               </Text>
             </View>
             <View style={[styles.finItem, styles.finCard, { backgroundColor: colors.card }]}>
               <Text style={[styles.finLabel, { color: colors.mutedFg }]}>{t('netMargin')}</Text>
               <Text
-                style={[styles.finValue, { color: cropFinancials.profit >= 0 ? '#16A34A' : '#DC2626' }]}
+                style={[styles.finValue, { color: cropFinancials.profit >= 0 ? colors.success : colors.destructive }]}
               >
                 {fmtCurrency(cropFinancials.profit)}
               </Text>
@@ -193,22 +193,22 @@ export function CropDashboardScreen({ route, navigation }: any) {
 
         {/* Crop Cycle Parameters */}
         <Card style={{ marginTop: 12 }}>
-          <View style={styles.detailRow}>
+          <View style={[styles.detailRow, { borderBottomColor: colors.divider }]}>
             <Text style={{ color: colors.mutedFg }}>{t('season')}</Text>
             <Text style={{ color: colors.foreground, fontWeight: '700' }}>{t(crop.season.toLowerCase()) || crop.season}</Text>
           </View>
-          <View style={styles.detailRow}>
+          <View style={[styles.detailRow, { borderBottomColor: colors.divider }]}>
             <Text style={{ color: colors.mutedFg }}>{t('sowingDate')}</Text>
             <Text style={{ color: colors.foreground, fontWeight: '700' }}>{fmtDMY(crop.sowingDate)}</Text>
           </View>
           {crop.expectedHarvestDate && (
-            <View style={styles.detailRow}>
+            <View style={[styles.detailRow, { borderBottomColor: colors.divider }]}>
               <Text style={{ color: colors.mutedFg }}>{t('expectedHarvest')}</Text>
               <Text style={{ color: colors.foreground, fontWeight: '700' }}>{fmtDMY(crop.expectedHarvestDate)}</Text>
             </View>
           )}
           {crop.actualHarvestDate && (
-            <View style={styles.detailRow}>
+            <View style={[styles.detailRow, { borderBottomColor: colors.divider }]}>
               <Text style={{ color: colors.mutedFg }}>{t('actualHarvest')}</Text>
               <Text style={{ color: colors.primary, fontWeight: '700' }}>{fmtDMY(crop.actualHarvestDate)}</Text>
             </View>
@@ -327,7 +327,7 @@ const styles = StyleSheet.create({
   finCard: { borderRadius: 24, padding: 12, shadowColor: '#000', shadowOffset: { width: 0, height: 3 }, shadowOpacity: 0.12, shadowRadius: 8, elevation: 4 },
   finLabel: { fontSize: fontSizes.sm, fontWeight: '600', textTransform: 'uppercase', letterSpacing: 0.3 },
   finValue: { fontSize: fontSizes.lg, fontWeight: '800', marginTop: 4, letterSpacing: -0.5 },
-  detailRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 8, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: 'rgba(0,0,0,0.06)' },
+  detailRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 8, borderBottomWidth: StyleSheet.hairlineWidth },
   statusTimeline: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 6 },
   statusItem: { flex: 1, alignItems: 'center', position: 'relative' },
   statusDot: { width: 20, height: 20, borderRadius: 10, zIndex: 2 },

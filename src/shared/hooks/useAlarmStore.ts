@@ -3,6 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   scheduleDailyAlarm,
   cancelDailyAlarm,
+  scheduleDailyReminders,
 } from '../services/alarmService';
 
 const ALARM_KEY = '@farmer_alarm_enabled';
@@ -45,6 +46,7 @@ export const useAlarmStore = create<AlarmState>((set, get) => ({
       if (enabled) {
         await scheduleDailyAlarm();
       }
+      await scheduleDailyReminders();
     } catch {
       set({ isInitialized: true });
     }

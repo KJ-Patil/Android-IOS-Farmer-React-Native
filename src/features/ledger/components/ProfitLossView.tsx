@@ -308,8 +308,8 @@ export function ProfitLossView() {
       <Card style={{ borderRadius: 16, marginBottom: 12 }} padding={16}>
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-            <View style={[styles.headingIcon, { backgroundColor: '#F3E8FF' }]}>
-              <TrendingUp color="#7C3AED" size={20} />
+            <View style={[styles.headingIcon, { backgroundColor: colors.surfacePurple }]}>
+              <TrendingUp color={colors.surfacePurpleText} size={20} />
             </View>
             <Text style={{ color: colors.foreground, fontSize: fontSizes.md, fontWeight: '700' }}>
               {t('profitLoss')}
@@ -324,21 +324,21 @@ export function ProfitLossView() {
         <View style={[styles.kpiTable, { backgroundColor: colors.card, borderColor: colors.border }]}>
           <View style={styles.kpiCol}>
             <Text style={[styles.kpiLabel, { color: colors.mutedFg }]}>{t('revenue')}</Text>
-            <Text style={[styles.kpiValue, { color: '#16A34A' }]} numberOfLines={1}>
+            <Text style={[styles.kpiValue, { color: colors.success }]} numberOfLines={1}>
               {fmt(pnl.totalRevenue)}
             </Text>
           </View>
           <View style={[styles.kpiDivider, { backgroundColor: colors.border }]} />
           <View style={styles.kpiCol}>
             <Text style={[styles.kpiLabel, { color: colors.mutedFg }]}>{t('expenses')}</Text>
-            <Text style={[styles.kpiValue, { color: '#DC2626' }]} numberOfLines={1}>
+            <Text style={[styles.kpiValue, { color: colors.destructive }]} numberOfLines={1}>
               {fmt(pnl.directCosts + pnl.indirectCosts)}
             </Text>
           </View>
           <View style={[styles.kpiDivider, { backgroundColor: colors.border }]} />
           <View style={styles.kpiCol}>
             <Text style={[styles.kpiLabel, { color: colors.mutedFg }]}>{t('netProfit')}</Text>
-            <Text style={[styles.kpiValue, { color: pnl.netProfit >= 0 ? '#16A34A' : '#DC2626' }]} numberOfLines={1}>
+            <Text style={[styles.kpiValue, { color: pnl.netProfit >= 0 ? colors.success : colors.destructive }]} numberOfLines={1}>
               {pnl.netProfit < 0 ? '-' : ''}{fmt(Math.abs(pnl.netProfit))}
             </Text>
           </View>
@@ -356,7 +356,7 @@ export function ProfitLossView() {
           </Text>
         </View>
 
-        <View style={styles.dataRow}>
+        <View style={[styles.dataRow, { borderBottomColor: colors.divider }]}>
           <Text style={{ color: colors.mutedFg, fontSize: fontSizes.sm }}>
             {t('cropSales')}
           </Text>
@@ -365,7 +365,7 @@ export function ProfitLossView() {
           </Text>
         </View>
 
-        <View style={styles.dataRow}>
+        <View style={[styles.dataRow, { borderBottomColor: colors.divider }]}>
           <Text style={{ color: colors.mutedFg, fontSize: fontSizes.sm }}>
             {t('dairyIncome')}
           </Text>
@@ -374,7 +374,7 @@ export function ProfitLossView() {
           </Text>
         </View>
 
-        <View style={styles.dataRow}>
+        <View style={[styles.dataRow, { borderBottomColor: colors.divider }]}>
           <Text style={{ color: colors.mutedFg, fontSize: fontSizes.sm }}>
             {t('otherSubsidies')}
           </Text>
@@ -397,7 +397,7 @@ export function ProfitLossView() {
 
         {pnl.costBreakdown.length > 0 ? (
           pnl.costBreakdown.slice(0, 8).map(([cat, amt]) => (
-            <View key={cat} style={styles.dataRow}>
+            <View key={cat} style={[styles.dataRow, { borderBottomColor: colors.divider }]}>
               <Text style={{ color: colors.mutedFg, fontSize: fontSizes.sm }}>{t(cat)}</Text>
               <Text style={{ color: colors.foreground, fontWeight: '700', fontSize: fontSizes.sm }}>
                 {fmt(amt)}
@@ -427,7 +427,7 @@ export function ProfitLossView() {
       >
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
           <View>
-            <Text style={{ color: '#2563EB', fontSize: fontSizes.sm, fontWeight: '700' }}>
+            <Text style={{ color: colors.surfaceInfoText, fontSize: fontSizes.sm, fontWeight: '700' }}>
               C. {t('grossProfit')}
             </Text>
             <Text style={{ color: colors.mutedFg, fontSize: fontSizes.sm, marginTop: 2 }}>
@@ -437,14 +437,14 @@ export function ProfitLossView() {
           <View style={{ alignItems: 'flex-end' }}>
             <Text
               style={{
-                color: pnl.grossProfit >= 0 ? '#16A34A' : '#DC2626',
+                color: pnl.grossProfit >= 0 ? colors.success : colors.destructive,
                 fontSize: fontSizes.md,
                 fontWeight: '800',
               }}
             >
               {fmt(pnl.grossProfit)}
             </Text>
-            <Text style={{ color: '#2563EB', fontSize: fontSizes.sm, fontWeight: '700' }}>
+            <Text style={{ color: colors.surfaceInfoText, fontSize: fontSizes.sm, fontWeight: '700' }}>
               {toNative(pnl.grossMargin.toFixed(1))}% {t('margin')}
             </Text>
           </View>
@@ -476,7 +476,7 @@ const styles = StyleSheet.create({
   periodChip: { borderWidth: 1, paddingVertical: 8, paddingHorizontal: 14, marginRight: 8, borderRadius: 10 },
   subFilterChip: { borderWidth: 1, paddingVertical: 6, paddingHorizontal: 12, marginRight: 8, borderRadius: 8 },
   sectionHeading: { fontSize: fontSizes.sm, fontWeight: '700' },
-  dataRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 6, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: 'rgba(0,0,0,0.06)' },
+  dataRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 6, borderBottomWidth: StyleSheet.hairlineWidth },
   kpiTable: { flexDirection: 'row', marginTop: 10, borderRadius: 12, borderWidth: 1, padding: 14 },
   kpiCol: { flex: 1, alignItems: 'center', justifyContent: 'space-between' },
   kpiDivider: { width: 1, alignSelf: 'stretch', marginVertical: 2 },
