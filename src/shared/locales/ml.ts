@@ -452,6 +452,7 @@ export default {
   required: 'ആവശ്യമാണ്',
   invalid: 'അസാധുവാണ്',
   error: 'പിശക്',
+  somethingWentWrong: 'എന്തോ കുഴപ്പം സംഭവിച്ചു. വീണ്ടും ശ്രമിക്കുക.',
   success: 'വിജയം',
   all: 'എല്ലാം',
   total: 'ആകെ',

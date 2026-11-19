@@ -452,6 +452,7 @@ export default {
   required: 'ಅಗತ್ಯ',
   invalid: 'ಅಮಾನ್ಯ',
   error: 'ದೋಷ',
+  somethingWentWrong: 'ಏನೋ ತಪ್ಪಾಯಿತು. ದಯವಿಟ್ಟು ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.',
   success: 'ಯಶಸ್ವಿ',
   all: 'ಎಲ್ಲಾ',
   total: 'ಒಟ್ಟು',

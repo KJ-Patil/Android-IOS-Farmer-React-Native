@@ -425,6 +425,7 @@ export default {
   required: 'আবশ্যক',
   invalid: 'অবৈধ',
   error: 'ত্রুটি',
+  somethingWentWrong: 'কিছু ভুল হয়েছে। অনুগ্রহ করে আবার চেষ্টা করুন।',
   success: 'সফল',
   all: 'সমস্ত',
   total: 'মোট',

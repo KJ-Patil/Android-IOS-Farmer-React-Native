@@ -52,15 +52,11 @@ export function LoginScreen({ navigation }: any) {
 
     try {
       const loggedIn = await loginWithVerifiedMobile(mobile);
-      if (loggedIn) {
-        console.log('LOGIN SUCCESS');
-      } else {
-        console.log('NAVIGATING TO REGISTER');
+      if (!loggedIn) {
         navigation.navigate('Register', { mobile });
       }
     } catch (e: any) {
-      console.log('LOGIN FAILED:', e?.code, e?.message);
-      setLoginError(e?.message || t('loginFailed'));
+      setLoginError(t('loginFailed'));
     }
   };
 

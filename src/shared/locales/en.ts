@@ -573,6 +573,7 @@ export default {
   required: 'Required',
   invalid: 'Invalid',
   error: 'Error',
+  somethingWentWrong: 'Something went wrong. Please try again.',
   success: 'Success',
   all: 'All',
   total: 'Total',
@@ -782,6 +783,11 @@ export default {
   confirmUpgrade: 'Upgrade to',
   upgrade: 'Upgrade',
   month: 'month',
+
+  // Alarm & Reminder
+  dailyReminder: 'Daily Reminder',
+  alarmDescription: 'Rings every day at 6:45 PM IST to remind you to update your farm records.',
+  dismiss: 'Dismiss',
 
   // Additional localization keys
   balance: 'Bal',

@@ -452,6 +452,7 @@ export default {
   required: 'கட்டாயம்',
   invalid: 'தவறானது',
   error: 'பிழை',
+  somethingWentWrong: 'ஏதோ தவறு நடந்தது. மீண்டும் முயற்சிக்கவும்.',
   success: 'வெற்றி',
   all: 'அனைத்தும்',
   total: 'மொத்தம்',

@@ -452,6 +452,7 @@ export default {
   required: 'ଆବଶ୍ୟକ',
   invalid: 'ଅବୈଧ',
   error: 'ତ୍ରୁଟି',
+  somethingWentWrong: 'କିଛି ଭୁଲ ହୋଇଗଲା। ଦୟାକରି ପୁନଃଚେଷ୍ଟା କରନ୍ତୁ।',
   success: 'ସଫଳ',
   all: 'ସମସ୍ତ',
   total: 'ମୋଟ',

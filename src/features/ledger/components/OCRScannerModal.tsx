@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, Modal, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { useTranslation } from 'react-i18next';
+import { logger } from '../../../shared/services/logger';
 import { useTheme } from '../../../app/providers/ThemeProvider';
 import { recognizeText, parseBillData, SAMPLE_BILLS, ParsedBillData } from '../../../shared/services/ocrService';
 import { Input } from '../../../components/ui/Input';
@@ -58,7 +59,8 @@ export function OCRScannerModal({ visible, onClose, onApply }: OCRScannerModalPr
       setResult(parsed);
       setEditedResult({ ...parsed });
     } catch (err: any) {
-      Alert.alert(t('error'), err.message || 'OCR failed');
+      logger.error('OCR scan error:', err);
+      Alert.alert(t('error'), t('somethingWentWrong'));
     } finally {
       setScanning(false);
     }

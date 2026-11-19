@@ -10,6 +10,7 @@ import {
   ScrollView,
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
+import { logger } from '../../../shared/services/logger';
 import { useTheme } from '../../../app/providers/ThemeProvider';
 import { useLedgerStore } from '../../../shared/hooks/useLedgerStore';
 import { Card } from '../../../components/ui/Card';
@@ -104,7 +105,8 @@ export function CreditTrackerView({ onOpenAddModal }: CreditTrackerViewProps) {
       setPayNotes('');
       Alert.alert(t('success'), t('paymentRecordedSuccessfully'));
     } catch (err: any) {
-      Alert.alert(t('error'), err.message);
+      logger.error('CreditTracker payment error:', err);
+      Alert.alert(t('error'), t('somethingWentWrong'));
     } finally {
       setLoading(false);
     }

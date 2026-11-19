@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, Modal, TouchableOpacity, Alert } from 'react-native';
 import { useTranslation } from 'react-i18next';
+import { logger } from '../../../shared/services/logger';
 import { useTheme } from '../../../app/providers/ThemeProvider';
 import { useLedgerStore } from '../../../shared/hooks/useLedgerStore';
 import { Input } from '../../../components/ui/Input';
@@ -34,7 +35,8 @@ export function CustomLedgersModal({ visible, onClose }: CustomLedgersModalProps
       resetForm();
       onClose();
     } catch (err: any) {
-      Alert.alert(t('error'), err.message);
+      logger.error('CustomLedgersModal save error:', err);
+      Alert.alert(t('error'), t('somethingWentWrong'));
     } finally {
       setLoading(false);
     }

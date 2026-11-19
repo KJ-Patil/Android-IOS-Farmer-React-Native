@@ -447,6 +447,7 @@ export default {
   required: 'आवश्यक',
   invalid: 'अवैध',
   error: 'त्रुटी',
+  somethingWentWrong: 'काहीतरी चूक झाली. कृपया पुन्हा प्रयत्न करा.',
   success: 'यशस्वी',
   all: 'सर्व',
   total: 'एकूण',
@@ -656,6 +657,11 @@ export default {
   confirmUpgrade: 'अपग्रेड करा',
   upgrade: 'अपग्रेड',
   month: 'महिना',
+  // Alarm & Reminder
+  dailyReminder: 'दैनिक स्मरणपत्र',
+  alarmDescription: 'दररोज संध्याकाळी ६:४५ IST ला तुमच्या शेतीच्या नोंदी अपडेट करण्याची आठवण करते.',
+  dismiss: 'बंद करा',
+
   balance: 'शिल्लक',
   next4Days: 'पुढील ४ दिवस',
   past7Days: 'मागील ७ दिवस',

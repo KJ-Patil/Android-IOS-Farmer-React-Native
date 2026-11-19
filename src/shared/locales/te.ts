@@ -452,6 +452,7 @@ export default {
   required: 'తప్పనిసరి',
   invalid: 'చెల్లదు',
   error: 'లోపం',
+  somethingWentWrong: 'ఏదో తప్పు జరిగింది. దయచేసి మళ్ళీ ప్రయత్నించండి.',
   success: 'విజయం',
   all: 'అన్నీ',
   total: 'మొత్తం',

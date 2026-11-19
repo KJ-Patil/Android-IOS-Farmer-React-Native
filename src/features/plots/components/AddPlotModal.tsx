@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, Modal, TouchableOpacity, Alert } from 'react-native';
 import { useTranslation } from 'react-i18next';
+import { logger } from '../../../shared/services/logger';
 import { useTheme } from '../../../app/providers/ThemeProvider';
 import { usePlotStore } from '../../../shared/hooks/usePlotStore';
 import { Input } from '../../../components/ui/Input';
@@ -78,7 +79,8 @@ export function AddPlotModal({ visible, onClose }: AddPlotModalProps) {
       resetForm();
       onClose();
     } catch (err: any) {
-      Alert.alert(t('error'), err.message);
+      logger.error('AddPlotModal save error:', err);
+      Alert.alert(t('error'), t('somethingWentWrong'));
     } finally {
       setLoading(false);
     }

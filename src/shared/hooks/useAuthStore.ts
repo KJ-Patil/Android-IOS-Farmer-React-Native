@@ -58,6 +58,17 @@ interface AuthStore {
 
 const mobileToEmail = (mobile: string) => `${mobile}@farmerledger.com`;
 
+function generatePassword(mobile: string): string {
+  let hash = 0x811c9dc5;
+  const input = `FL_${mobile}_S3cur3`;
+  for (let i = 0; i < input.length; i++) {
+    hash ^= input.charCodeAt(i);
+    hash = Math.imul(hash, 0x01000193);
+  }
+  const hex = (hash >>> 0).toString(16).padStart(8, '0');
+  return `Fl!${hex}${mobile.slice(-3)}Zq`;
+}
+
 function generateFarmerId(fullName: string, mobile: string): string {
   const cleaned = fullName.replace(/[^a-zA-Z]/g, '').toUpperCase();
   const namePart = cleaned.padEnd(4, 'X').slice(0, 4);
@@ -174,19 +185,16 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
     set({ isLoading: true, error: null, otpSent: false });
     try {
       const cleanMobile = mobileNumber.replace(/\D/g, '').slice(-10);
-      let otp = '123456';
-      if (cleanMobile === '7558740576') {
-        otp = '123456';
-      } else {
-        otp = Math.floor(100000 + Math.random() * 900000).toString();
-      }
+      const otp = __DEV__
+        ? '123456'
+        : Math.floor(100000 + Math.random() * 900000).toString();
       set({
         otpSent: true,
         otpCode: otp,
         currentMobile: cleanMobile,
         isLoading: false,
       });
-      logger.info(`OTP requested for ${cleanMobile}. Testing OTP is: ${otp}`);
+      if (__DEV__) logger.debug(`[DEV] OTP for testing: ${otp}`);
     } catch (err: any) {
       set({ error: err.message, isLoading: false });
     }
@@ -196,10 +204,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
     set({ isLoading: true, error: null });
     try {
       const state = get();
-      const cleanMobile = state.currentMobile || '';
-      const isValid =
-        (cleanMobile === '7558740576' && otp === '123456') ||
-        (state.otpCode && otp === state.otpCode);
+      const isValid = state.otpCode && otp === state.otpCode;
 
       if (isValid) {
         set({ otpVerified: true, isLoading: false });
@@ -224,13 +229,13 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       }
 
       const email = mobileToEmail(cleanMobile);
-      const defaultPassword = `FL_${cleanMobile}_2024`;
+      const pwd = generatePassword(cleanMobile);
       try {
-        await signInWithEmailAndPassword(auth, email, defaultPassword);
+        await signInWithEmailAndPassword(auth, email, pwd);
       } catch (authErr: any) {
         if (authErr.code === 'auth/invalid-credential' || authErr.code === 'auth/user-not-found') {
           try {
-            await createUserWithEmailAndPassword(auth, email, defaultPassword);
+            await createUserWithEmailAndPassword(auth, email, pwd);
           } catch {}
         }
       }
@@ -255,16 +260,16 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
     try {
       const mobile = profile.mobileNumber!.replace(/\D/g, '').slice(-10);
       const email = mobileToEmail(mobile);
-      const defaultPassword = `FL_${mobile}_2024`;
+      const pwd = generatePassword(mobile);
 
       let uid = '';
       try {
-        const userCred = await createUserWithEmailAndPassword(auth, email, defaultPassword);
+        const userCred = await createUserWithEmailAndPassword(auth, email, pwd);
         uid = userCred.user.uid;
       } catch (authErr: any) {
         if (authErr.code === 'auth/email-already-in-use') {
           try {
-            const userCred = await signInWithEmailAndPassword(auth, email, defaultPassword);
+            const userCred = await signInWithEmailAndPassword(auth, email, pwd);
             uid = userCred.user.uid;
           } catch {
             uid = auth.currentUser?.uid || `user_${mobile}`;

@@ -55,7 +55,16 @@
           "cameraPermission": "Allow FarmerLedger to use the camera for bill scanning."
         }
       ],
-      "expo-localization"
+      "expo-localization",
+      [
+        "expo-notifications",
+        {
+          "sounds": [],
+          "icon": "./assets/icon.png",
+          "color": "#16A34A"
+        }
+      ],
+      "expo-av"
     ],
     "extra": {
       "eas": {

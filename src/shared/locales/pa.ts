@@ -452,6 +452,7 @@ export default {
   required: 'ਲੋੜੀਂਦਾ',
   invalid: 'ਅਵੈਧ',
   error: 'ਗਲਤੀ',
+  somethingWentWrong: 'ਕੁਝ ਗਲਤ ਹੋ ਗਿਆ। ਕਿਰਪਾ ਕਰਕੇ ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ।',
   success: 'ਸਫ਼ਲ',
   all: 'ਸਾਰੇ',
   total: 'ਕੁੱਲ',

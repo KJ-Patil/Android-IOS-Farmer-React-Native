@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTranslation } from 'react-i18next';
+import { logger } from '../../../shared/services/logger';
 import { useTheme } from '../../../app/providers/ThemeProvider';
 import { useLedgerStore } from '../../../shared/hooks/useLedgerStore';
 import { usePlotStore } from '../../../shared/hooks/usePlotStore';
@@ -281,7 +282,8 @@ export function MoneyOutModal({ visible, onClose, initialData, plotId, cropId, f
       });
       onClose();
     } catch (err: any) {
-      Alert.alert(t('error'), err.message);
+      logger.error('MoneyOutModal save error:', err);
+      Alert.alert(t('error'), t('somethingWentWrong'));
     } finally {
       setLoading(false);
     }

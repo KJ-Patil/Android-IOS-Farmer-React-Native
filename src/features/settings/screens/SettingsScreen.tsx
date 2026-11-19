@@ -10,26 +10,31 @@ import {
   Image,
   Modal,
   StatusBar,
+  Switch,
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
+import { logger } from '../../../shared/services/logger';
 import { useTheme } from '../../../app/providers/ThemeProvider';
 import { useAuthStore } from '../../../shared/hooks/useAuthStore';
 import { useThemeStore } from '../../../shared/hooks/useThemeStore';
+import { useAlarmStore } from '../../../shared/hooks/useAlarmStore';
 import { ScreenLayout } from '../../../components/layout/ScreenLayout';
 import { Card } from '../../../components/ui/Card';
 import { Button } from '../../../components/ui/Button';
 import { Input } from '../../../components/ui/Input';
-import { Sparkles, Edit3, Check, Crown, Star, Zap } from 'lucide-react-native';
+import { Sparkles, Edit3, Check, Crown, Star, Zap, Bell } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { SUPPORTED_LANGUAGES } from '../../../shared/locales/i18n';
 import { useLocalizedFormat } from '../../../shared/hooks/useLocalizedFormat';
 import { fontSizes } from '../../../shared/utils/typography';
+import { getAlarmDisplayTime, getAlarmDurationSeconds } from '../../../shared/services/alarmService';
 
 export function SettingsScreen() {
   const { t, i18n } = useTranslation();
   const { colors } = useTheme();
   const { user, signOut, updateProfile, isLoading } = useAuthStore();
   const { theme, setTheme } = useThemeStore();
+  const { isEnabled: alarmEnabled, toggleAlarm } = useAlarmStore();
   const { fmtCurrency, toNative } = useLocalizedFormat();
   // Profile Edit modal state
   const [editOpen, setEditOpen] = useState(false);
@@ -68,7 +73,8 @@ export function SettingsScreen() {
       setEditOpen(false);
       Alert.alert(t('success'), t('profileUpdatedSuccessfully'));
     } catch (err: any) {
-      Alert.alert(t('error'), err.message || t('failedToUpdateProfile'));
+      logger.error('Settings profile update error:', err);
+      Alert.alert(t('error'), t('somethingWentWrong'));
     } finally {
       setSaving(false);
     }
@@ -151,7 +157,7 @@ export function SettingsScreen() {
             { label: t('fullName'), value: user?.fullName },
             { label: t('alternateMobile'), value: user?.alternateMobile ? toNative(user.alternateMobile) : '—' },
             { label: t('dateOfBirth'), value: dobValue },
-            { label: t('aadhaarNumber'), value: user?.aadhaarNumber ? toNative(user.aadhaarNumber) : '—' },
+            { label: t('aadhaarNumber'), value: user?.aadhaarNumber ? toNative(`XXXX XXXX ${user.aadhaarNumber.slice(-4)}`) : '—' },
             { label: t('farmerId'), value: user?.farmerId ? toNative(user.farmerId) : '—' },
           ].map((item, i) => (
             <View key={i} style={styles.detailRow}>
@@ -249,6 +255,32 @@ export function SettingsScreen() {
               </TouchableOpacity>
             ))}
           </View>
+        </Card>
+
+        {/* Daily Reminder Alarm */}
+        <Card style={{ marginTop: 12 }}>
+          <View style={styles.alarmHeader}>
+            <View style={[styles.alarmIconWrap, { backgroundColor: '#FEF3C7' }]}>
+              <Bell color="#D97706" size={18} />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={[styles.sectionTitle, { color: colors.foreground, marginBottom: 0 }]}>
+                {t('dailyReminder') || 'Daily Reminder'}
+              </Text>
+              <Text style={{ color: colors.mutedFg, fontSize: fontSizes.sm, marginTop: 2 }}>
+                {getAlarmDisplayTime()} · {getAlarmDurationSeconds()}s ring
+              </Text>
+            </View>
+            <Switch
+              value={alarmEnabled}
+              onValueChange={toggleAlarm}
+              trackColor={{ false: colors.border, true: colors.primary + '60' }}
+              thumbColor={alarmEnabled ? colors.primary : '#ccc'}
+            />
+          </View>
+          <Text style={{ color: colors.mutedFg, fontSize: fontSizes.sm, marginTop: 8 }}>
+            {t('alarmDescription') || 'Rings every day at 6:45 PM IST to remind you to update your farm records.'}
+          </Text>
         </Card>
 
         {/* Subscription Plans */}
@@ -474,4 +506,6 @@ const styles = StyleSheet.create({
   unifiedFooter: { flexDirection: 'row', padding: 16, paddingBottom: 34, gap: 12, borderTopWidth: 1 },
   unifiedCancelBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 14, borderRadius: 14, borderWidth: 1.5 },
   unifiedSaveBtn: { flex: 1.5, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 14, borderRadius: 14, shadowOpacity: 0.35, shadowRadius: 8, shadowOffset: { width: 0, height: 4 }, elevation: 6 },
+  alarmHeader: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  alarmIconWrap: { width: 36, height: 36, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
 });

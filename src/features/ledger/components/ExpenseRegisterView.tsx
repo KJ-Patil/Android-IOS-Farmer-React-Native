@@ -11,6 +11,7 @@ import {
   Platform,
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
+import { logger } from '../../../shared/services/logger';
 import { useTheme } from '../../../app/providers/ThemeProvider';
 import { useLedgerStore } from '../../../shared/hooks/useLedgerStore';
 import { Card } from '../../../components/ui/Card';
@@ -81,7 +82,7 @@ export function ExpenseRegisterView({ onOpenMoneyOutModal }: ExpenseRegisterView
   const handleDelete = (txId: string) => {
     if (Platform.OS === 'web') {
       if (window.confirm(t('confirmDeleteTransaction'))) {
-        deleteTransaction(txId).catch((err: any) => alert(err.message));
+        deleteTransaction(txId).catch(() => alert(t('somethingWentWrong')));
       }
       return;
     }
@@ -97,7 +98,8 @@ export function ExpenseRegisterView({ onOpenMoneyOutModal }: ExpenseRegisterView
             try {
               await deleteTransaction(txId);
             } catch (err: any) {
-              Alert.alert(t('error'), err.message);
+              logger.error('ExpenseRegister delete error:', err);
+              Alert.alert(t('error'), t('somethingWentWrong'));
             }
           },
         },

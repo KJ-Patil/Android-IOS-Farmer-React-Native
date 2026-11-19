@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import { useTranslation } from 'react-i18next';
+import { logger } from '../../../shared/services/logger';
 import { useTheme } from '../../../app/providers/ThemeProvider';
 import { usePlotStore } from '../../../shared/hooks/usePlotStore';
 import { useLedgerStore } from '../../../shared/hooks/useLedgerStore';
@@ -92,7 +93,8 @@ export function CropDashboardScreen({ route, navigation }: any) {
           actualYieldUnit: yieldUnit,
         });
       } catch (err: any) {
-        Alert.alert(t('error'), err.message);
+        logger.error('CropDashboard harvest error:', err);
+        Alert.alert(t('error'), t('somethingWentWrong'));
       } finally {
         setAdvancing(false);
       }
@@ -101,7 +103,8 @@ export function CropDashboardScreen({ route, navigation }: any) {
       try {
         await updateCrop(plotId, cropId, { status: nextStatus });
       } catch (err: any) {
-        Alert.alert(t('error'), err.message);
+        logger.error('CropDashboard advance error:', err);
+        Alert.alert(t('error'), t('somethingWentWrong'));
       } finally {
         setAdvancing(false);
       }

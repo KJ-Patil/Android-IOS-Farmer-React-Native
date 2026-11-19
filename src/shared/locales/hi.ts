@@ -561,6 +561,7 @@ export default {
   required: 'आवश्यक',
   invalid: 'अमान्य',
   error: 'त्रुटि',
+  somethingWentWrong: 'कुछ गलत हो गया। कृपया पुनः प्रयास करें।',
   success: 'सफल',
   all: 'सभी',
   total: 'कुल',
@@ -770,6 +771,11 @@ export default {
   confirmUpgrade: 'अपग्रेड करें',
   upgrade: 'अपग्रेड',
   month: 'महीना',
+  // Alarm & Reminder
+  dailyReminder: 'दैनिक रिमाइंडर',
+  alarmDescription: 'हर दिन शाम 6:45 IST पर आपके खेत के रिकॉर्ड अपडेट करने की याद दिलाता है।',
+  dismiss: 'बंद करें',
+
   balance: 'शेष',
   next4Days: 'अगले ४ दिन',
   past7Days: 'पिछले ७ दिन',

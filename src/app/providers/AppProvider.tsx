@@ -8,7 +8,9 @@ import { ErrorBoundary } from './ErrorBoundary';
 import { ThemeProvider, useTheme } from './ThemeProvider';
 import { useAuthStore } from '../../shared/hooks/useAuthStore';
 import { useAppStore } from '../../shared/hooks/useAppStore';
+import { useAlarmStore } from '../../shared/hooks/useAlarmStore';
 import { RootNavigator } from '../navigation/RootNavigator';
+import { AlarmOverlay } from '../../features/reminder/components/AlarmOverlay';
 import '../../shared/locales/i18n';
 
 const queryClient = new QueryClient({
@@ -21,15 +23,17 @@ function AppContent() {
   const { colors, isDark } = useTheme();
   const initAuth = useAuthStore((s) => s.initAuthListener);
   const initNetwork = useAppStore((s) => s.initNetworkListener);
+  const initAlarm = useAlarmStore((s) => s.initAlarm);
 
   useEffect(() => {
     const unsubAuth = initAuth();
     const unsubNetwork = initNetwork();
+    initAlarm();
     return () => {
       unsubAuth();
       unsubNetwork();
     };
-  }, [initAuth, initNetwork]);
+  }, [initAuth, initNetwork, initAlarm]);
 
   const navigationTheme = {
     dark: isDark,
@@ -53,6 +57,7 @@ function AppContent() {
     <NavigationContainer theme={navigationTheme}>
       <StatusBar style={isDark ? 'light' : 'dark'} />
       <RootNavigator />
+      <AlarmOverlay />
     </NavigationContainer>
   );
 }
