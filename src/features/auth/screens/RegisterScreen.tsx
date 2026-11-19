@@ -46,6 +46,7 @@ export function RegisterScreen({ navigation, route }: any) {
   });
 
   const [formError, setFormError] = useState('');
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [districtData, setDistrictData] = useState<DistrictData>({ talukas: [], pincodes: [], pincodesByTaluka: {}, villagesByTaluka: {} });
   const [locationLoading, setLocationLoading] = useState(false);
   const [districtLoading, setDistrictLoading] = useState(false);
@@ -135,18 +136,27 @@ export function RegisterScreen({ navigation, route }: any) {
   const handleNext = async () => {
     clearError();
     setFormError('');
+    setFieldErrors({});
     if (step === 1) {
-      if (form.mobileNumber.length === 10) {
-        await requestOtp(form.mobileNumber);
-        setStep(2);
+      if (form.mobileNumber.length !== 10) {
+        setFieldErrors({ mobileNumber: t('enterValidMobile') || 'Enter a valid 10-digit mobile number' });
+        return;
       }
+      await requestOtp(form.mobileNumber);
+      setStep(2);
     } else if (step === 2) {
+      if (form.otp.length !== 6) {
+        setFieldErrors({ otp: t('enterValidOtp') || 'Enter a valid 6-digit OTP' });
+        return;
+      }
       const success = await verifyOtp(form.otp);
       if (success) setStep(3);
     } else if (step === 3) {
-      if (!form.fullName.trim()) return;
-      if (!form.village.trim() && !form.district.trim()) {
-        setFormError(t('locationRequired'));
+      const errors: Record<string, string> = {};
+      if (!form.fullName.trim()) errors.fullName = t('required') || 'Required';
+      if (!form.village.trim() && !form.district.trim()) errors.location = t('locationRequired') || 'Village or district is required';
+      if (Object.keys(errors).length > 0) {
+        setFieldErrors(errors);
         return;
       }
       setStep(4);
@@ -205,9 +215,10 @@ export function RegisterScreen({ navigation, route }: any) {
               label={t('mobileNumber')}
               placeholder={t('enterMobile')}
               value={form.mobileNumber}
-              onChangeText={(v) => updateForm('mobileNumber', v.replace(/[^0-9]/g, '').slice(0, 10))}
+              onChangeText={(v) => { updateForm('mobileNumber', v.replace(/[^0-9]/g, '').slice(0, 10)); setFieldErrors({}); }}
               keyboardType="phone-pad"
               maxLength={10}
+              error={fieldErrors.mobileNumber}
             />
           )}
 
@@ -216,15 +227,16 @@ export function RegisterScreen({ navigation, route }: any) {
               label={t('enterOtp')}
               placeholder="000000"
               value={form.otp}
-              onChangeText={(v) => updateForm('otp', v.replace(/[^0-9]/g, '').slice(0, 6))}
+              onChangeText={(v) => { updateForm('otp', v.replace(/[^0-9]/g, '').slice(0, 6)); setFieldErrors({}); }}
               keyboardType="number-pad"
               maxLength={6}
+              error={fieldErrors.otp}
             />
           )}
 
           {step === 3 && (
             <>
-              <Input label={t('fullName')} value={form.fullName} onChangeText={(v) => updateForm('fullName', v)} />
+              <Input label={t('fullName')} value={form.fullName} onChangeText={(v) => { updateForm('fullName', v); setFieldErrors((e) => ({ ...e, fullName: '' })); }} error={fieldErrors.fullName} />
 
               <TouchableOpacity
                 onPress={handleDetectLocation}
@@ -293,6 +305,10 @@ export function RegisterScreen({ navigation, route }: any) {
                 disabled={!form.taluka}
                 allowCustom
               />
+
+              {fieldErrors.location ? (
+                <Text style={{ color: colors.destructive, fontSize: fontSizes.sm, marginBottom: 8 }}>{fieldErrors.location}</Text>
+              ) : null}
 
               <Input label={t('aadhaarNumber')} value={form.aadhaarNumber} onChangeText={(v) => updateForm('aadhaarNumber', v.replace(/[^0-9]/g, '').slice(0, 12))} keyboardType="number-pad" maxLength={12} placeholder={t('optional')} />
               <DatePickerInput label={t('dateOfBirth')} value={form.dateOfBirth} onChange={(v) => updateForm('dateOfBirth', v)} />

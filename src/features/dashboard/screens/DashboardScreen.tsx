@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   Modal,
   Alert,
-  StatusBar,
+  ActivityIndicator,
   TextInput,
 } from 'react-native';
 import * as Location from 'expo-location';
@@ -40,9 +40,8 @@ import {
   Navigation,
   Search as SearchIcon,
 } from 'lucide-react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { fontSizes } from '../../../shared/utils/typography';
-
-const STATUS_BAR_HEIGHT = StatusBar.currentHeight || 44;
 
 const FARM_EMOJI: Record<FarmType, string> = {
   dairy: '🐄',
@@ -111,6 +110,7 @@ function getSelectionFinancials(
 export function DashboardScreen({ navigation }: any) {
   const { t, i18n } = useTranslation();
   const { colors } = useTheme();
+  const insets = useSafeAreaInsets();
 
   const user = useAuthStore((s) => s.user);
   const { transactions, fetchTransactions } = useLedgerStore();
@@ -121,6 +121,7 @@ export function DashboardScreen({ navigation }: any) {
   const [addFarmVisible, setAddFarmVisible] = useState(false);
   const [editingFarm, setEditingFarm] = useState<NotebookFarm | null>(null);
   const [selectedCropByPlot, setSelectedCropByPlot] = useState<Record<string, string>>({});
+  const [initialLoading, setInitialLoading] = useState(true);
 
   // Weather & location state
   const [tempC, setTempC] = useState<number | null>(null);
@@ -285,13 +286,13 @@ export function DashboardScreen({ navigation }: any) {
   }, [fetchWeatherForLocation]);
 
   useEffect(() => {
-    fetchTransactions();
-    fetchPlots();
-    fetchFarms();
-    Promise.resolve().then(() => {
+    const init = async () => {
+      await Promise.all([fetchTransactions(), fetchPlots(), fetchFarms()]);
+      setInitialLoading(false);
       loadSavedLocations();
       fetchTemperature();
-    });
+    };
+    init();
   }, [fetchTransactions, fetchPlots, fetchFarms, loadSavedLocations, fetchTemperature]);
 
   useEffect(() => {
@@ -418,13 +419,18 @@ export function DashboardScreen({ navigation }: any) {
 
   return (
     <ScreenLayout noPadding noTopInset>
+      {initialLoading ? (
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <ActivityIndicator size="large" color={colors.primary} />
+        </View>
+      ) : (
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scroll}>
         {/* Gradient Header */}
         <LinearGradient
           colors={['#16A34A', '#0F766E']}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
-          style={[styles.headerContainer, { paddingTop: STATUS_BAR_HEIGHT + 12 }]}
+          style={[styles.headerContainer, { paddingTop: insets.top + 12 }]}
         >
           <View style={styles.greetingRow}>
             <View style={styles.greetingLeft}>
@@ -517,9 +523,9 @@ export function DashboardScreen({ navigation }: any) {
                       {fs.name}
                     </Text>
                     {fs.animalCount ? (
-                      <View style={[styles.animalRow, { backgroundColor: '#7C3AED' + '12' }]}>
-                        <Text style={styles.animalCount}>{toNative(fs.animalCount)}</Text>
-                        <Text style={styles.animalLabel}>{t(ANIMAL_LABEL[fs.type])}</Text>
+                      <View style={[styles.animalRow, { backgroundColor: colors.surfacePurpleText + '12' }]}>
+                        <Text style={[styles.animalCount, { color: colors.surfacePurpleText }]}>{toNative(fs.animalCount)}</Text>
+                        <Text style={[styles.animalLabel, { color: colors.surfacePurpleText }]}>{t(ANIMAL_LABEL[fs.type])}</Text>
                       </View>
                     ) : null}
                     <View style={styles.kpiAmounts}>
@@ -543,17 +549,19 @@ export function DashboardScreen({ navigation }: any) {
           </View>
 
           {summaries.plotStats.length === 0 ? (
-            <View
+            <TouchableOpacity
+              onPress={() => navigation.navigate('PlotsTab')}
+              activeOpacity={0.7}
               style={[styles.emptyCard, { backgroundColor: colors.card, borderColor: colors.border }]}
             >
               <Text style={{ fontSize: fontSizes.xxl, marginBottom: 4 }}>🌱</Text>
               <Text style={{ color: colors.foreground, fontWeight: '700', fontSize: fontSizes.base }}>
-                {t('plots')}
+                + {t('addPlot') || t('plots')}
               </Text>
               <Text style={{ color: colors.mutedFg, fontSize: fontSizes.sm, marginTop: 2 }}>
                 {t('noPlotsFound') || 'No land plots recorded yet'}
               </Text>
-            </View>
+            </TouchableOpacity>
           ) : (
             <View style={styles.plotListContainer}>
               {summaries.plotStats.map((ps) => {
@@ -634,8 +642,8 @@ export function DashboardScreen({ navigation }: any) {
                                 style={[
                                   styles.cropPillBtn,
                                   {
-                                    backgroundColor: isSelected ? colors.primary : (c.isDone ? '#F1F5F9' : '#DCFCE7'),
-                                    borderColor: isSelected ? colors.primary : (c.isDone ? '#CBD5E1' : '#86EFAC'),
+                                    backgroundColor: isSelected ? colors.primary : (c.isDone ? colors.surfaceNeutral : colors.surfaceSuccess),
+                                    borderColor: isSelected ? colors.primary : (c.isDone ? colors.surfaceNeutralBorder : colors.surfaceSuccessBorder),
                                   },
                                 ]}
                               >
@@ -643,7 +651,7 @@ export function DashboardScreen({ navigation }: any) {
                                   style={[
                                     styles.cropPillBtnText,
                                     {
-                                      color: isSelected ? '#FFFFFF' : (c.isDone ? '#334155' : '#14532D'),
+                                      color: isSelected ? '#FFFFFF' : (c.isDone ? colors.surfaceNeutralText : colors.surfaceSuccessText),
                                     },
                                   ]}
                                 >
@@ -652,7 +660,7 @@ export function DashboardScreen({ navigation }: any) {
                                 <View
                                   style={[
                                     styles.miniStatusDot,
-                                    { backgroundColor: isSelected ? '#FFFFFF' : (c.isDone ? '#64748B' : '#16A34A') },
+                                    { backgroundColor: isSelected ? '#FFFFFF' : (c.isDone ? colors.surfaceDoneText : colors.success) },
                                   ]}
                                 />
                               </TouchableOpacity>
@@ -681,10 +689,10 @@ export function DashboardScreen({ navigation }: any) {
                           styles.cropStatusBadge,
                           {
                             backgroundColor: selectedCrop
-                              ? (selectedCrop.isDone ? '#E2E8F0' : '#DCFCE7')
+                              ? (selectedCrop.isDone ? colors.surfaceDone : colors.surfaceSuccess)
                               : colors.primary + '18',
                             borderColor: selectedCrop
-                              ? (selectedCrop.isDone ? '#94A3B8' : '#22C55E')
+                              ? (selectedCrop.isDone ? colors.surfaceDoneBorder : colors.success)
                               : colors.primary + '30',
                           },
                         ]}
@@ -694,7 +702,7 @@ export function DashboardScreen({ navigation }: any) {
                             styles.cropStatusBadgeText,
                             {
                               color: selectedCrop
-                                ? (selectedCrop.isDone ? '#475569' : '#15803D')
+                                ? (selectedCrop.isDone ? colors.surfaceDoneText : colors.surfaceSuccessText)
                                 : colors.primary,
                             },
                           ]}
@@ -739,7 +747,7 @@ export function DashboardScreen({ navigation }: any) {
 
               {summaries.hasDairy && (
                 <View
-                  style={[styles.dairyCard, { backgroundColor: colors.card, borderColor: '#D97706' }]}
+                  style={[styles.dairyCard, { backgroundColor: colors.card, borderColor: colors.warning }]}
                 >
                   <Text style={styles.kpiEmoji}>🥛</Text>
                   <Text style={[styles.kpiName, { color: colors.foreground }]}>
@@ -757,11 +765,13 @@ export function DashboardScreen({ navigation }: any) {
           <View style={{ height: 80 }} />
         </View>
       </ScrollView>
+      )}
 
       {/* Weather Detail Modal */}
-      <Modal visible={weatherModalOpen} animationType="slide">
-        <View style={[styles.modalOverlay, { justifyContent: 'flex-end', padding: 0 }]}>
+      <Modal visible={weatherModalOpen} animationType="slide" onRequestClose={() => { setWeatherModalOpen(false); setShowLocationPicker(false); }}>
+        <View style={[styles.modalOverlay, { justifyContent: 'flex-end', padding: 0, backgroundColor: colors.overlay }]}>
           <View style={[styles.weatherModal, { backgroundColor: colors.card }]}>
+            <View style={styles.dragHandle} />
             <View style={styles.weatherModalHeader}>
               <View style={{ flex: 1 }}>
                 <Text style={[styles.weatherModalTitle, { color: colors.foreground }]}>Weather</Text>
@@ -987,12 +997,13 @@ const styles = StyleSheet.create({
   kpiEmoji: { fontSize: fontSizes.xxl },
   kpiName: { fontSize: fontSizes.base, fontWeight: '700', marginTop: 6 },
   animalRow: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 8, paddingVertical: 3, borderRadius: 8, marginTop: 6, alignSelf: 'flex-start' },
-  animalCount: { color: '#7C3AED', fontSize: fontSizes.base, fontWeight: '900' },
-  animalLabel: { color: '#7C3AED', fontSize: fontSizes.xs, fontWeight: '600' },
+  animalCount: { fontSize: fontSizes.base, fontWeight: '900' },
+  animalLabel: { fontSize: fontSizes.xs, fontWeight: '600' },
   kpiAmounts: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 10 },
   kpiIncome: { color: '#16A34A', fontSize: fontSizes.sm, fontWeight: '700' },
   kpiExpense: { color: '#DC2626', fontSize: fontSizes.sm, fontWeight: '700' },
-  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', padding: 20 },
+  modalOverlay: { flex: 1, justifyContent: 'center', padding: 20 },
+  dragHandle: { width: 36, height: 4, borderRadius: 2, backgroundColor: '#94A3B8', alignSelf: 'center', marginBottom: 12 },
   plotCountBadge: { paddingHorizontal: 7, paddingVertical: 2, borderRadius: 10 },
   plotCountText: { fontSize: fontSizes.sm, fontWeight: '800' },
   plotListContainer: { width: '100%', marginBottom: 6 },

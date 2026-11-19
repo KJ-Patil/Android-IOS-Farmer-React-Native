@@ -9,9 +9,9 @@ import {
   Alert,
   Image,
   Modal,
-  StatusBar,
   Switch,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { logger } from '../../../shared/services/logger';
 import { useTheme } from '../../../app/providers/ThemeProvider';
@@ -36,6 +36,7 @@ export function SettingsScreen() {
   const { theme, setTheme } = useThemeStore();
   const { isEnabled: alarmEnabled, toggleAlarm } = useAlarmStore();
   const { fmtCurrency, toNative } = useLocalizedFormat();
+  const insets = useSafeAreaInsets();
   // Profile Edit modal state
   const [editOpen, setEditOpen] = useState(false);
   const [fullName, setFullName] = useState(user?.fullName || '');
@@ -93,7 +94,7 @@ export function SettingsScreen() {
         end={{ x: 1, y: 1 }}
         style={styles.profileHeader}
       >
-        <View style={[styles.profileHeaderContent, { paddingTop: (StatusBar.currentHeight || 44) + 16 }]}>
+        <View style={[styles.profileHeaderContent, { paddingTop: insets.top + 16 }]}>
           <View style={styles.profileTopRow}>
             <Text style={styles.headerTitle}>{t('settings')}</Text>
             <TouchableOpacity
@@ -260,8 +261,8 @@ export function SettingsScreen() {
         {/* Daily Reminder Alarm */}
         <Card style={{ marginTop: 12 }}>
           <View style={styles.alarmHeader}>
-            <View style={[styles.alarmIconWrap, { backgroundColor: '#FEF3C7' }]}>
-              <Bell color="#D97706" size={18} />
+            <View style={[styles.alarmIconWrap, { backgroundColor: colors.surfaceWarning }]}>
+              <Bell color={colors.warning} size={18} />
             </View>
             <View style={{ flex: 1 }}>
               <Text style={[styles.sectionTitle, { color: colors.foreground, marginBottom: 0 }]}>
@@ -307,8 +308,8 @@ export function SettingsScreen() {
             ]}
             activeOpacity={0.7}
           >
-            <View style={[styles.planIcon, { backgroundColor: '#F1F5F9' }]}>
-              <Star color="#64748B" size={20} />
+            <View style={[styles.planIcon, { backgroundColor: colors.surfaceNeutral }]}>
+              <Star color={colors.mutedFg} size={20} />
             </View>
             <View style={{ flex: 1 }}>
               <Text style={{ color: colors.foreground, fontSize: fontSizes.base, fontWeight: '700' }}>
@@ -332,31 +333,18 @@ export function SettingsScreen() {
           </TouchableOpacity>
 
           {/* Gold Tier */}
-          <TouchableOpacity
-            onPress={() => {
-              Alert.alert(
-                t('upgradePlan') || 'Upgrade Plan',
-                (t('confirmUpgrade') || 'Upgrade to Gold for') + ` ${fmtCurrency(50)}/` + (t('month') || 'month') + '?',
-                [
-                  { text: t('cancel'), style: 'cancel' },
-                  { text: t('upgrade') || 'Upgrade', onPress: () => {
-                    updateProfile({ membershipType: 'gold' });
-                    Alert.alert(t('success'), t('planUpdated') || 'Plan updated to Gold!');
-                  }},
-                ]
-              );
-            }}
+          <View
             style={[
               styles.planCard,
               {
-                borderColor: user?.membershipType === 'gold' ? '#D97706' : colors.border,
-                backgroundColor: user?.membershipType === 'gold' ? '#FEF3C7' : colors.card,
+                borderColor: colors.border,
+                backgroundColor: colors.card,
+                opacity: 0.7,
               },
             ]}
-            activeOpacity={0.7}
           >
-            <View style={[styles.planIcon, { backgroundColor: '#FEF3C7' }]}>
-              <Crown color="#D97706" size={20} />
+            <View style={[styles.planIcon, { backgroundColor: colors.surfaceWarning }]}>
+              <Crown color={colors.warning} size={20} />
             </View>
             <View style={{ flex: 1 }}>
               <Text style={{ color: colors.foreground, fontSize: fontSizes.base, fontWeight: '700' }}>
@@ -367,43 +355,27 @@ export function SettingsScreen() {
               </Text>
             </View>
             <View style={{ alignItems: 'flex-end' }}>
-              <Text style={{ color: '#D97706', fontSize: fontSizes.md, fontWeight: '800' }}>{fmtCurrency(50)}</Text>
+              <Text style={{ color: colors.warning, fontSize: fontSizes.md, fontWeight: '800' }}>{fmtCurrency(50)}</Text>
               <Text style={{ color: colors.mutedFg, fontSize: fontSizes.sm }}>/{t('month') || 'month'}</Text>
-              {user?.membershipType === 'gold' && (
-                <View style={[styles.activeBadge, { backgroundColor: '#D97706' }]}>
-                  <Check color="#FFF" size={10} />
-                  <Text style={{ color: '#FFF', fontSize: fontSizes.xs, fontWeight: '700', marginLeft: 2 }}>{t('active') || 'Active'}</Text>
-                </View>
-              )}
+              <View style={[styles.activeBadge, { backgroundColor: colors.mutedFg }]}>
+                <Text style={{ color: '#FFF', fontSize: fontSizes.xs, fontWeight: '700' }}>{t('comingSoon') || 'Coming Soon'}</Text>
+              </View>
             </View>
-          </TouchableOpacity>
+          </View>
 
           {/* Premium Tier */}
-          <TouchableOpacity
-            onPress={() => {
-              Alert.alert(
-                t('upgradePlan') || 'Upgrade Plan',
-                (t('confirmUpgrade') || 'Upgrade to Premium for') + ` ${fmtCurrency(90)}/` + (t('month') || 'month') + '?',
-                [
-                  { text: t('cancel'), style: 'cancel' },
-                  { text: t('upgrade') || 'Upgrade', onPress: () => {
-                    updateProfile({ membershipType: 'premium' });
-                    Alert.alert(t('success'), t('planUpdated') || 'Plan updated to Premium!');
-                  }},
-                ]
-              );
-            }}
+          <View
             style={[
               styles.planCard,
               {
-                borderColor: user?.membershipType === 'premium' ? '#7C3AED' : colors.border,
-                backgroundColor: user?.membershipType === 'premium' ? '#EDE9FE' : colors.card,
+                borderColor: colors.border,
+                backgroundColor: colors.card,
+                opacity: 0.7,
               },
             ]}
-            activeOpacity={0.7}
           >
-            <View style={[styles.planIcon, { backgroundColor: '#EDE9FE' }]}>
-              <Zap color="#7C3AED" size={20} />
+            <View style={[styles.planIcon, { backgroundColor: colors.surfacePurple }]}>
+              <Zap color={colors.surfacePurpleText} size={20} />
             </View>
             <View style={{ flex: 1 }}>
               <Text style={{ color: colors.foreground, fontSize: fontSizes.base, fontWeight: '700' }}>
@@ -414,16 +386,13 @@ export function SettingsScreen() {
               </Text>
             </View>
             <View style={{ alignItems: 'flex-end' }}>
-              <Text style={{ color: '#7C3AED', fontSize: fontSizes.md, fontWeight: '800' }}>{fmtCurrency(90)}</Text>
+              <Text style={{ color: colors.surfacePurpleText, fontSize: fontSizes.md, fontWeight: '800' }}>{fmtCurrency(90)}</Text>
               <Text style={{ color: colors.mutedFg, fontSize: fontSizes.sm }}>/{t('month') || 'month'}</Text>
-              {user?.membershipType === 'premium' && (
-                <View style={[styles.activeBadge, { backgroundColor: '#7C3AED' }]}>
-                  <Check color="#FFF" size={10} />
-                  <Text style={{ color: '#FFF', fontSize: fontSizes.xs, fontWeight: '700', marginLeft: 2 }}>{t('active') || 'Active'}</Text>
-                </View>
-              )}
+              <View style={[styles.activeBadge, { backgroundColor: colors.mutedFg }]}>
+                <Text style={{ color: '#FFF', fontSize: fontSizes.xs, fontWeight: '700' }}>{t('comingSoon') || 'Coming Soon'}</Text>
+              </View>
             </View>
-          </TouchableOpacity>
+          </View>
         </Card>
 
         {/* Sign Out Button */}

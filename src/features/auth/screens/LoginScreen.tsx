@@ -160,19 +160,21 @@ export function LoginScreen({ navigation }: any) {
         </View>
 
         <Button
-          title={t('signInWithGoogle')}
+          title={`${t('signInWithGoogle')} (${t('comingSoon') || 'Coming Soon'})`}
           onPress={() => {}}
           variant="outline"
           fullWidth
+          disabled
           style={{ marginBottom: 12 }}
         />
 
         {Platform.OS === 'ios' && (
           <Button
-            title={t('signInWithApple')}
+            title={`${t('signInWithApple')} (${t('comingSoon') || 'Coming Soon'})`}
             onPress={() => {}}
             variant="outline"
             fullWidth
+            disabled
             style={{ marginBottom: 12 }}
           />
         )}

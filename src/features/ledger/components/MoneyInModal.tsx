@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { View, Text, StyleSheet, ScrollView, Modal, TouchableOpacity, Alert, TextInput } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTranslation } from 'react-i18next';
@@ -108,40 +108,6 @@ export function MoneyInModal({ visible, onClose, plotId, cropId, farmId, farmNam
   // Crop Sale
   const [selectedPlotId, setSelectedPlotId] = useState(plotId || '');
   const [selectedCropId, setSelectedCropId] = useState(cropId || '');
-
-  const [prevVisible, setPrevVisible] = useState(false);
-  if (visible && !prevVisible) {
-    setPrevVisible(true);
-    if (plotId) setSelectedPlotId(plotId);
-    if (cropId) {
-      setSelectedCropId(cropId);
-      setCategory('crop_sale');
-    }
-  }
-  if (!visible && prevVisible) {
-    setPrevVisible(false);
-  }
-
-  useEffect(() => {
-    if (!visible) return;
-    AsyncStorage.getItem(STORAGE_KEY_CUSTOM_INCOME_CATS)
-      .then((raw) => {
-        if (raw) {
-          const parsed = JSON.parse(raw);
-          if (Array.isArray(parsed)) setCustomIncomeCategories(parsed);
-        }
-      })
-      .catch(() => {});
-    AsyncStorage.getItem(STORAGE_KEY_PARTY_NAMES)
-      .then((raw) => {
-        if (raw) {
-          const parsed = JSON.parse(raw);
-          if (Array.isArray(parsed)) setSavedPartyNames(parsed);
-        }
-      })
-      .catch(() => {});
-  }, [visible]);
-
   const [buyerName, setBuyerName] = useState('');
   const [quantity, setQuantity] = useState('');
   const [quantityUnit, setQuantityUnit] = useState('Quintal');
@@ -169,6 +135,69 @@ export function MoneyInModal({ visible, onClose, plotId, cropId, farmId, farmNam
   // Other
   const [otherSubtype, setOtherSubtype] = useState('');
   const [otherAmount, setOtherAmount] = useState('');
+
+  const resetFormFields = useCallback(() => {
+    setCategory(cropId ? 'crop_sale' : farmType ? 'dairy' : '');
+    setPaymentMode('cash');
+    setPartyName('');
+    setBillNumber('');
+    setNotes('');
+    setDate(new Date().toISOString().split('T')[0]);
+    setSelectedPlotId(plotId || '');
+    setSelectedCropId(cropId || '');
+    setBuyerName('');
+    setQuantity('');
+    setQuantityUnit('Quintal');
+    setRatePerUnit('');
+    setHamali('');
+    setTransportDed('');
+    setOtherDed('');
+    setDairyProduct('');
+    setDairyQty('');
+    setDairyUnit('');
+    setDairyRate('');
+    setLoanType('');
+    setSanctionAmount('');
+    setProcessingFee('');
+    setInterestRate('');
+    setTenure('');
+    setEmiFrequency('monthly');
+    setFirstInstallment('');
+    setLoanDueDate('');
+    setOtherSubtype('');
+    setOtherAmount('');
+    setPartyDropdownOpen(false);
+    setAddPartyModalOpen(false);
+    setAddCustomIncomeCatOpen(false);
+    setNewCustomIncomeCatName('');
+    setNewPartyName('');
+    setLoading(false);
+  }, [cropId, plotId, farmType]);
+
+  useEffect(() => {
+    if (!visible) return;
+    const reset = () => {
+      resetFormFields();
+    };
+    Promise.resolve().then(reset);
+
+    AsyncStorage.getItem(STORAGE_KEY_CUSTOM_INCOME_CATS)
+      .then((raw) => {
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (Array.isArray(parsed)) setCustomIncomeCategories(parsed);
+        }
+      })
+      .catch(() => {});
+    AsyncStorage.getItem(STORAGE_KEY_PARTY_NAMES)
+      .then((raw) => {
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (Array.isArray(parsed)) setSavedPartyNames(parsed);
+        }
+      })
+      .catch(() => {});
+  }, [visible, resetFormFields]);
 
   const selectedPlot = plots.find((p) => p.id === selectedPlotId);
   const plotCrops = selectedPlotId ? (crops[selectedPlotId] || []) : [];
@@ -598,11 +627,11 @@ export function MoneyInModal({ visible, onClose, plotId, cropId, farmId, farmNam
         </ScrollView>
 
         <View style={[styles.footer, { backgroundColor: colors.card, borderTopColor: colors.border }]}>
-          <TouchableOpacity onPress={onClose} activeOpacity={0.7} style={[styles.cancelBtn, { backgroundColor: colors.destructive }]}>
-            <Text style={{ color: '#FFFFFF', fontWeight: '700', fontSize: fontSizes.base }}>✕ {t('cancel')}</Text>
+          <TouchableOpacity onPress={onClose} activeOpacity={0.7} style={[styles.cancelBtn, { borderColor: colors.destructive }]}>
+            <Text style={{ color: colors.destructive, fontWeight: '700', fontSize: fontSizes.base }}>✕ {t('cancel')}</Text>
           </TouchableOpacity>
           {category && (
-            <TouchableOpacity onPress={handleSave} activeOpacity={0.7} disabled={loading} style={[styles.saveBtn, { backgroundColor: '#16A34A', shadowColor: '#16A34A', opacity: loading ? 0.6 : 1 }]}>
+            <TouchableOpacity onPress={handleSave} activeOpacity={0.7} disabled={loading} style={[styles.saveBtn, { backgroundColor: colors.success, shadowColor: colors.success, opacity: loading ? 0.6 : 1 }]}>
               <Text style={{ color: '#FFFFFF', fontWeight: '800', fontSize: fontSizes.md }}>{loading ? '...' : `✓ ${t('save')}`}</Text>
             </TouchableOpacity>
           )}
@@ -672,7 +701,7 @@ const styles = StyleSheet.create({
   chip: { borderWidth: 1.5, paddingVertical: 8, paddingHorizontal: 12 },
   divider: { height: 1, marginVertical: 20 },
   footer: { flexDirection: 'row', padding: 16, paddingBottom: 34, gap: 12, borderTopWidth: 1 },
-  cancelBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 14, borderRadius: 14 },
+  cancelBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 14, borderRadius: 14, borderWidth: 1.5 },
   saveBtn: { flex: 1.5, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 14, borderRadius: 14, shadowOpacity: 0.35, shadowRadius: 8, shadowOffset: { width: 0, height: 4 }, elevation: 6 },
   backBtn: { flexDirection: 'row', alignItems: 'center', alignSelf: 'flex-start', paddingHorizontal: 14, paddingVertical: 10, borderRadius: 10, borderWidth: 1, marginBottom: 14 },
   partyDropdown: { flexDirection: 'row', alignItems: 'center', borderWidth: 1, paddingHorizontal: 14, paddingVertical: 12, minHeight: 48 },

@@ -274,10 +274,12 @@ export function ExpenseRegisterView({ onOpenMoneyOutModal }: ExpenseRegisterView
 
                 <TouchableOpacity
                   onPress={() => handleDelete(tx.id)}
-                  style={{ marginTop: 6, padding: 4 }}
-                  hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                  style={{ marginTop: 6, padding: 8 }}
+                  hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                  accessibilityLabel={t('deleteTransaction')}
+                  accessibilityRole="button"
                 >
-                  <Trash2 color={colors.mutedFg} size={14} />
+                  <Trash2 color={colors.mutedFg} size={16} />
                 </TouchableOpacity>
               </View>
             </View>

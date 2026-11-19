@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import {
   View,
   Text,
@@ -174,29 +174,50 @@ export function MoneyOutModal({ visible, onClose, initialData, plotId, cropId, f
     return allPartyNames.filter((n) => n.toLowerCase().includes(q));
   }, [allPartyNames, partyName]);
 
+  const resetFormFields = useCallback(() => {
+    setLoading(false);
+    setAmount('');
+    setDate(new Date().toISOString().split('T')[0]);
+    setPaymentMode('cash');
+    setPartyName('');
+    setBillNumber('');
+    setNotes('');
+    setSelectedPlotId(plotId || '');
+    setSelectedCropId(cropId || '');
+    setSection(farmType ? 'dairy' : 'agriculture');
+    setSelectedCategory(farmType ? '' : 'fertilizers');
+    setCategoryDropdownOpen(false);
+    setAddCustomModalOpen(false);
+    setPartyDropdownOpen(false);
+    setAddPartyModalOpen(false);
+    setNewCustomCategoryName('');
+    setCategorySearchQuery('');
+    setNewPartyName('');
+  }, [plotId, cropId, farmType]);
+
   useEffect(() => {
-    if (visible) {
-      Promise.resolve().then(() => {
-        loadCustomCategories();
-        loadSavedPartyNames();
-        if (plotId) setSelectedPlotId(plotId);
-        if (cropId) setSelectedCropId(cropId);
-        if (initialData) {
-          if (initialData.amount) setAmount(String(initialData.amount));
-          if (initialData.partyName) setPartyName(initialData.partyName);
-          if (initialData.billNumber) setBillNumber(initialData.billNumber);
-          if (initialData.date) setDate(initialData.date);
-          if (initialData.category) setSelectedCategory(initialData.category);
-          if (initialData.notes) setNotes(initialData.notes);
-          if (initialData.paymentMode) setPaymentMode(initialData.paymentMode);
-          setSection(farmType ? 'dairy' : 'agriculture');
-        } else if (farmType) {
-          setSection('dairy');
-          setSelectedCategory('');
-        }
-      });
-    }
-  }, [visible, initialData, plotId, cropId, farmType]);
+    if (!visible) return;
+    Promise.resolve().then(() => {
+      resetFormFields();
+
+      if (initialData) {
+        if (initialData.amount) setAmount(String(initialData.amount));
+        if (initialData.partyName) setPartyName(initialData.partyName);
+        if (initialData.billNumber) setBillNumber(initialData.billNumber);
+        if (initialData.date) setDate(initialData.date);
+        if (initialData.category) setSelectedCategory(initialData.category);
+        if (initialData.notes) setNotes(initialData.notes);
+        if (initialData.paymentMode) setPaymentMode(initialData.paymentMode);
+        setSection(farmType ? 'dairy' : 'agriculture');
+      } else if (farmType) {
+        setSection('dairy');
+        setSelectedCategory('');
+      }
+
+      loadCustomCategories();
+      loadSavedPartyNames();
+    });
+  }, [visible, initialData, farmType, resetFormFields]);
 
   const selectedPlot = plots.find((p) => p.id === selectedPlotId);
   const plotCrops = selectedPlotId ? (crops[selectedPlotId] || []) : [];

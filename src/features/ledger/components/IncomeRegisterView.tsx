@@ -450,10 +450,12 @@ export function IncomeRegisterView({ onOpenMoneyInModal }: IncomeRegisterViewPro
 
                   <TouchableOpacity
                     onPress={() => handleDelete(tx.id)}
-                    style={{ marginTop: 6, padding: 4 }}
-                    hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                    style={{ marginTop: 6, padding: 8 }}
+                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                    accessibilityLabel={t('deleteTransaction')}
+                    accessibilityRole="button"
                   >
-                    <Trash2 color={colors.mutedFg} size={14} />
+                    <Trash2 color={colors.mutedFg} size={16} />
                   </TouchableOpacity>
                 </View>
               </View>
@@ -551,7 +553,7 @@ export function IncomeRegisterView({ onOpenMoneyInModal }: IncomeRegisterViewPro
 
 const styles = StyleSheet.create({
   summaryIcon: { width: 36, height: 36, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
-  addButton: { paddingHorizontal: 18, height: 44, borderRadius: 14, backgroundColor: '#16A34A', alignItems: 'center', justifyContent: 'center', elevation: 4, shadowColor: '#16A34A', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8 },
+  addButton: { paddingHorizontal: 18, height: 44, borderRadius: 14, backgroundColor: '#16A34A', alignItems: 'center', justifyContent: 'center', elevation: 4, shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8 },
   loanItemCard: { padding: 10, borderRadius: 12, borderWidth: 1, marginTop: 8 },
   searchBox: { flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderRadius: 12, paddingHorizontal: 10, height: 40 },
   searchInput: { flex: 1, marginLeft: 8, fontSize: fontSizes.sm, height: '100%' },

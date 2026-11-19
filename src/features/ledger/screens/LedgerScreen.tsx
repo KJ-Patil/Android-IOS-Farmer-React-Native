@@ -119,6 +119,28 @@ export function LedgerScreen({ navigation }: any) {
         )}
       </View>
 
+      {/* Floating Action Buttons — visible across all tabs */}
+      <View style={styles.fabRow}>
+        <TouchableOpacity
+          onPress={() => setMoneyOutVisible(true)}
+          style={[styles.fabBtn, { backgroundColor: colors.destructive }]}
+          activeOpacity={0.8}
+          accessibilityLabel={t('moneyOut')}
+          accessibilityRole="button"
+        >
+          <Text style={styles.fabBtnText}>- {t('out') || t('moneyOut')}</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => setMoneyInVisible(true)}
+          style={[styles.fabBtn, { backgroundColor: colors.success }]}
+          activeOpacity={0.8}
+          accessibilityLabel={t('moneyIn')}
+          accessibilityRole="button"
+        >
+          <Text style={styles.fabBtnText}>+ {t('in') || t('moneyIn')}</Text>
+        </TouchableOpacity>
+      </View>
+
       <MoneyInModal visible={moneyInVisible} onClose={() => { setMoneyInVisible(false); fetchTransactions(); }} />
       <MoneyOutModal
         visible={moneyOutVisible}
@@ -140,4 +162,7 @@ const styles = StyleSheet.create({
   tabContent: { paddingHorizontal: 14, gap: 8 },
   tabPill: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 14, paddingVertical: 9, borderRadius: 20, borderWidth: 1 },
   content: { flex: 1 },
+  fabRow: { position: 'absolute', bottom: 16, right: 16, flexDirection: 'row', gap: 10, zIndex: 10 },
+  fabBtn: { paddingHorizontal: 18, paddingVertical: 12, borderRadius: 28, elevation: 6, shadowColor: '#000', shadowOffset: { width: 0, height: 3 }, shadowOpacity: 0.25, shadowRadius: 6 },
+  fabBtnText: { color: '#FFFFFF', fontWeight: '800', fontSize: 14 },
 });

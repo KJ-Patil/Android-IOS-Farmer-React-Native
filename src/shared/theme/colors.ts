@@ -18,6 +18,20 @@ export const lightTheme = {
   ring: '#16A34A',
   success: '#16A34A',
   radius: 12,
+  surfaceSuccess: '#DCFCE7',
+  surfaceSuccessBorder: '#86EFAC',
+  surfaceSuccessText: '#14532D',
+  surfaceNeutral: '#F1F5F9',
+  surfaceNeutralBorder: '#CBD5E1',
+  surfaceNeutralText: '#334155',
+  surfaceWarning: '#FEF3C7',
+  surfaceWarningText: '#92400E',
+  surfacePurple: '#EDE9FE',
+  surfacePurpleText: '#7C3AED',
+  surfaceDone: '#E2E8F0',
+  surfaceDoneBorder: '#94A3B8',
+  surfaceDoneText: '#475569',
+  overlay: 'rgba(0,0,0,0.5)',
 };
 
 export const darkTheme = {
@@ -40,6 +54,20 @@ export const darkTheme = {
   ring: '#22C55E',
   success: '#22C55E',
   radius: 12,
+  surfaceSuccess: '#0D3320',
+  surfaceSuccessBorder: '#16A34A80',
+  surfaceSuccessText: '#86EFAC',
+  surfaceNeutral: '#1E293B',
+  surfaceNeutralBorder: '#475569',
+  surfaceNeutralText: '#CBD5E1',
+  surfaceWarning: '#451A0340',
+  surfaceWarningText: '#FBBF24',
+  surfacePurple: '#1E1040',
+  surfacePurpleText: '#A78BFA',
+  surfaceDone: '#334155',
+  surfaceDoneBorder: '#64748B',
+  surfaceDoneText: '#94A3B8',
+  overlay: 'rgba(0,0,0,0.7)',
 };
 
 export type ThemeColors = typeof lightTheme;

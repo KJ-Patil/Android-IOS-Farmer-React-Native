@@ -5,16 +5,24 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '../../app/providers/ThemeProvider';
 import { fontSizes } from '../../shared/utils/typography';
 
-const TAB_COLORS: Record<string, { active: string; bg: string }> = {
+const TAB_COLORS_LIGHT: Record<string, { active: string; bg: string }> = {
   DashboardTab: { active: '#16A34A', bg: '#DCFCE7' },
   PlotsTab:     { active: '#2563EB', bg: '#DBEAFE' },
   LedgerTab:    { active: '#D97706', bg: '#FEF3C7' },
   SettingsTab:  { active: '#64748B', bg: '#F1F5F9' },
 };
 
+const TAB_COLORS_DARK: Record<string, { active: string; bg: string }> = {
+  DashboardTab: { active: '#22C55E', bg: '#0D3320' },
+  PlotsTab:     { active: '#60A5FA', bg: '#172554' },
+  LedgerTab:    { active: '#FBBF24', bg: '#451A03' },
+  SettingsTab:  { active: '#94A3B8', bg: '#1E293B' },
+};
+
 function TabItem({ route, isFocused, options, onPress, onLongPress, isDark, colors }: any) {
   const [anim] = useState(() => new Animated.Value(isFocused ? 1 : 0));
-  const tabColor = TAB_COLORS[route.name] || TAB_COLORS.SettingsTab;
+  const palette = isDark ? TAB_COLORS_DARK : TAB_COLORS_LIGHT;
+  const tabColor = palette[route.name] || palette.SettingsTab;
 
   useEffect(() => {
     Animated.spring(anim, {
